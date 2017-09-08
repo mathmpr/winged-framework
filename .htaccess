@@ -1,0 +1,29 @@
+#Don't erase this line <Winged>#
+
+RewriteEngine On
+
+## Only for production environment ##
+
+    # HTTPS Force #
+        #RewriteCond %{HTTPS} off
+        #RewriteRule ^ https://<replace_with_your_domain_name>%{REQUEST_URI} [R=301,L]
+    # End HTTPS Force #
+
+    # WWW Force #
+        #RewriteCond %{HTTP_HOST} (?!^www\.)^(.+)$ [OR]
+        #RewriteRule ^ https://<replace_with_your_domain_name>%{REQUEST_URI} [R=301,L]
+    # End HTTPS Force #
+
+    # HTTPS and WWW Force #
+        #RewriteCond %{HTTPS_HOST} (?!^www\.)^(.+)$ [OR]
+        #RewriteCond %{HTTPS} off
+        #RewriteRule ^ https://www.<replace_with_your_domain_name>%{REQUEST_URI} [R=301,L]
+    # End HTTPS Force #
+
+## End Helpers URL Normalize ##
+
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+#If you are developing the site in a local environment with a folder and subfolders scheme such as
+#192.168.25.2/project_name/www/ being your root. When uploading the project configure the path for proper rewrite.
+RewriteRule .(/)?$ 'MISCELANEA/wingedframework.com.br/index.php'
