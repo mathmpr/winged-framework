@@ -1,1 +1,0 @@
-<?php WingedAutoLoad::$_cache = ['WingedConfig' => './winged/config/config.php', 'CurrentDB' => './winged/classes/database/winged.db.php'];
