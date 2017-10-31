@@ -11,7 +11,6 @@
  * For questions about the framework, enable the $SEE_SYSTEM_PAGE option in config.php
  * from the root to true and after enter the link <your_domain_name>/winged/api/
  */
-
 class WingedConfig
 {
 
@@ -26,7 +25,7 @@ class WingedConfig
      * set charset for content of files
      */
     public static $HTML_CHARSET = "UTF-8";
-    
+
     /**
      * @property $DEV bool
      * set false when you upload your project to final server
@@ -37,31 +36,37 @@ class WingedConfig
      * @property $DBEXT bool
      * on | off mysql extensions and all class. Inflicts DelegateQuery, QueryBuilder, CurrentDB, Connections, Database, DbDict, Models and Migrate class
      */
-    public static $DBEXT = false;
-    
+    public static $DBEXT = true;
+
     /**
      * @property $USE_PREPARED_STMT bool
      * on | off prepared statements
      * view more of prepared statements in
-     * <your_domain_name>/winged/what_is_prepared_statement
+     * USE_PREPARED_STMT or NO_USE_PREPARED_STMT
      */
-    public static $USE_PREPARED_STMT = "dbext off in installer";
+    public static $USE_PREPARED_STMT = NO_USE_PREPARED_STMT;
 
     /**
      * @property $DB_DRIVER string
      * defines what type of database your project will use.
      * if your server does not support the PDO class.
      * only mysql will be available for use. To see the availability of classes and functions of your server,
-     * go to <your_domain_name>/winged/available#database
+     * DB_DRIVER_CUBRID unsupported -> to do;
+     * DB_DRIVER_FIREBIRD unsupported -> to do;
+     * DB_DRIVER_MYSQL supported!;
+     * DB_DRIVER_PGSQL unsupported -> to do;
+     * DB_DRIVER_SQLSRV unsupported -> to do;
+     * DB_DRIVER_SQLITE unsupported -> to do;
      */
-    public static $DB_DRIVER = "dbext off in installer";
+    public static $DB_DRIVER = DB_DRIVER_MYSQL;
 
     /**
      * @property $STD_DB_CLASS string
      * defines which class will be used for the interaction between PHP and the database
+     * IS_PDO or IS_MYSQLI
      */
-    public static $STD_DB_CLASS = "dbext off in installer";
-    
+    public static $STD_DB_CLASS = IS_MYSQLI;
+
     /**
      * @property $STANDARD string
      * your main and default route for rewrite url
@@ -98,25 +103,31 @@ class WingedConfig
      * @property $HOST string
      * defines default server name for mysql connection
      */
-    public static $HOST = "dbext off in installer";
+    public static $HOST = "localhost";
 
     /**
      * @property $USER string
      * default user name for mysql connection
      */
-    public static $USER = "dbext off in installer";
+    public static $USER = "root";
 
     /**
      * @property $DBNAME string
      * default database name for mysql connection
      */
-    public static $DBNAME = "dbext off in installer";
+    public static $DBNAME = "quitanda";
 
     /**
      * @property $PASSWORD string
      * default password for mysql connection
      */
     public static $PASSWORD = "";
+
+    /**
+     * @property $DATABASE_CHARSET string
+     * define the encoding of database
+     */
+    public static $DATABASE_CHARSET = "utf8";
 
     /**
      * @property $ROUTER string
@@ -158,20 +169,20 @@ class WingedConfig
      * this option read first dir pure-html in root of your project if they exists and if file exists inside it
      * ignores read for controller, restful and rewrite class if file in this dir found
      */
-    public static $NOT_WINGED = true;    
-    
+    public static $NOT_WINGED = true;
+
     /**
      * @property $INTERNAL_ENCODING array
      * this property defines the internal enconding of PHP, it uses [mb] lib
      */
     public static $INTERNAL_ENCODING = "UTF-8";
-    
+
     /**
      * @property $OUTPUT_ENCODING array
      * this property defines the html output enconding, it uses [mb] lib
      */
     public static $OUTPUT_ENCODING = "UTF-8";
-    
+
     /**
      * @var $USE_UNICID_ON_INCLUDE_ASSETS bool
      * On some servers, especially those of productions, it is very common some cache system exists
@@ -180,14 +191,14 @@ class WingedConfig
      * so that your project loads faster and offers a better end-user experience.
      */
     public static $USE_UNICID_ON_INCLUDE_ASSETS = true;
-    
+
     /**
      * @property $INCLUDES array
      * it includes all paths that are within that variable if they exist and are a valid php file
-     * util if you have two classes with same name, and autoload can't load these classes 
+     * util if you have two classes with same name, and autoload can't load these classes
      */
     public static $INCLUDES = [
-        
+
     ];
 
     /**

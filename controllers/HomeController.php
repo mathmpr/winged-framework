@@ -1,15 +1,14 @@
 <?php
 
-class HomeController extends Controller
-{
-    public function __construct()
+class HomeController extends Controller{
+
+    function __construct()
     {
         parent::__construct();
-        $this->assets->site();
     }
 
-    public function actionIndex()
-    {
-        $this->renderHtml("home");
+    function actionIndex(){
+        $this->renderHtml('home');
     }
+
 }

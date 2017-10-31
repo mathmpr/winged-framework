@@ -10,37 +10,6 @@ function get_memory_peak_usage()
     return number_format((memory_get_peak_usage(false) / 1024 / 1024), 2);
 }
 
-function winged_error_handler($errno, $errstr, $errfile, $errline, $errcontext = array())
-{
-    $erros = array(
-        "1" => "E_ERROR",
-        "2" => "E_WARNING",
-        "4" => "E_PARSE",
-        "8" => "E_NOTICE",
-        "16" => "E_CORE_ERROR",
-        "32" => "E_CORE_WARNING",
-        "64" => "E_COMPILE_ERROR",
-        "128" => "E_COMPILE_WARNING",
-        "256" => "E_USER_ERROR",
-        "512" => "E_USER_WARNING",
-        "1024" => "E_USER_NOTICE",
-        "6143" => "E_ALL",
-        "2048" => "E_STRICT",
-        "4096" => "E_RECOVERABLE_ERROR",
-        "8192" => "E_DEPRECATED"
-    );
-    Winged::push_error($erros[$errno], $errstr, $errfile, $errline, $errcontext);
-}
-
-function winged_shutdown_handler()
-{
-    $error = error_get_last();
-    if (!empty($error)) {
-        winged_error_handler($error["type"], $error["message"], $error["file"], $error["line"]);
-        Winged::get_errors(__LINE__, __FILE__);
-    }
-}
-
 function array_key_exists_check($key, $haystack)
 {
     if (is_array($haystack)) {
@@ -426,11 +395,11 @@ function pre_clear_buffer_die($array = [])
     } else if (is_string($array)) {
         $array .= ' : STRING';
     }
-    Winged::obReset();
+    CoreBuffer::kill();
     echo "<pre style='padding: 20px; background: #fefefe; font-family: monospace; font-size: 14px; border: 1px solid #494949; margin: 10px 5px; border-radius: 2px; word-wrap: break-word'>";
     print_r($array);
     echo "</pre>";
-    Winged::obShowFinish();
+    CoreBuffer::flush();
     exit;
 }
 
@@ -490,7 +459,7 @@ function delegate_pre($die = false)
 function delegate_pre_clear_buffer_die()
 {
     global $printed_pre;
-    Winged::obReset();
+    CoreBuffer::kill();
     if (count($printed_pre) > 0) {
         foreach ($printed_pre as $array) {
             if (is_array($array) && empty($array)) {
@@ -510,7 +479,7 @@ function delegate_pre_clear_buffer_die()
             print_r($array);
             echo "</pre>";
         }
-        Winged::obShowFinish();
+        CoreBuffer::flush();
         exit;
     }
 }

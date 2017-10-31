@@ -1,4 +1,4 @@
 <?php
 Winged::addroute("./home/", [
-	"index" => "./home.php",
+	"index" => "./views/home.php",
 ]);
