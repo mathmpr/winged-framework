@@ -27,7 +27,6 @@ class HomeController extends Controller
     function actionIndex()
     {
         //try to find file home.php inside views folder and include it
-        //any render 
         $this->renderHtml('home');
     }
 }
