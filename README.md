@@ -9,5 +9,26 @@ There is a file for the pure file mechanism, if it exists it will be called and 
 
 ## Begin with Pure File
 
-Assuming the calling URI is http://example.com/home/ pure file merge will try to find a file named home. <span style='color: red'>*php, *html, *htm, *xml, or *json</span>. If no file within these conditions is found, it will attempt to find the controller. If there are files with the same name but with different extensions, the priority will occur as described previously.
+Assuming the calling URI is http://example.com/home/ pure file merge will try to find a file named home. ***php**, ***html**, ***htm**, ***xml**, or ***json**. If no file within these conditions is found, it will attempt to find the controller. If there are files with the same name but with different extensions, the priority will occur as described previously.
+
+## Begin with Controller
+
+Assuming the URI call is http://example.com/home/ we will have the following controller.
+
+```php
+class HomeController extends Controller
+{
+    function __construct()
+    {
+        parent::__construct();
+    }
+    
+    //this function respond to index action when action not found in URI
+    function actionIndex()
+    {
+        //try to find file home.php inside views folder and include it
+        $this->renderHtml('home');
+    }
+}
+```
 
