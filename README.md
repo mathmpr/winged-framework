@@ -27,8 +27,11 @@ class HomeController extends Controller
     function actionIndex()
     {
         //try to find file home.php inside views folder and include it
+        //any render 
         $this->renderHtml('home');
     }
 }
 ```
+
+Any render function other than renderAnyfile tries to find the file in the views folder according to the settings. If the $ PARENT_FOLDER_MVC variable in WingedConfig is true, the function will always try to look up the controllers folder of the current controller in the parallel views folder. If WingedConfig is false the function fetches the path within the views folder of the project root.
 
