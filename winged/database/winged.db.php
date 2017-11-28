@@ -310,7 +310,7 @@ class Database
         if ($this->class === IS_MYSQLI) {
             try {
                 $this->db = new mysqli($host, $user, $password, $dbname, $port);
-                $this->db->set_charset(WingedConfig::$DATABASE_CHARSET);
+                $this->db->query('set names ' . WingedConfig::$DATABASE_CHARSET);
             } catch (mysqli_sql_exception $error) {
                 $this->db = $error->getMessage();
             }

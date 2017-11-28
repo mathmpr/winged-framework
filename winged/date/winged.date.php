@@ -553,7 +553,7 @@ class CoreDate
                 }
             }
             $c = explode(' ', $date);
-            $od = explode('/', $c[0]);
+            $od = explode('/', str_replace('-', '/', $c[0]));
             if (strlen($od[2]) === 4) {
                 $a = $od[2];
                 $od[2] = $od[0];

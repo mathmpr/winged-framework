@@ -25,13 +25,29 @@ class CoreString
         }
         $str = str_replace(' ', '-', trim($str));
         $nom = array(
-            '”', '“', ':', '_', "'", '"', '*', '(', ')', '´', '`', '~', '¨', '¬', '<', '>', '.', ';', ',', '[', ']', '{', '}', '+', '=', '¹', '²', '³', '/', '\\', '?', '!', '@', '#', '$', '%', '&', 'º', 'ª', '£', '¢', '|'
+            '”', '“', ':', '_', "'", '"', '*', '(', ')', '´', '`', '~', '¨', '¬', '<', '>', '.', ';', ',', '[', ']', '{', '}', '+', '=', '¹', '²', '³', '/', '\\', '?', '!', '@', '#', '$', '%', '&', 'º', 'ª', '£', '¢', '|', '—'
         );
+
         if ($lowerCase == true) {
-            return strtolower(str_replace($nom, "-", trim($str)));
+            $str = strtolower(str_replace($nom, "-", trim($str)));
         } else {
-            return str_replace($nom, "-", trim($str));
+            $str = str_replace($nom, "-", trim($str));
         }
+
+        while (is_int(stripos($str, '--'))) {
+            $str = trim(str_replace('--', '-', trim($str)));
+        }
+
+        if (endstr($str) == '-') {
+            $str = trim(substr_replace($str, '', strlen($str) - 1, 1));
+        }
+
+        if (begstr($str) == '-') {
+            $str = trim(substr_replace($str, '', 0, 1));
+        }
+
+        return $str;
+
     }
 
     public static function toUrl($str, $lowerCase = true)
@@ -39,7 +55,6 @@ class CoreString
         $url = trim(self::removeWhiteSpaces(self::removeAccents($str, $lowerCase), $lowerCase));
         return trim($url);
     }
-
 }
 
 if (!function_exists('mb_ucfirst')) {

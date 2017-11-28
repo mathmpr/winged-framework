@@ -799,7 +799,7 @@ class DelegateQuery extends QueryBuilder
                 $first = true;
                 foreach ($this->update_arr as $key => $value) {
                     if (!CurrentDB::tableExists($value)) {
-                        CoreError::push(__CLASS__, "Table " . $key . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
+                        Winged::fatalError(__CLASS__, "Table " . $key . " no exists in database " . WingedConfig::$DBNAME, true);
                     }
                     if ($first) {
                         if (is_int($key)) {
@@ -819,31 +819,19 @@ class DelegateQuery extends QueryBuilder
                 return $query;
                 break;
             case 'delete':
-                $query = 'DELETE ';
+                $query = 'DELETE %replace_alias% FROM ';
+                $alias = '';
                 $first = true;
-
                 foreach ($this->delete_arr as $key => $value) {
                     if (!CurrentDB::tableExists($value)) {
-                        CoreError::push(__CLASS__, "Table " . $key . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
-                    }
-                    if ($first) {
-                        $query .= $key;
-                    } else {
-                        $query .= ', ' . $key;
-                    }
-                }
-
-                $query .= ' FROM ';
-
-                foreach ($this->delete_arr as $key => $value) {
-                    if (!CurrentDB::tableExists($value)) {
-                        CoreError::push(__CLASS__, "Table " . $key . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
+                        Winged::fatalError(__CLASS__, "Table " . $key . " no exists in database " . WingedConfig::$DBNAME, true);
                     }
                     if ($first) {
                         if (is_int($key)) {
                             $query .= $value;
                         } else {
                             $query .= $value . ' AS ' . $key;
+                            $alias .= $key;
                         }
                         $first = false;
                     } else {
@@ -851,9 +839,15 @@ class DelegateQuery extends QueryBuilder
                             $query .= ', ' . $value;
                         } else {
                             $query .= ', ' . $value . ' AS ' . $key;
+                            $alias .= ', ' . $key;
                         }
                     }
                 }
+
+                if ($alias != '') {
+                    $query = str_replace('%replace_alias%', $alias, $query);
+                }
+
                 return $query;
                 break;
             case 'insert':

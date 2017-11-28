@@ -167,6 +167,8 @@ class Model extends DelegateQuery
 
         foreach ($to_load as $key => $value) {
 
+            $old_value = $this->{$key};
+
             $safe = false;
 
             if (array_key_exists($key, $rules)) {
@@ -177,14 +179,14 @@ class Model extends DelegateQuery
                 }
             }
 
-            if ((in_array(strtolower($key), $this->table_fields) || empty($this->table_fields) || $safe) && property_exists($class_name, strtolower($key))) {
+            if ((in_array(strtolower($key), $this->table_fields) || $safe) && property_exists($class_name, strtolower($key))) {
                 $this->{$key} = $value;
                 $this->loaded_fields[] = $key;
                 if ($safe) {
                     $this->safe_fields[] = $key;
                 }
                 if ($trade && !array_key_exists($key, $this->old_values) && (!$this->is_new || $newobj)) {
-                    $this->old_values[strtolower($key)] = $value;
+                    $this->old_values[strtolower($key)] = $old_value;
                     $this->old_value_loaded = true;
                 }
             }
@@ -216,9 +218,11 @@ class Model extends DelegateQuery
                         $this->old_value_loaded = true;
                     }
                     if ($apply !== null) {
-                        $reflection->getProperty($key)->setValue($this, $apply);
-                        $this->old_values[$key] = $old_value;
-                        $this->old_value_loaded = true;
+                        if($apply != $this->{$key}){
+                            $reflection->getProperty($key)->setValue($this, $apply);
+                            $this->old_values[$key] = $old_value;
+                            $this->old_value_loaded = true;
+                        }
                     }
                 } else {
                     $reflection->getProperty($key)->setValue($this, $apply);
@@ -226,7 +230,7 @@ class Model extends DelegateQuery
                     $this->old_value_loaded = true;
                 }
 
-                if (in_array($key, $this->table_fields) || empty($this->table_fields)) {
+                if (in_array($key, $this->table_fields)) {
                     if (!in_array($key, $this->loaded_fields)) {
                         $this->loaded_fields[] = $key;
                         if ($safe) {

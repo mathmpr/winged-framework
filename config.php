@@ -11,9 +11,8 @@
  * For questions about the framework, enable the $SEE_SYSTEM_PAGE option in config.php
  * from the root to true and after enter the link <your_domain_name>/winged/api/
  */
-class WingedConfig
+class WingedConfig extends stdClass
 {
-
     /**
      * @property $MAIN_CONTENT_TYPE string
      * set content type in header
@@ -115,7 +114,7 @@ class WingedConfig
      * @property $DBNAME string
      * default database name for mysql connection
      */
-    public static $DBNAME = "quitanda";
+    public static $DBNAME = "nascif";
 
     /**
      * @property $PASSWORD string

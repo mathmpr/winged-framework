@@ -466,9 +466,16 @@ class HtmlHelper
                         $count = 0;
                         if (is_array($data) && !empty($data)) {
                             foreach ($data as $key => $cla) {
+
                                 $selected = '';
                                 if($this->obj->requestKey($property) !== null){
                                     if ($key == $this->obj->requestKey($property)) {
+                                        $selected = ' checked="checked"';
+                                    }
+                                }
+
+                                if(is_array($this->obj->{$property})){
+                                    if(array_key_exists($key, $this->obj->{$property})){
                                         $selected = ' checked="checked"';
                                     }
                                 }
@@ -489,6 +496,7 @@ class HtmlHelper
                             }
                         }
                     }
+                    $html = $this->completeMainHtml($html, $options, $main);
                 }
 
                 if ($main['main'] == 'textarea') {

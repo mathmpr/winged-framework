@@ -15,7 +15,7 @@ class CoreBuffer{
 
     public static function getKill()
     {
-        if (self::$ob_buffer && ob_get_length() > 0) {
+        if (self::$ob_buffer > 0) {
             $content = ob_get_contents();
             self::kill();
             self::$ob_buffer = false;
@@ -26,7 +26,7 @@ class CoreBuffer{
 
     public static function getFlush()
     {
-        if (self::$ob_buffer && ob_get_length() > 0) {
+        if (self::$ob_buffer > 0) {
             $content = ob_get_contents();
             ob_flush();
             self::$ob_buffer = false;
@@ -37,7 +37,7 @@ class CoreBuffer{
 
     public static function get()
     {
-        if (self::$ob_buffer && ob_get_length() > 0) {
+        if (self::$ob_buffer > 0) {
             $content = ob_get_contents();;
             return $content;
         }
@@ -46,7 +46,7 @@ class CoreBuffer{
 
     public static function flush()
     {
-        if (self::$ob_buffer && ob_get_length() > 0) {
+        if (self::$ob_buffer > 0) {
             ob_flush();
             self::$ob_buffer = false;
         }
@@ -54,7 +54,7 @@ class CoreBuffer{
 
     public static function flushKill()
     {
-        if (self::$ob_buffer && ob_get_length() > 0) {
+        if (self::$ob_buffer > 0) {
             ob_end_flush();
             self::$ob_buffer = false;
         }
@@ -62,7 +62,7 @@ class CoreBuffer{
 
     public static function kill()
     {
-        if (self::$ob_buffer && ob_get_length() > 0) {
+        if (self::$ob_buffer > 0) {
             ob_end_clean();
             self::$ob_buffer = false;
         }

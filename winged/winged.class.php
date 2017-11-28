@@ -77,8 +77,58 @@ CoreBuffer::start();
 
 function __autoload($class)
 {
-    return WingedAutoLoad::verify($class);
+    WingedAutoLoad::verify($class);
 }
+
+class Container
+{
+    protected $target;
+    protected $className;
+    protected $methods = [];
+
+    /**
+     * @var $self Container
+     */
+    public static $self = null;
+
+    public function __construct($target)
+    {
+        $this->target = $target;
+    }
+
+    public function attach($name, $method)
+    {
+        if (!$this->className) {
+            $this->className = get_class($this->target);
+        }
+        $binded = Closure::bind($method, $this->target, $this->className);
+        $this->methods[$name] = $binded;
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (array_key_exists($name, $this->methods)) {
+            return call_user_func_array($this->methods[$name], $arguments);
+        }
+
+        if (method_exists($this->target, $name)) {
+            return call_user_func_array(
+                array($this->target, $name),
+                $arguments
+            );
+        }
+    }
+
+    public function methodExists($name)
+    {
+        if (array_key_exists($name, $this->methods)) {
+            return true;
+        }
+    }
+
+}
+
+Container::$self = new Container(Container::$self);
 
 if (!file_exists(PATH_CONFIG)) {
     CoreError::_die('file config.php do not exists.', 88, 'winged.class.php', 88);
@@ -121,8 +171,6 @@ if (!file_exists(PATH_CONFIG)) {
     }
 }
 
-
-
 if (WingedConfig::$DEBUG) {
     error_reporting(E_ALL);
 } else {
@@ -132,41 +180,6 @@ if (WingedConfig::$DEBUG) {
 mb_internal_encoding(WingedConfig::$INTERNAL_ENCODING);
 mb_http_output(WingedConfig::$OUTPUT_ENCODING);
 header('Content-type: ' . WingedConfig::$MAIN_CONTENT_TYPE . '; charset=' . WingedConfig::$HTML_CHARSET . '');
-
-class Container
-{
-    protected $target;
-    protected $className;
-    protected $methods = [];
-
-    public function __construct($target)
-    {
-        $this->target = $target;
-    }
-
-    public function attach($name, $method)
-    {
-        if (!$this->className) {
-            $this->className = get_class($this->target);
-        }
-        $binded = Closure::bind($method, $this->target, $this->className);
-        $this->methods[$name] = $binded;
-    }
-
-    public function __call($name, $arguments)
-    {
-        if (array_key_exists($name, $this->methods)) {
-            return call_user_func_array($this->methods[$name], $arguments);
-        }
-
-        if (method_exists($this->target, $name)) {
-            return call_user_func_array(
-                array($this->target, $name),
-                $arguments
-            );
-        }
-    }
-}
 
 /**
  * This class its a main class of Winged
@@ -260,7 +273,7 @@ class Winged
             foreach ($arr_ext as $ext) {
                 if (file_exists(self::$parent . self::$page_surname . $ext)) {
                     include_once self::$parent . self::$page_surname . $ext;
-                    if(WingedConfig::$DEBUG && CoreError::warnings()){
+                    if (WingedConfig::$DEBUG && CoreError::warnings()) {
                         CoreBuffer::flush();
                     }
                     exit;
@@ -295,9 +308,21 @@ class Winged
         self::$controller_action = $controller_info['action'];
 
         if (!self::$restful) {
-            $found = self::$controller->find();
-            if (!$found) {
-                self::$rewrite_obj->rewrite_page();
+            $before = false;
+            if (Container::$self->methodExists('beforeSearchController')) {
+                $before = Container::$self->beforeSearchController();
+            }
+            if ($before === false || $before === null) {
+                $before = false;
+                $found = self::$controller->find();
+                if (!$found) {
+                    if (Container::$self->methodExists('whenControllerNotFound')) {
+                        $before = Container::$self->whenControllerNotFound();
+                    }
+                    if ($before === false || $before === null) {
+                        self::$rewrite_obj->rewrite_page();
+                    }
+                }
             }
         }
 
