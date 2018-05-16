@@ -6,7 +6,7 @@ class FormHtmlStore
         'select' => [
             'html' => '<div>
                           <label></label>
-                          <select class="form-control"></select>
+                          <div class="relative"><select class="form-control"></select></div>
                           <label style="display: none" class="error validation-error-label"></label>
                        </div>',
             'main' => 'select',
@@ -15,7 +15,7 @@ class FormHtmlStore
         'text' => [
             'html' => '<div>
                            <label></label>
-                           <input class="form-control" type="text"/>
+                           <div class="relative"><input class="form-control" type="text"/></div>
                            <label style="display: none" class="error validation-error-label"></label>
                        </div>',
             'main' => 'input',
@@ -24,7 +24,7 @@ class FormHtmlStore
         'password' => [
             'html' => '<div>
                            <label></label>
-                           <input class="form-control" type="password"/>
+                           <div class="relative"><input class="form-control" type="password"/></div>
                            <label style="display: none" class="error validation-error-label"></label>
                        </div>',
             'main' => 'input',
@@ -33,7 +33,7 @@ class FormHtmlStore
         'textarea' => [
             'html' => '<div>
                            <label></label>
-                           <textarea class="form-control"></textarea>
+                           <div class="relative"><textarea class="form-control"></textarea></div>
                            <label style="display: none" class="error validation-error-label"></label>
                        </div>',
             'main' => 'textarea',
@@ -42,7 +42,7 @@ class FormHtmlStore
         'summernote' => [
             'html' => '<div>
                            <label></label>
-                           <textarea class="summernote"></textarea>
+                           <div class="relative"><textarea class="summernote"></textarea></div>
                            <label style="display: none" class="error validation-error-label"></label>
                        </div>',
             'main' => 'textarea',
@@ -51,7 +51,7 @@ class FormHtmlStore
         'checkbox' => [
             'html' => '<div>
                            <label></label>
-                           <label style="display: none" class="error validation-error-label"></label>
+                           <div class="relative"><label style="display: none" class="error validation-error-label"></label></div>
                            <div class="checkbox">
                                
                            </div>

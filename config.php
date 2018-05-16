@@ -1,5 +1,7 @@
 <?php
 
+namespace Winged;
+
 /**
  * This file is responsible for the general configuration of the framework
  * all the properties in it are defined and exist. You are free to create
@@ -11,7 +13,7 @@
  * For questions about the framework, enable the $SEE_SYSTEM_PAGE option in config.php
  * from the root to true and after enter the link <your_domain_name>/winged/api/
  */
-class WingedConfig extends stdClass
+class WingedConfig extends \stdClass
 {
     /**
      * @property $MAIN_CONTENT_TYPE string
@@ -43,7 +45,7 @@ class WingedConfig extends stdClass
      * view more of prepared statements in
      * USE_PREPARED_STMT or NO_USE_PREPARED_STMT
      */
-    public static $USE_PREPARED_STMT = NO_USE_PREPARED_STMT;
+    public static $USE_PREPARED_STMT = USE_PREPARED_STMT;
 
     /**
      * @property $DB_DRIVER string
@@ -114,7 +116,7 @@ class WingedConfig extends stdClass
      * @property $DBNAME string
      * default database name for mysql connection
      */
-    public static $DBNAME = "nascif";
+    public static $DBNAME = "winged";
 
     /**
      * @property $PASSWORD string

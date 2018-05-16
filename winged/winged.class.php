@@ -1,5 +1,7 @@
 <?php
 
+namespace Winged;
+
 ini_set('memory_limit', '2048M');
 ini_set('max_execution_time', '120');
 ini_set('upload_max_filesize', '64MB');
@@ -30,8 +32,6 @@ define("CLASS_PATH", "./winged/");
 define("STD_CONFIG", "./winged/config/config.php");
 define("STD_ROUTES", "./winged/routes/");
 
-include_once CLASS_PATH . 'utils/functions.php';
-
 ini_set("display_errors", true);
 
 ini_set("display_startup_errors", true);
@@ -40,118 +40,103 @@ umask(0);
 
 clearstatcache();
 
-global $_OPOST, $_OGET, $beggin_time;
+global $_ORIGINAL_POST, $_ORIGINAL_GET;
 
-$_OPOST = $_POST;
-$_OGET = $_GET;
+$_ORIGINAL_POST = $_POST;
+$_ORIGINAL_GET = $_GET;
 
-include_once(CLASS_PATH . "external/phpQuery.php");
-include_once(CLASS_PATH . "autoload/winged.autoload.php");
-include_once(CLASS_PATH . "utils/winged.lib.php");
-include_once(CLASS_PATH . "rewrite/winged.rewrite.php");
-include_once(CLASS_PATH . "rewrite/winged.parameter.php");
-include_once(CLASS_PATH . "controller/winged.assets.php");
-include_once(CLASS_PATH . "controller/winged.controller.php");
-include_once(CLASS_PATH . "restful/winged.restful.php");
-include_once(CLASS_PATH . "session/winged.session.php");
-include_once(CLASS_PATH . "date/winged.date.php");
-include_once(CLASS_PATH . "date/winged.microtime.php");
-include_once(CLASS_PATH . "file/winged.download.php");
-include_once(CLASS_PATH . "file/winged.upload.php");
-include_once(CLASS_PATH . "string/winged.string.php");
-include_once(CLASS_PATH . "token/winged.tokanizer.php");
-include_once(CLASS_PATH . "file/winged.fileutils.php");
-include_once(CLASS_PATH . "file/winged.img.file.php");
-include_once(CLASS_PATH . "http/winged.response.php");
-include_once(CLASS_PATH . "http/winged.request.php");
-include_once(CLASS_PATH . "form/winged.form.html.store.php");
-include_once(CLASS_PATH . "form/winged.form.php");
-include_once(CLASS_PATH . "validator/winged.validator.php");
-include_once(CLASS_PATH . "formater/winged.formater.php");
-include_once(CLASS_PATH . "error/winged.error.php");
-include_once(CLASS_PATH . "buffer/winged.buffer.php");
+global $__autoload__cache;
+$__autoload__cache = false;
+
+include_once CLASS_PATH . 'Utils/Functions.php';
+include_once CLASS_PATH . 'Utils/FileTree.php';
+include_once CLASS_PATH . 'autoload.cache.php';
+
+use Winged\Utils\FileTree;
+
+/**
+ * @param $className
+ */
+function findClass($className)
+{
+    $tree = new FileTree();
+    $tree->gemTree(CLASS_PATH, ['php']);
+    $files = $tree->getFiles();
+    $cache = "<?php global " . '$__autoload__cache' . "; ";
+    $exec = '$__autoload__cache' . " = [";
+    foreach ($files as $file) {
+        $exec .= '"' . $file . '",';
+        if (is_int(strpos($file, $className))) {
+            include_once $file;
+        }
+    }
+    $exec = substr($exec, 0, strlen($exec) - 1);
+    $exec .= '];';
+    eval($exec);
+    file_put_contents(CLASS_PATH . 'autoload.cache.php', $cache . $exec);
+}
+
+spl_autoload_register(function ($className) {
+    global $__autoload__cache;
+    $className = explode('\\', $className);
+    $className = end($className);
+    $included = false;
+    if (is_array($__autoload__cache)) {
+        foreach ($__autoload__cache as $file) {
+            if (is_int(strpos($file, $className))) {
+                include_once $file;
+                $included = true;
+            }
+        }
+        if (!$included) {
+            findClass($className);
+        }
+    } else {
+        findClass($className);
+    }
+});
+
+
+spl_autoload_register(function ($className) {
+    if(file_exists("./models/" . $className . ".php")){
+        include_once "./models/" . $className . ".php";
+    }
+});
+
+use Winged\Date\Microtime;
+use Winged\Buffer\Buffer;
+use Winged\Error\Error;
+use Winged\Utils\Container;
+use Winged\Database\Connections;
 
 Microtime::init();
 
-CoreBuffer::start();
+Buffer::start();
 
-function __autoload($class)
-{
-    WingedAutoLoad::verify($class);
-}
-
-class Container
-{
-    protected $target;
-    protected $className;
-    protected $methods = [];
-
-    /**
-     * @var $self Container
-     */
-    public static $self = null;
-
-    public function __construct($target)
-    {
-        $this->target = $target;
-    }
-
-    public function attach($name, $method)
-    {
-        if (!$this->className) {
-            $this->className = get_class($this->target);
-        }
-        $binded = Closure::bind($method, $this->target, $this->className);
-        $this->methods[$name] = $binded;
-    }
-
-    public function __call($name, $arguments)
-    {
-        if (array_key_exists($name, $this->methods)) {
-            return call_user_func_array($this->methods[$name], $arguments);
-        }
-
-        if (method_exists($this->target, $name)) {
-            return call_user_func_array(
-                array($this->target, $name),
-                $arguments
-            );
-        }
-    }
-
-    public function methodExists($name)
-    {
-        if (array_key_exists($name, $this->methods)) {
-            return true;
-        }
-    }
-
-}
+/**
+ * Auto load for folder ./models/
+ * @param $className
+ */
 
 Container::$self = new Container(Container::$self);
 
 if (!file_exists(PATH_CONFIG)) {
-    CoreError::_die('file config.php do not exists.', 88, 'winged.class.php', 88);
+    Error::_die('file config.php do not exists.', 110, 'winged.class.php', 110);
 } else {
     include_once PATH_CONFIG;
-    if (!class_exists('WingedConfig')) {
-        CoreError::_die('class WingedConfig do not exists in config.php', 92, 'winged.class.php', 92);
+
+    if (!class_exists('Winged\WingedConfig')) {
+        Error::_die('class WingedConfig do not exists in config.php', 101, 'winged.class.php', 101);
     }
+
+    if (WingedConfig::$DBEXT) {
+        Connections::init();
+        $_GET = no_injection_array($_ORIGINAL_GET);
+        $_POST = no_injection_array($_ORIGINAL_POST);
+    }
+
     if (file_exists(PATH_EXTRA_CONFIG)) {
         include_once PATH_EXTRA_CONFIG;
-    }
-    if (WingedConfig::$DBEXT) {
-        include_once(CLASS_PATH . "database/winged.db.php");
-        include_once(CLASS_PATH . "database/winged.querybuilder.php");
-        include_once(CLASS_PATH . "database/winged.delegate.php");
-        include_once(CLASS_PATH . "database/winged.migrate.php");
-        include_once(CLASS_PATH . "database/winged.db.dict.php");
-        include_once(CLASS_PATH . "model/winged.model.php");
-
-        Connections::init();
-
-        $_GET = no_injection_array($_OGET);
-        $_POST = no_injection_array($_OPOST);
     }
 
     if (!is_null(WingedConfig::$TIMEZONE)) {
@@ -170,6 +155,7 @@ if (!file_exists(PATH_CONFIG)) {
         }
     }
 }
+
 
 if (WingedConfig::$DEBUG) {
     error_reporting(E_ALL);
@@ -417,7 +403,7 @@ class Winged
 
         self::$uri = $uri;
         if (count($free_get) > 1) {
-            self::$pure_uri = $uri . $free_get[1];
+            self::$pure_uri = $uri . '?' . $free_get[1];
         } else {
             self::$pure_uri = $uri;
         }
@@ -425,9 +411,12 @@ class Winged
         self::$https = $https;
         self::$http = $http;
 
+
         if (server('https')) {
             if (server('https') != 'off') {
                 self::$protocol = $https;
+            } else {
+                self::$protocol = $http;
             }
         } else {
             self::$protocol = $http;

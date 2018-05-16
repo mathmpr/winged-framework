@@ -42,7 +42,7 @@ class ActiveForm extends HtmlHelper
         return $this;
     }
 
-    public function __construct($class, $parse = false)
+    public function __construct(&$class)
     {
         if (is_object($class)) {
             $this->class = get_class($class);
@@ -50,9 +50,6 @@ class ActiveForm extends HtmlHelper
         } else if (class_exists($class)) {
             $this->class = $class;
             $this->obj = new $class();
-        }
-        if ($parse) {
-            //$this->parseToJsObject();
         }
     }
 
@@ -88,7 +85,7 @@ class ActiveFormPrintable extends HtmlHelper
     /** @var $obj Model */
     public $obj = null;
 
-    public function __construct($class, $parse = false)
+    public function __construct(&$class)
     {
         if (is_object($class)) {
             $this->class = get_class($class);
@@ -96,9 +93,6 @@ class ActiveFormPrintable extends HtmlHelper
         } else if (class_exists($class)) {
             $this->class = $class;
             $this->obj = new $class();
-        }
-        if ($parse) {
-            $this->parseToJsObject();
         }
     }
 
@@ -475,7 +469,7 @@ class HtmlHelper
                                 }
 
                                 if(is_array($this->obj->{$property})){
-                                    if(array_key_exists($key, $this->obj->{$property})){
+                                    if(in_array($key, $this->obj->{$property})){
                                         $selected = ' checked="checked"';
                                     }
                                 }
@@ -506,9 +500,12 @@ class HtmlHelper
                         $html->find($main['main_selector'])->attr('name', $this->class . '[' . $property . ']');
                     }
                     $html->find($main['main_selector'])->attr('id', $this->class . '_' . $property);
-                    $html->find($main['main_selector'])->html($this->obj->requestKey($property));
+                    if(array_key_exists('value', $options)){
+                        $html->find($main['main_selector'])->html($options['value']);
+                    }else{
+                        $html->find($main['main_selector'])->html($this->obj->requestKey($property));
+                    }
                     $html->find('label:first-child')->attr('for', $this->class . '_' . $property);
-
                     $html = $this->completeMainHtml($html, $options, $main);
                 }
 

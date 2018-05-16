@@ -6,6 +6,16 @@ class Model extends DelegateQuery
 
     public $extras = false;
 
+    private $on_save_error = [];
+
+    private $on_save_success = [];
+
+    private $on_validate_success = [];
+
+    private $on_validate_error = [];
+
+    protected static $cached_info = [];
+
     public function __construct()
     {
         $this->getTableFields();
@@ -14,13 +24,13 @@ class Model extends DelegateQuery
         }
     }
 
-    public function dinamic($key, $value)
+    public function dynamic($key, $value)
     {
         $this->{$key} = $value;
         return $this;
     }
 
-    public function setProperty(array $array, $dinamic = false)
+    public function setProperty(array $array, $dynamic = false)
     {
         $refl = new ReflectionClass($this);
         foreach ($array as $setp => $value) {
@@ -30,8 +40,8 @@ class Model extends DelegateQuery
                     $property->setValue($this, $value);
                 }
             } else {
-                if ($dinamic) {
-                    $this->dinamic($setp, $value);
+                if ($dynamic) {
+                    $this->dynamic($setp, $value);
                 }
             }
         }
@@ -120,6 +130,14 @@ class Model extends DelegateQuery
         }
     }
 
+    public function unloadAll()
+    {
+        foreach ($this->loaded_fields as $key => $value){
+            unset($this->loaded_fields[$key]);
+        }
+        return true;
+    }
+
     public function loaded($field)
     {
         if (in_array($field, $this->table_fields)) {
@@ -134,9 +152,7 @@ class Model extends DelegateQuery
 
     public function load($args = [], $newobj = false)
     {
-
         $class_name = get_class($this);
-        $reflection = new ReflectionClass($class_name);
 
         $trade = false;
 
@@ -180,7 +196,8 @@ class Model extends DelegateQuery
             }
 
             if ((in_array(strtolower($key), $this->table_fields) || $safe) && property_exists($class_name, strtolower($key))) {
-                $this->{$key} = $value;
+                $type = $this->returnMysqlType($key);
+                $this->{$key} = $this->getRealValue($value, $type['key']);
                 $this->loaded_fields[] = $key;
                 if ($safe) {
                     $this->safe_fields[] = $key;
@@ -213,19 +230,27 @@ class Model extends DelegateQuery
                     $apply = call_user_func($apply);
                     if (is_array($apply) && $apply['null'] === null) {
                         $apply = null;
-                        $reflection->getProperty($key)->setValue($this, $apply);
+                        $this->{$key} = $apply;
                         $this->old_values[$key] = $old_value;
                         $this->old_value_loaded = true;
                     }
                     if ($apply !== null) {
-                        if($apply != $this->{$key}){
-                            $reflection->getProperty($key)->setValue($this, $apply);
+                        if ($apply !== $this->{$key}) {
+                            if (!is_object($apply)) {
+                                $type = $this->returnMysqlType($key);
+                                $apply = $this->getRealValue($apply, $type['key']);
+                            }
+                            $this->{$key} = $apply;
                             $this->old_values[$key] = $old_value;
                             $this->old_value_loaded = true;
                         }
                     }
                 } else {
-                    $reflection->getProperty($key)->setValue($this, $apply);
+                    if (!is_object($apply)) {
+                        $type = $this->returnMysqlType($key);
+                        $apply = $this->getRealValue($apply, $type['key']);
+                    }
+                    $this->{$key} = $apply;
                     $this->old_values[$key] = $old_value;
                     $this->old_value_loaded = true;
                 }
@@ -511,8 +536,18 @@ class Model extends DelegateQuery
                     }
                 }
             }
-
         }
+
+        if ($continue) {
+            foreach ($this->on_validate_success as $index => $arr) {
+                call_user_func_array($arr['function'], $arr['args']);
+            }
+        } else {
+            foreach ($this->on_validate_error as $index => $arr) {
+                call_user_func_array($arr['function'], $arr['args']);
+            }
+        }
+
         return $continue;
     }
 
@@ -524,7 +559,17 @@ class Model extends DelegateQuery
     public function save()
     {
         if (!empty($this->loaded_fields) || $this->primaryKey() != null) {
-            return $this->createSaveStatement();
+            $save = $this->createSaveStatement();
+            if ($save) {
+                foreach ($this->on_save_success as $index => $arr) {
+                    call_user_func_array($arr['function'], $arr['args']);
+                }
+            } else {
+                foreach ($this->on_save_error as $index => $arr) {
+                    call_user_func_array($arr['function'], $arr['args']);
+                }
+            }
+            return $save;
         }
         return false;
     }
@@ -539,46 +584,139 @@ class Model extends DelegateQuery
 
     public function getTableFields()
     {
-        if (empty($this->table_fields) && $this->tableName() != '') {
-            $all = $table = CurrentDB::sp(Database::SP_DESC_TABLE, ['table_name' => $this->tableName()]);
-
-            foreach ($all as $key => $field) {
-                $this->table_fields[] = $key;
-                $this->table_info[$key] = $field;
+        $class_name = get_class($this);
+        if (array_key_exists($class_name, self::$cached_info)) {
+            $this->table_fields = self::$cached_info[$class_name]->table_fields;
+            $this->table_info = self::$cached_info[$class_name]->table_info;
+            return self::$cached_info[$class_name]->table_fields;
+        } else {
+            if (empty($this->table_fields) && $this->tableName() != '') {
+                $all = $table = CurrentDB::sp(Database::SP_DESC_TABLE, ['table_name' => $this->tableName()]);
+                foreach ($all as $key => $field) {
+                    $this->table_fields[] = $key;
+                    $this->table_info[$key] = $field;
+                }
             }
+            if (!array_key_exists($class_name, self::$cached_info)) {
+                self::$cached_info[$class_name] = new stdClass();
+                self::$cached_info[$class_name]->table_fields = $this->table_fields;
+                self::$cached_info[$class_name]->table_info = $this->table_info;
+            }
+            return $this->table_fields;
         }
-        return $this->table_fields;
     }
 
-    public function applyBehaviors()
+    public function _behaviors()
     {
         $class_name = get_class($this);
-        $reflection = new ReflectionClass($class_name);
         $behaviors = $this->behaviors();
         foreach ($behaviors as $key => $apply) {
             if (property_exists($class_name, $key)) {
                 if (is_callable($apply)) {
                     $apply = call_user_func($apply);
                 }
-                $reflection->getProperty($key)->setValue($this, $apply);
+                $this->{$key} = $apply;
             }
         }
     }
 
-    public function activeReverse()
+    public function _reverse()
     {
         if (!$this->reverse) {
             $this->reverse = true;
             $reverse = $this->reverseBehaviors();
             $class_name = get_class($this);
-            $reflection = new ReflectionClass($class_name);
             foreach ($reverse as $key => $apply) {
                 if (property_exists($class_name, $key)) {
                     if (is_callable($apply)) {
                         $apply = call_user_func($apply);
                     }
-                    $reflection->getProperty($key)->setValue($this, $apply);
+                    $this->{$key} = $apply;
                 }
+            }
+        }
+    }
+
+    public function registerOnSaveSuccess($index = '', $function = '', $args = [])
+    {
+        if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
+            $this->on_save_success[$index] = [
+                'function' => $function,
+                'args' => $args
+            ];
+            return true;
+        }
+        return false;
+    }
+
+    public function registerOnSaveError($index = '', $function = '', $args = [])
+    {
+        if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
+            $this->on_save_error[$index] = [
+                'function' => $function,
+                'args' => $args
+            ];
+            return true;
+        }
+        return false;
+    }
+
+    public function removeFromSaveSuccess($index = '')
+    {
+        if (is_int($index) || is_string($index)) {
+            if (array_key_exists($index, $this->on_save_success)) {
+                unset($this->on_save_success[$index]);
+            }
+        }
+    }
+
+    public function removeFromSaveError($index = '')
+    {
+        if (is_int($index) || is_string($index)) {
+            if (array_key_exists($index, $this->on_save_error)) {
+                unset($this->on_save_error[$index]);
+            }
+        }
+    }
+
+    public function registerOnValidateSuccess($index = '', $function = '', $args = [])
+    {
+        if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
+            $this->on_validate_success[$index] = [
+                'function' => $function,
+                'args' => $args
+            ];
+            return true;
+        }
+        return false;
+    }
+
+    public function registerOnValidateError($index = '', $function = '', $args = [])
+    {
+        if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
+            $this->on_validate_error[$index] = [
+                'function' => $function,
+                'args' => $args
+            ];
+            return true;
+        }
+        return false;
+    }
+
+    public function removeFromValidateSuccess($index = '')
+    {
+        if (is_int($index) || is_string($index)) {
+            if (array_key_exists($index, $this->on_validate_success)) {
+                unset($this->on_validate_success[$index]);
+            }
+        }
+    }
+
+    public function removeFromValidateError($index = '')
+    {
+        if (is_int($index) || is_string($index)) {
+            if (array_key_exists($index, $this->on_validate_error)) {
+                unset($this->on_validate_error[$index]);
             }
         }
     }

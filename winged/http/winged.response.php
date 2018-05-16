@@ -13,6 +13,29 @@ class Response
         $this->request = $request;
         $this->cURL_resorce = $cURL_resorce;
         $this->output = curl_exec($this->cURL_resorce);
+
+        if ($request->last_options_before_send['contentType'] == 'application/json') {
+            try {
+                $this->output = json_decode($this->output);
+                if (!is_object($this->output)) {
+                    CoreError::_die(__CLASS__, "Response expected string in JSON format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+                }
+            } catch (Exception $e) {
+                CoreError::_die(__CLASS__, "Response expected string in JSON format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+            }
+        }
+        if ($request->last_options_before_send['contentType'] == 'application/xml') {
+            try {
+                $xml = simplexml_load_string($this->output, "SimpleXMLElement", LIBXML_NOCDATA);
+                $json = json_encode($xml);
+                $this->output = json_decode($json, true);
+                if (!is_array($this->output)) {
+                    CoreError::_die(__CLASS__, "Response expected string in XML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+                }
+            } catch (Exception $e) {
+                CoreError::_die(__CLASS__, "Response expected string in XML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+            }
+        }
         $this->response_code = curl_getinfo($this->cURL_resorce, CURLINFO_HTTP_CODE);
     }
 
@@ -29,7 +52,8 @@ class Response
         return $this->response_code;
     }
 
-    public function error(){
+    public function error()
+    {
         return curl_error($this->cURL_resorce);
     }
 

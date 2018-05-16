@@ -10,6 +10,21 @@ function get_memory_peak_usage()
     return number_format((memory_get_peak_usage(false) / 1024 / 1024), 2);
 }
 
+function numeric_is($value){
+    $cp_int = intval($value);
+    $cp_flo = floatval($value);
+    $str_val = strval($value);
+    $cp_int_str = strval($cp_int);
+    $cp_flo_str = strval($cp_flo);
+    if($str_val == $cp_flo_str){
+        return $cp_flo;
+    }
+    if($str_val == $cp_int_str){
+        return $cp_int;
+    }
+    return false;
+}
+
 function array_key_exists_check($key, $haystack)
 {
     if (is_array($haystack)) {
@@ -354,7 +369,7 @@ function nltobr($str)
 
 function brtonl($str)
 {
-    return str_replace("<br>", "\r\n", $str);
+    return str_ireplace("<br>", "\r\n", $str);
 }
 
 function pre($array, $die = false)
@@ -395,10 +410,21 @@ function pre_clear_buffer_die($array = [])
     } else if (is_string($array)) {
         $array .= ' : STRING';
     }
-    CoreBuffer::kill();
+    CoreBuffer::reset();
+    ?>
+    <html>
+        <head>
+            <meta charset="utf-8">
+        </head>
+    <body>
+    <?php
     echo "<pre style='padding: 20px; background: #fefefe; font-family: monospace; font-size: 14px; border: 1px solid #494949; margin: 10px 5px; border-radius: 2px; word-wrap: break-word'>";
     print_r($array);
     echo "</pre>";
+    ?>
+    </body>
+    </html>
+    <?php
     CoreBuffer::flush();
     exit;
 }
@@ -406,7 +432,7 @@ function pre_clear_buffer_die($array = [])
 $printed_pre = [];
 $beggin_pre = false;
 
-function beggin_pre()
+function begin_pre()
 {
     global $beggin_pre;
     $beggin_pre = true;
@@ -459,7 +485,14 @@ function delegate_pre($die = false)
 function delegate_pre_clear_buffer_die()
 {
     global $printed_pre;
-    CoreBuffer::kill();
+    CoreBuffer::reset();
+    ?>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+    <?php
     if (count($printed_pre) > 0) {
         foreach ($printed_pre as $array) {
             if (is_array($array) && empty($array)) {
@@ -479,6 +512,10 @@ function delegate_pre_clear_buffer_die()
             print_r($array);
             echo "</pre>";
         }
+        ?>
+        </body>
+        </html>
+        <?php
         CoreBuffer::flush();
         exit;
     }
@@ -599,15 +636,43 @@ function what_is_my_system()
 
 /* Array Helpers */
 
+function exec_function($function, $args = [])
+{
+    if ((is_callable($function) || function_exists($function)) && is_array($args)) {
+        $str = '$function(';
+        $f = true;
+        $cp = [];
+        foreach ($args as $key => $value) {
+            $args['winged_' . uniqid()] = $args[$key];
+            unset($args[$key]);
+        }
+        extract($cp);
+        foreach ($cp as $key => $value) {
+            if ($f) {
+                $f = false;
+                $str .= '$' . $key;
+            } else {
+                $str .= ', $' . $key;
+            }
+        }
+        $str .= ');';
+        return eval($str);
+    }
+}
+
 function begstr($str)
 {
-    return $str[0];
+    if (strlen($str) > 0) {
+        return $str[0];
+    }
+    return '';
 }
 
 function begstr_replace(&$str, $replace_with = '')
 {
     $str = substr($str, 1, strlen($str) - 1);
     $str = $replace_with . $str;
+    $str = trim($str);
 }
 
 function endstr($str, $length = 1)
@@ -621,6 +686,7 @@ function endstr_replace(&$str, $length = 1, $replace_with = '')
 {
     if (strlen($str) - $length > 0) {
         $str[strlen($str) - $length] = $replace_with;
+        $str = trim($str);
     }
 }
 

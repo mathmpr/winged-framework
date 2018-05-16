@@ -1,9 +1,20 @@
 <?php
+namespace Winged\Validator;
 
-class CoreValidator
+/**
+ * Class validation for forms, combine this class with the rules method of the models
+ * Class Validator
+ * @package Winged\Validator
+ */
+class Validator
 {
 
-    public function cpf($cpf = null)
+    /**
+     * Tests whether the input is a valid CPF
+     * @param null $cpf
+     * @return bool
+     */
+    public static function cpf($cpf = null)
     {
         if (empty($cpf)) {
             return false;
@@ -38,7 +49,12 @@ class CoreValidator
         }
     }
 
-    public function cnpj($cnpj = null)
+    /**
+     * Tests whether the input is a valid CNPJ
+     * @param null $cnpj
+     * @return bool
+     */
+    public static function cnpj($cnpj = null)
     {
         $cnpj = preg_replace('/[^0-9]/', '', (string)$cnpj);
         if (strlen($cnpj) != 14)
@@ -58,7 +74,13 @@ class CoreValidator
         return $cnpj{13} == ($resto < 2 ? 0 : 11 - $resto);
     }
 
-    public function lengthLarger($entry = null, $comp = false)
+    /**
+     * Tests whether the input length is greater than the comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
+    public static function lengthLarger($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -69,7 +91,13 @@ class CoreValidator
         return false;
     }
 
-    public function lengthLargerOrEqual($entry = null, $comp = false)
+    /**
+     * Tests whether the input length is greater or equal than the comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
+    public static function lengthLargerOrEqual($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -80,7 +108,13 @@ class CoreValidator
         return false;
     }
 
-    public function lengthSmaller($entry = null, $comp = false)
+    /**
+     * Tests whether the input length is smaller than the comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
+    public static function lengthSmaller($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -91,7 +125,13 @@ class CoreValidator
         return false;
     }
 
-    public function lengthSmallerOrEqual($entry = null, $comp = false)
+    /**
+     * Tests whether the input length is smaller or equal than the comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
+    public static function lengthSmallerOrEqual($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -102,7 +142,13 @@ class CoreValidator
         return false;
     }
 
-    public function lengthEqual($entry = null, $comp = false)
+    /**
+     * Tests whether the input length is greater than the comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
+    public static function lengthEqual($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -113,7 +159,14 @@ class CoreValidator
         return false;
     }
 
-    public function lengthBetween($entry = null, $smaller = false, $larger = false)
+    /**
+     * Tests whether the input length is between than the comparison parameters
+     * @param null $entry
+     * @param bool $smaller
+     * @param bool $larger
+     * @return bool
+     */
+    public static function lengthBetween($entry = null, $smaller = false, $larger = false)
     {
         if (empty($entry) || empty($smaller) || empty($larger)) {
             return false;
@@ -124,7 +177,14 @@ class CoreValidator
         return false;
     }
 
-    public function lengthBetweenOrEqual($entry = null, $smaller = false, $larger = false)
+    /**
+     * Tests whether the input length is between or equal than the comparison parameters
+     * @param null $entry
+     * @param bool $smaller
+     * @param bool $larger
+     * @return bool
+     */
+    public static function lengthBetweenOrEqual($entry = null, $smaller = false, $larger = false)
     {
         if (empty($entry) || empty($smaller) || empty($larger)) {
             return false;
@@ -135,7 +195,13 @@ class CoreValidator
         return false;
     }
 
-    public function larger($entry = null, $comp = false)
+    /**
+     * Tests whether the input is greater than the comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
+    public static function larger($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -146,7 +212,7 @@ class CoreValidator
         return false;
     }
 
-    public function largerOrEqual($entry = null, $comp = false)
+    public static function largerOrEqual($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -157,7 +223,7 @@ class CoreValidator
         return false;
     }
 
-    public function smaller($entry = null, $comp = false)
+    public static function smaller($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -168,7 +234,7 @@ class CoreValidator
         return false;
     }
 
-    public function smallerOrEqual($entry = null, $comp = false)
+    public static function smallerOrEqual($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -179,7 +245,7 @@ class CoreValidator
         return false;
     }
 
-    public function equals($entry = null, $comp = false)
+    public static function equals($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -190,7 +256,7 @@ class CoreValidator
         return false;
     }
 
-    public function different($entry = null, $comp = false)
+    public static function different($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -201,7 +267,7 @@ class CoreValidator
         return false;
     }
 
-    public function between($entry = null, $smaller = false, $larger = false)
+    public static function between($entry = null, $smaller = false, $larger = false)
     {
         if (empty($entry) || empty($smaller) || empty($larger)) {
             return false;
@@ -213,7 +279,7 @@ class CoreValidator
     }
 
 
-    public function betweenEqual($entry = null, $smaller = false, $larger = false)
+    public static function betweenEqual($entry = null, $smaller = false, $larger = false)
     {
         if (empty($entry) || empty($smaller) || empty($larger)) {
             return false;
@@ -224,7 +290,7 @@ class CoreValidator
         return false;
     }
 
-    public function dateGreater($entry = null, $comp = false)
+    public static function dateGreater($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -235,7 +301,7 @@ class CoreValidator
         return false;
     }
 
-    public function dateSmaller($entry = null, $comp = false)
+    public static function dateSmaller($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
@@ -246,12 +312,12 @@ class CoreValidator
         return false;
     }
 
-    public function dateBetween($entry = null, $smaller = false, $larger = false)
+    public static function dateBetween($entry = null, $begin = false, $final = false)
     {
-        if (empty($entry) || empty($comp)) {
+        if (empty($entry) || empty($begin) || empty($final)) {
             return false;
         }
-        if ((new CoreDate($entry))->smaller($larger) && (new CoreDate($entry))->greater($smaller)) {
+        if ((new CoreDate($entry))->smaller($final) && (new CoreDate($entry))->greater($begin)) {
             return true;
         }
         return false;
