@@ -3,6 +3,8 @@
 namespace Winged\Directory;
 
 use Winged\Formater\Formater;
+use Winged\File\File;
+use Winged\Utils\WingedLib;
 
 class Directory
 {
@@ -81,7 +83,7 @@ class Directory
 
     public static function clearDirectory($folder, $keepWithFilesExtensions = [])
     {
-        $folder = wl::dotslash(wl::dotslash($folder), true);
+        $folder = WingedLib::dotslash(WingedLib::dotslash($folder), true);
         $scan = scandir($folder);
         if (is_string($keepWithFilesExtensions)) {
             $keepWithFilesExtensions = [$keepWithFilesExtensions];
@@ -93,7 +95,7 @@ class Directory
                     self::clearDirectory($join_f, $keepWithFilesExtensions);
                     (new Directory($join_f))->delete();
                 } else if (is_file($join_f) && file_exists($join_f)) {
-                    $file = new CoreFile($join_f);
+                    $file = new File($join_f);
                     if (!in_array($file->getExtension(), $keepWithFilesExtensions)) {
                         $file->delete();
                     }
@@ -108,7 +110,7 @@ class Directory
             self::clearDirectory($folder, $keepWithFileExtensions);
             (new Directory($folder))->delete();
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }

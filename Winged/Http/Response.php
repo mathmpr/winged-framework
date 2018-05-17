@@ -1,5 +1,9 @@
 <?php
 
+namespace Winged\Http;
+
+use Winged\Error\Error;
+
 class Response
 {
 
@@ -18,10 +22,10 @@ class Response
             try {
                 $this->output = json_decode($this->output);
                 if (!is_object($this->output)) {
-                    CoreError::_die(__CLASS__, "Response expected string in JSON format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Response expected string in JSON format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
                 }
-            } catch (Exception $e) {
-                CoreError::_die(__CLASS__, "Response expected string in JSON format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+            } catch (\Exception $e) {
+                Error::_die(__CLASS__, "Response expected string in JSON format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
             }
         }
         if ($request->last_options_before_send['contentType'] == 'application/xml') {
@@ -30,10 +34,10 @@ class Response
                 $json = json_encode($xml);
                 $this->output = json_decode($json, true);
                 if (!is_array($this->output)) {
-                    CoreError::_die(__CLASS__, "Response expected string in XML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Response expected string in XML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
                 }
-            } catch (Exception $e) {
-                CoreError::_die(__CLASS__, "Response expected string in XML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+            } catch (\Exception $e) {
+                Error::_die(__CLASS__, "Response expected string in XML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
             }
         }
         $this->response_code = curl_getinfo($this->cURL_resorce, CURLINFO_HTTP_CODE);

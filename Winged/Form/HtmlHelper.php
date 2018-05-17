@@ -1,152 +1,13 @@
 <?php
 
-class ActiveForm extends HtmlHelper
-{
-
-    public $class;
-    public $refers = [];
-    public $dimensions = [];
-
-    /** @var $_html phpQueryObject */
-    public $_html = null;
-
-    /** @var $obj Model */
-    public $obj = null;
-
-    public function beggin($action = false, $method = 'get', $options = [], $enctype = 'multipart/form-data')
-    {
-        if (!$action) {
-            $action = Winged::$page_surname;
-        }
-        $this->_html = phpQuery::newDocument('<form></form>');
-        $this->_html->find('form')->attr('action', $action);
-        $this->_html->find('form')->attr('method', $method);
-        $this->_html->find('form')->attr('enctype', $enctype);
-        $this->_html->find('form')->replaceWith($this->completeAnyHtml($this->_html->find('form')->clone(), $options));
-    }
-
-    public function end($echo = false)
-    {
-        if ($echo) {
-            echo $this->_html->markup();
-            return true;
-        }
-        return $this->_html->markup();
-    }
-
-    public function addAnyHtml($html = '')
-    {
-        if ($this->_html != null) {
-            $this->_html->find('form')->append($html);
-        }
-        return $this;
-    }
-
-    public function __construct(&$class)
-    {
-        if (is_object($class)) {
-            $this->class = get_class($class);
-            $this->obj = $class;
-        } else if (class_exists($class)) {
-            $this->class = $class;
-            $this->obj = new $class();
-        }
-    }
-
-    public function jQuerySelector($property, $html_tag = 'input', $dimension = false)
-    {
-        if ($tag = array_key_exists_check($property, $this->refers)) {
-            $html_tag = $tag;
-        }
-        if ($dim = array_key_exists_check($property, $this->dimensions)) {
-            $dimension = $dim;
-        }
-        if (property_exists($this->class, $property)) {
-            if ($dimension) {
-                return '$(\'' . $html_tag . '[name^="' . $this->class . '[' . $property . '][]"]\')';
-            }
-            return '$(\'' . $html_tag . '[name^="' . $this->class . '[' . $property . ']"]\')';
-        }
-        return false;
-    }
-
-}
-
-class ActiveFormPrintable extends HtmlHelper
-{
-
-    public $class;
-    public $refers = [];
-    public $dimensions = [];
-
-    /** @var $_html phpQueryObject */
-    public $_html = null;
-
-    /** @var $obj Model */
-    public $obj = null;
-
-    public function __construct(&$class)
-    {
-        if (is_object($class)) {
-            $this->class = get_class($class);
-            $this->obj = $class;
-        } else if (class_exists($class)) {
-            $this->class = $class;
-            $this->obj = new $class();
-        }
-    }
-
-    public function beggin($action = false, $method = 'get', $options = [], $enctype = 'multipart/form-data', $return = false)
-    {
-        if (!$action) {
-            $action = Winged::$page_surname;
-        }
-
-        $html = $this->completeAnyHtmlPrintable('<form action="' . $action . '" method="' . $method . '" enctype="' . $enctype . '">', $options);
-
-        if ($return) {
-            return $html;
-        }
-        echo $html;
-    }
-
-    public function end()
-    {
-        echo '</form>';
-    }
-
-    public function addAnyHtml($html = '')
-    {
-        if ($this->_html != null) {
-            $this->_html->find('form')->append($html);
-        }
-        return $this;
-    }
-
-    public function jQuerySelector($property, $html_tag = 'input', $dimension = false)
-    {
-        if ($tag = array_key_exists_check($property, $this->refers)) {
-            $html_tag = $tag;
-        }
-        if ($dim = array_key_exists_check($property, $this->dimensions)) {
-            $dimension = $dim;
-        }
-        if (property_exists($this->class, $property)) {
-            if ($dimension) {
-                return '$(\'' . $html_tag . '[name^="' . $this->class . '[' . $property . '][]"]\')';
-            }
-            return '$(\'' . $html_tag . '[name^="' . $this->class . '[' . $property . ']"]\')';
-        }
-        return false;
-    }
-
-
-}
+namespace Winged\Form;
 
 class HtmlHelper
 {
 
-    public function completeAnyHtml(phpQueryObject $html, $options)
+    public $_html = null;
+
+    public function completeAnyHtml(\phpQueryObject $html, $options)
     {
         if (($type = array_key_exists_check('type', $options)) !== false) {
             $html->attr('type', $type);
@@ -175,7 +36,7 @@ class HtmlHelper
         if (($attrs = array_key_exists_check('attrs', $options)) !== false) {
             if (is_array($attrs) && !empty($attrs)) {
                 foreach ($attrs as $attr => $value) {
-                    if($value){
+                    if ($value) {
                         $html->attr($attr, $value);
                     }
                 }
@@ -267,10 +128,10 @@ class HtmlHelper
         }
 
         if (($attrs = array_key_exists_check('attrs', $options)) !== false) {
-            if(is_array($attrs)){
-                foreach ($attrs as $attr => $value){
-                    if($value){
-                        $html .= ' '. $attr .'="' . $value . '"';
+            if (is_array($attrs)) {
+                foreach ($attrs as $attr => $value) {
+                    if ($value) {
+                        $html .= ' ' . $attr . '="' . $value . '"';
                     }
                 }
             }
@@ -311,7 +172,7 @@ class HtmlHelper
 
     }
 
-    public function completeMainHtml(phpQueryObject $html, $options, $main)
+    public function completeMainHtml(\phpQueryObject $html, $options, $main)
     {
         if (($type = array_key_exists_check('type', $options)) !== false) {
             $html->find($main['main_selector'])->attr('type', $type);
@@ -338,9 +199,9 @@ class HtmlHelper
         }
 
         if (($attrs = array_key_exists_check('attrs', $options)) !== false) {
-            if(is_array($attrs)){
-                foreach ($attrs as $attr => $value){
-                    if($value){
+            if (is_array($attrs)) {
+                foreach ($attrs as $attr => $value) {
+                    if ($value) {
                         $html->find($main['main_selector'])->attr($attr, $value);
                     }
                 }
@@ -414,7 +275,7 @@ class HtmlHelper
 
         if ($continue) {
 
-            $html = phpQuery::newDocument($html);
+            $html = \phpQuery::newDocument($html);
 
             if ($property) {
                 if ($main['main'] == 'select') {
@@ -462,14 +323,14 @@ class HtmlHelper
                             foreach ($data as $key => $cla) {
 
                                 $selected = '';
-                                if($this->obj->requestKey($property) !== null){
+                                if ($this->obj->requestKey($property) !== null) {
                                     if ($key == $this->obj->requestKey($property)) {
                                         $selected = ' checked="checked"';
                                     }
                                 }
 
-                                if(is_array($this->obj->{$property})){
-                                    if(in_array($key, $this->obj->{$property})){
+                                if (is_array($this->obj->{$property})) {
+                                    if (in_array($key, $this->obj->{$property})) {
                                         $selected = ' checked="checked"';
                                     }
                                 }
@@ -500,9 +361,9 @@ class HtmlHelper
                         $html->find($main['main_selector'])->attr('name', $this->class . '[' . $property . ']');
                     }
                     $html->find($main['main_selector'])->attr('id', $this->class . '_' . $property);
-                    if(array_key_exists('value', $options)){
+                    if (array_key_exists('value', $options)) {
                         $html->find($main['main_selector'])->html($options['value']);
-                    }else{
+                    } else {
                         $html->find($main['main_selector'])->html($this->obj->requestKey($property));
                     }
                     $html->find('label:first-child')->attr('for', $this->class . '_' . $property);
@@ -515,7 +376,6 @@ class HtmlHelper
                 }
 
 
-
                 if (method_exists($this->class, 'labels')) {
                     $labels = $this->obj->labels();
                     if (($text = array_key_exists_check($property, $labels)) !== false) {
@@ -523,11 +383,11 @@ class HtmlHelper
                     }
                 }
 
-                if($this->obj->hasErrors()){
+                if ($this->obj->hasErrors()) {
                     $errors = $this->obj->getErros();
                     $error = array_key_exists_check($property, $errors);
-                    if($error){
-                        if(is_array($error)){
+                    if ($error) {
+                        if (is_array($error)) {
                             $error = array_shift($error);
                         }
                         $html->find('label.error')->attr('style', 'display: block;');

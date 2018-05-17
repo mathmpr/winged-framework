@@ -2,51 +2,12 @@
 
 namespace Winged\Error;
 
-use Winged\Buffer;
+use Winged\Buffer\Buffer;
+use Winged\Utils\WingedLib;
 
-/**
- * @param $errno
- * @param $errstr
- * @param $errfile
- * @param $errline
- * @param array $errcontext
- */
-function winged_error_handler($errno, $errstr, $errfile, $errline, $errcontext = array())
-{
-    $erros = [
-        "1" => "E_ERROR",
-        "2" => "E_WARNING",
-        "4" => "E_PARSE",
-        "8" => "E_NOTICE",
-        "16" => "E_CORE_ERROR",
-        "32" => "E_CORE_WARNING",
-        "64" => "E_COMPILE_ERROR",
-        "128" => "E_COMPILE_WARNING",
-        "256" => "E_USER_ERROR",
-        "512" => "E_USER_WARNING",
-        "1024" => "E_USER_NOTICE",
-        "6143" => "E_ALL",
-        "2048" => "E_STRICT",
-        "4096" => "E_RECOVERABLE_ERROR",
-        "8192" => "E_DEPRECATED"
-    ];
-    Error::push($erros[$errno], $errstr, $errfile, $errline, $errcontext);
-}
+register_shutdown_function(["Winged\Error\ShutdownCallback", "shutdownHandler"]);
 
-/**
- *
- */
-function winged_shutdown_handler()
-{
-    $error = error_get_last();
-    if (!empty($error)) {
-        Error::_die($error["message"], $error["line"], $error["file"], $error["line"]);
-    }
-}
-
-register_shutdown_function("winged_shutdown_handler");
-
-set_error_handler("winged_error_handler", E_ALL);
+set_error_handler(["Winged\Error\ShutdownCallback", "errorHandler"], E_ALL);
 
 class Error
 {
@@ -97,7 +58,7 @@ class Error
             <base href="<?= self::protocol() . "winged/" ?>">
             <title>Trace error</title>
             <meta charset="utf-8"/>
-            <link href="error/winged.error.css?get=<?= time() ?>" rel="stylesheet" type="text/css"/>
+            <link href="error/assets/winged.error.css?get=<?= time() ?>" rel="stylesheet" type="text/css"/>
             <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1"/>
             <link rel="icon" href="assets/img/fav.png"/>
             <style>
@@ -171,7 +132,7 @@ class Error
                 <base href="<?= self::protocol() . "winged/" ?>">
                 <title>Trace error</title>
                 <meta charset="utf-8"/>
-                <link href="error/winged.error.css?get=<?= time() ?>" rel="stylesheet" type="text/css"/>
+                <link href="error/assets/winged.error.css?get=<?= time() ?>" rel="stylesheet" type="text/css"/>
                 <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1"/>
                 <link rel="icon" href="assets/img/fav.png"/>
                 <style>

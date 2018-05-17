@@ -1,6 +1,6 @@
 <?php
 
-namespace Winged;
+namespace Winged\Utils;
 
 /**
  * Class WingedLib

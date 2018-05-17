@@ -1,9 +1,11 @@
 <?php
 
+namespace Winged\Utils;
+
 /**
- * Class CoreToken
+ * Class RandomName
  */
-class CoreToken
+class RandomName
 {
     /**
      * @param string $size

@@ -1,6 +1,15 @@
+<?php
+
+use Winged\WingedConfig;
+use Winged\Winged;
+use Winged\Database\Database;
+use Winged\Database\CurrentDB;
+
+?>
+
 <html>
 <head>
-    <base href="<?= Winged::$protocol ?>winged/"/>
+    <base href="<?= Winged::$protocol ?>others/creator/"/>
     <link type="text/css" rel="stylesheet" href="./assets/css/reset.css"/>
     <link type="text/css" rel="stylesheet" href="./assets/css/font-awesome.min.css"/>
     <link type="text/css" rel="stylesheet" href="./assets/css/install.css"/>
@@ -47,8 +56,17 @@ if (is_post() && postset('tables') && count(post('tables')) > 0 && is_dev()) {
 
             $begin_class = '<?php
             
+namespace Winged\Model;
+
+/**
+ * class '. $class_name .'
+ * @package Winged\Model
+ **/
 class ' . $class_name . ' extends Model
 {
+    /**
+     * '. $class_name .' constructor.
+     */
     public function __construct(){
         parent::__construct();
         return $this;
@@ -57,6 +75,10 @@ class ' . $class_name . ' extends Model
     ';
 
             $table_name = '
+    /**
+     * Returns the name of the database table that this model represents
+     * @return string
+     */
     public static function tableName()
     {
         return "' . $t . '";
@@ -66,21 +88,36 @@ class ' . $class_name . ' extends Model
 
             $pk_name = getPrimaryKeyName($table);
 
-            $pk = 'public static function primaryKeyName()
+            $pk = '/**
+     * Returns the name of the primary key of target table
+     * @return string
+     */
+    public static function primaryKeyName()
     {        
         return "' . $pk_name . '";
     }
     
     ';
 
-            $rules = 'public function rules()
+            $rules = '/**
+     * Same syntax of behaviors, but value for key can be have an array os string
+     * String for unic validation, array for more than one validations
+     * Within the second array, the keys can have any name, but some names need to be true in the front because they already have predefined validation function
+     * @return array
+     */
+    public function rules()
     {        
         return [];
     }
     
     ';
 
-            $pk_value = 'public function primaryKey($pk = false)
+            $pk_value = '/**
+     * Returns ou set a value for primary key
+     * @param bool $pk
+     * @return $this|int|integer
+     */
+    public function primaryKey($pk = false)
     {        
         if($pk && (is_int($pk) || intval($pk) != 0)){
             $this->' . $pk_name . ' = $pk;
@@ -91,26 +128,46 @@ class ' . $class_name . ' extends Model
 
     ';
 
-            $behaviors = 'public function behaviors()
+            $behaviors = '/**
+     * Set behaviors, this works when method load is called
+     * In the array puts a key with same name of a property of this class and value is a funcion or anonymous function
+     * The return of these functions rewrite the initial value of propertie
+     * @return array
+     */
+    public function behaviors()
     {
         return [];
     }
     
     ';
 
-            $reverseBehaviors = 'public function reverseBehaviors()
+            $reverseBehaviors = '/**
+     * Same syntax of behaviors
+     * When you fetch value from database, these value as reversed
+     * @return array
+     */
+    public function reverseBehaviors()
     {        
         return [];    
     }
     
     ';
 
-            $labels = 'public function labels()
+            $labels = '/**
+     * Same syntax of messages where value of keys is an custom string
+     * @return array
+     */
+    public function labels()
     {        
         return [];    
     }';
 
-            $messages = 'public function messages()
+            $messages = '/**
+     * Same syntax of rules
+     * The value of final key inside array is an custom string
+     * @return array
+     */
+    public function messages()
     {
         return [];
     }
@@ -146,7 +203,7 @@ class ' . $class_name . ' extends Model
             $tables = CurrentDB::sp(Database::SP_SHOW_TABLES);
             if ($tables) { ?>
                 <div class="center creator">
-                    <form method="post" action="../others/creator/">
+                    <form method="post">
                         <table>
                             <thead>
                             <tr>

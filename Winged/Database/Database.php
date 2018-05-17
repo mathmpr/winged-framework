@@ -34,8 +34,7 @@ class Database
         'mysql' => DB_DRIVER_MYSQL,
         'sqlsrv' => DB_DRIVER_PGSQL,
         'pgsql' => DB_DRIVER_SQLSRV,
-        'sqlite' => DB_DRIVER_SQLITE,
-        'mysql_unix' => DB_DRIVER_MYSQL_UNIX,
+        'sqlite' => DB_DRIVER_SQLITE
     ];
 
     private $cleared_drivers = null;

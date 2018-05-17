@@ -1,10 +1,22 @@
 <?php
 
+namespace Winged\Rewrite;
+
+use Winged\Winged;
+use Winged\Error\Error;
+use Winged\WingedConfig;
+use Winged\Buffer\Buffer;
+use Winged\Utils\WingedLib;
+
+/**
+ * Class Rewrite
+ * @package Winged\Rewrite
+ */
 class Rewrite
 {
 
-    private $routes = array();
-    private $actions = array();
+    private $routes = [];
+    private $actions = [];
     public $find_vect = false;
     public $rewrite_reset = false;
 
@@ -26,9 +38,11 @@ class Rewrite
 
                     if (!Winged::$restful) {
                         $vect = $this->find_key($page_key);
+
+
                         $find = '';
                         $x = 0;
-                        $array = array();
+                        $array = [];
                         if ($vect) {
                             if (array_key_exists('index', $vect)) {
                                 $find = $vect["index"];
@@ -39,7 +53,7 @@ class Rewrite
                                         $param = Winged::$params[$x];
                                         if (gettype($value) == "object" && get_class($value) == "Parameter") {
                                             if (array_key_exists($value->name, $array)) {
-                                                CoreError::push(__CLASS__,"the nickname for the parameters was doubled. duplicate nickname '" . $value->name . "'", __FILE__, __LINE__);
+                                                Error::push(128, "the nickname for the parameters was doubled. duplicate nickname '" . $value->name . "'", __FILE__, __LINE__);
                                             } else {
                                                 $array[$value->name] = $param;
                                             }
@@ -48,7 +62,7 @@ class Rewrite
                                                 break;
                                             }
                                         } else {
-                                            CoreError::push(__CLASS__,"the value found during the looping is not a type 'Parameter' object.", __FILE__, __LINE__);
+                                            Error::push(128, "the value found during the looping is not a type 'Parameter' object.", __FILE__, __LINE__);
                                         }
                                     }
                                 }
@@ -76,7 +90,7 @@ class Rewrite
                                             if (file_exists($load) && !is_directory($load)) {
                                                 include_once $load;
                                             } else {
-                                                CoreError::_die(__CLASS__, "include_once fails for expression {$load}", __FILE__, __LINE__);
+                                                Error::_die(__CLASS__, "include_once fails for expression {$load}", __FILE__, __LINE__);
                                             }
                                         }
                                     }
@@ -87,8 +101,8 @@ class Rewrite
                                     }
                                 }
                                 include_once $find;
-                                if (CoreError::exists()) {
-                                    CoreError::display(__LINE__, __FILE__);
+                                if (Error::exists()) {
+                                    Error::display(__LINE__, __FILE__);
                                 }
                             } else {
                                 if (array_key_exists('controller', $vect)) {
@@ -115,17 +129,17 @@ class Rewrite
                             if (WingedConfig::$FORCE_NOTFOUND) {
                                 $this->setDefault404();
                             } else {
-                                CoreError::_die("no route was found in the file " . $routed_file, __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
+                                Error::_die("no route was found in the file " . $routed_file, __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
                             }
                         }
                     } else {
                         Winged::$restful_obj->restful_page();
                     }
                 } else {
-                    CoreError::_die("file '" . $page . ".php' not fount in '" . $route_dir . "'", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
+                    Error::_die("file '" . $page . ".php' not fount in '" . $route_dir . "'", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
                 }
             } else {
-                CoreError::_die("folder 'routes' not fount in '" . $parent . "'", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
+                Error::_die("folder 'routes' not fount in '" . $parent . "'", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
             }
         }
     }
@@ -133,14 +147,14 @@ class Rewrite
     public function setDefault404()
     {
         if (file_exists(Winged::$notfound) && !is_directory(Winged::$notfound)) {
-            CoreBuffer::kill();
+            Buffer::kill();
             include_once Winged::$notfound;
-            CoreBuffer::flush();
-            if (CoreError::exists()) {
-                CoreError::display(__LINE__, __FILE__);
+            Buffer::flush();
+            if (Error::exists()) {
+                Error::display(__LINE__, __FILE__);
             }
         } else {
-            CoreError::_die("the error file 404 was not found in '" . Winged::$notfound . "'. this is very very bad", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
+            Error::_die("the error file 404 was not found in '" . Winged::$notfound . "'. this is very very bad", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
         }
     }
 
@@ -153,7 +167,7 @@ class Rewrite
             include_once $outher_conf;
             mb_internal_encoding(WingedConfig::$INTERNAL_ENCODING);
             mb_http_output(WingedConfig::$OUTPUT_ENCODING);
-            CoreError::clear();
+            Error::clear();
             $this->rewrite_reset = true;
             Winged::start();
             return true;
@@ -166,7 +180,7 @@ class Rewrite
         $okey = trim($okey);
         $found = false;
         $f_num = 0;
-        $stack = array();
+        $stack = [];
         foreach ($this->routes as $key => $value) {
             $key = trim($key);
             $exp = explode("/", $key);
@@ -174,18 +188,18 @@ class Rewrite
             if (count($exp) >= 3) {
                 if (is_int($pos) && !$found) {
                     $replace = str_replace($okey, "", $key);
-                    $found = array("key" => $key, "value" => $value, "uri_comp" => wl::dotslash($replace));
-                    $point = wl::dotslash($replace);
+                    $found = ["key" => $key, "value" => $value, "uri_comp" => WingedLib::dotslash($replace)];
+                    $point = WingedLib::dotslash($replace);
                     if ($point == '.') {
                         $value["uri_comp"] = false;
                     } else {
-                        $value["uri_comp"] = wl::dotslash(wl::dotslash($replace));
+                        $value["uri_comp"] = WingedLib::dotslash(WingedLib::dotslash($replace));
                     }
                     $stack[$key] = $value;
                     $f_num++;
                 } else if (is_int($pos)) {
                     $replace = str_replace($okey, "", $key);
-                    $value["uri_comp"] = wl::dotslash($replace);
+                    $value["uri_comp"] = WingedLib::dotslash($replace);
                     $stack[$key] = $value;
                     $f_num++;
                 }
@@ -197,8 +211,8 @@ class Rewrite
         } else if ($f_num == 0) {
             return false;
         } else {
-            $this->actions = array();
-            $newparams = array();
+            $this->actions = [];
+            $newparams = [];
             $exp = false;
             if ($found["uri_comp"] != "" && $found["uri_comp"] != ".") {
                 $exp = explode("/", $found["uri_comp"]);
@@ -207,12 +221,15 @@ class Rewrite
             if (is_bool($params)) {
                 $params = [];
             }
-            if (count($params) == count($exp) || Winged::$is_standard || $exp == false) {
+            $countParams = is_array($params) ? count($params) : 0;
+            $countExp = is_array($exp) ? count($exp) : 1;
+            if ($countParams == $countExp || Winged::$is_standard || $exp == false) {
                 $init = true;
-                for ($x = 0; $x < count($exp); $x++) {
+                $countExp = is_array($exp) ? count($exp) : 0;
+                for ($x = 0; $x < $countExp; $x++) {
                     $math = explode(":", $exp[$x]);
                     $is_action = false;
-                    if (@count($math) == 2 && trim($math[0]) == "action") {
+                    if ($math && (count($math) == 2 && trim($math[0]) == "action")) {
                         $preg = trim($math[1]);
                         $is_action = true;
                     } else {
@@ -220,7 +237,7 @@ class Rewrite
                     }
                     if (array_key_exists($x, $params)) {
                         if (!preg_match("/^" . $preg . "$/", $params[$x]) && $preg != 'no-rule') {
-                            CoreError::_die(__CLASS__, "{$params[$x]} was reproved by rule {$preg}", __FILE__, __LINE__);
+                            Error::_die(__CLASS__, "{$params[$x]} was reproved by rule {$preg}", __FILE__, __LINE__);
                             $init = false;
                             break;
                         }
@@ -245,7 +262,7 @@ class Rewrite
                     return $found["value"];
                 }
             }
-            CoreError::push(__CLASS__, "the URL passed as reference for call was recognized by a route file, but the comparison of the parameters count found in the URL and the parameters count configured for the route are different. Make a new call using the correct number of parameters in the URL.", __FILE__, __LINE__);
+            Error::push(128, "the URL passed as reference for call was recognized by a route file, but the comparison of the parameters count found in the URL and the parameters count configured for the route are different. Make a new call using the correct number of parameters in the URL.", __FILE__, __LINE__);
             return false;
         }
 
@@ -254,15 +271,15 @@ class Rewrite
     private function corrert_route($probable_routes)
     {
         foreach ($probable_routes as $key => $value) {
-            $this->actions = array();
-            $exp = array();
+            $this->actions = [];
+            $exp = [];
             if ($value["uri_comp"] != "") {
                 $exp = explode("/", $value["uri_comp"]);
             }
             $params = Winged::$params;
 
             if (!$params) {
-                $params = array();
+                $params = [];
             }
 
             $init = true;
@@ -279,7 +296,7 @@ class Rewrite
                     }
 
                     if (!preg_match("/^" . $preg . "$/", $params[$x]) && $preg != 'no-rule') {
-                        CoreError::_die(__CLASS__, "{$params[$x]} was reproved by rule {$preg}", __FILE__, __LINE__);
+                        Error::_die(__CLASS__, "{$params[$x]} was reproved by rule {$preg}", __FILE__, __LINE__);
                         $init = false;
                         break;
                     }
@@ -297,7 +314,7 @@ class Rewrite
             }
 
             if ($init) {
-                $newparams = array();
+                $newparams = [];
                 foreach ($params as $key => $now) {
                     $newparams[] = $now;
                 }
@@ -323,15 +340,15 @@ class Rewrite
 
     public function addroute($index, $route)
     {
-        $index = wl::dotslash(wl::dotslash($index), true);
+        $index = WingedLib::dotslash(WingedLib::dotslash($index), true);
         if (!array_key_exists($index, $this->routes)) {
             $this->routes[$index] = $route;
         } else {
-            CoreError::push("Route '" . $index . "' in file path '" . Winged::$routed_file . "' was doubled.", __FILE__, __LINE__);
+            Error::push(128, "Route '" . $index . "' in file path '" . Winged::$routed_file . "' was doubled.", __FILE__, __LINE__);
         }
     }
 
-    public function render($path, $vars = array(), $loads = array())
+    public function render($path, $vars = [], $loads = [])
     {
         if (file_exists($path) && !is_directory($path)) {
             foreach ($vars as $key => $value) {
@@ -351,7 +368,7 @@ class Rewrite
             }
             require $path;
         } else {
-            CoreError::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
+            Error::push(128, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
         }
     }
 

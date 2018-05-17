@@ -1,5 +1,13 @@
 <?php
 
+namespace Winged\Model;
+
+use Winged\Database\DelegateQuery;
+use Winged\Database\DbDict;
+use Winged\Database\Database;
+use Winged\Database\CurrentDB;
+use Winged\Error\Error;
+
 class Model extends DelegateQuery
 {
     public $errors = [];
@@ -20,7 +28,7 @@ class Model extends DelegateQuery
     {
         $this->getTableFields();
         if (!$this->extras) {
-            $this->extras = new stdClass();
+            $this->extras = new \stdClass();
         }
     }
 
@@ -32,11 +40,11 @@ class Model extends DelegateQuery
 
     public function setProperty(array $array, $dynamic = false)
     {
-        $refl = new ReflectionClass($this);
+        $refl = new \ReflectionClass($this);
         foreach ($array as $setp => $value) {
             if (property_exists(get_class($this), $setp)) {
                 $property = $refl->getProperty($setp);
-                if ($property instanceof ReflectionProperty) {
+                if ($property instanceof \ReflectionProperty) {
                     $property->setValue($this, $value);
                 }
             } else {
@@ -51,7 +59,7 @@ class Model extends DelegateQuery
     public function getProperty($name)
     {
         if (property_exists($this, $name)) {
-            $refl = new ReflectionClass($this);
+            $refl = new \ReflectionClass($this);
             $property = $refl->getProperty($name);
             return $property->getValue($this);
         }
@@ -274,7 +282,7 @@ class Model extends DelegateQuery
     public function createOldValuesIfExists()
     {
         $class_name = get_class($this);
-        $reflection = new ReflectionClass($class_name);
+        $reflection = new \ReflectionClass($class_name);
         foreach ($this->table_fields as $key) {
             $value = $reflection->getProperty(strtolower($key))->getValue($this);
             if ($value != null) {
@@ -294,7 +302,7 @@ class Model extends DelegateQuery
         $this->is_new = false;
         $one = $this->findOne($id);
         $class_name = get_class($this);
-        $reflection = new ReflectionClass($class_name);
+        $reflection = new \ReflectionClass($class_name);
         if ($one) {
             foreach ($this->table_fields as $key) {
                 $value = $reflection->getProperty(strtolower($key))->getValue($one);
@@ -311,7 +319,7 @@ class Model extends DelegateQuery
     public function loadMultiple($args = [])
     {
         $class_name = get_class($this);
-        $reflection = new ReflectionClass($class_name);
+        $reflection = new \ReflectionClass($class_name);
         $behaviors = $this->behaviors();
 
         $trade = false;
@@ -465,10 +473,10 @@ class Model extends DelegateQuery
                                                         $params = array_merge($params, [$func[2]]);
                                                     }
                                                 }
-                                                $reflect = new ReflectionMethod(get_class($func[0]), $func[1]);
+                                                $reflect = new \ReflectionMethod(get_class($func[0]), $func[1]);
                                                 $ret = $reflect->invokeArgs($func[0], $params);
                                             } else {
-                                                CoreError::push(__CLASS__, "Object '" . $func[0] . "' no have method '" . $func[1] . "'", __FILE__, __LINE__);
+                                                Error::push(__CLASS__, "Object '" . $func[0] . "' no have method '" . $func[1] . "'", __FILE__, __LINE__);
                                             }
                                         }
                                         if (is_callable($func[0])) {
@@ -598,7 +606,7 @@ class Model extends DelegateQuery
                 }
             }
             if (!array_key_exists($class_name, self::$cached_info)) {
-                self::$cached_info[$class_name] = new stdClass();
+                self::$cached_info[$class_name] = new \stdClass();
                 self::$cached_info[$class_name]->table_fields = $this->table_fields;
                 self::$cached_info[$class_name]->table_info = $this->table_info;
             }

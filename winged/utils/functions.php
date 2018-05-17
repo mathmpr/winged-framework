@@ -1,5 +1,10 @@
 <?php
 
+use Winged\Buffer\Buffer;
+use Winged\WingedConfig;
+use Winged\Winged;
+use Winged\Database\CurrentDB;
+
 function get_memory_usage()
 {
     return number_format((memory_get_usage(false) / 1024 / 1024), 2);
@@ -410,7 +415,7 @@ function pre_clear_buffer_die($array = [])
     } else if (is_string($array)) {
         $array .= ' : STRING';
     }
-    CoreBuffer::reset();
+    Buffer::reset();
     ?>
     <html>
         <head>
@@ -425,7 +430,7 @@ function pre_clear_buffer_die($array = [])
     </body>
     </html>
     <?php
-    CoreBuffer::flush();
+    Buffer::flush();
     exit;
 }
 
@@ -449,7 +454,7 @@ function register_pre($array, $force_beggin = false)
 {
     global $printed_pre, $beggin_pre;
     if ($force_beggin) {
-        beggin_pre();
+        begin_pre();
     }
     if ($beggin_pre) {
         $printed_pre[] = $array;
@@ -485,7 +490,7 @@ function delegate_pre($die = false)
 function delegate_pre_clear_buffer_die()
 {
     global $printed_pre;
-    CoreBuffer::reset();
+    Buffer::reset();
     ?>
     <html>
     <head>
@@ -516,7 +521,7 @@ function delegate_pre_clear_buffer_die()
         </body>
         </html>
         <?php
-        CoreBuffer::flush();
+        Buffer::flush();
         exit;
     }
 }

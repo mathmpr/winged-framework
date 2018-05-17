@@ -1,5 +1,10 @@
 <?php
 
+namespace Winged\Http;
+
+use Winged\Formater\Formater;
+use Winged\Error\Error;
+
 class Request
 {
     public static $ACCEPT_JSON = 'application/json';
@@ -77,7 +82,7 @@ class Request
 
         $url = explode('/', $url);
         foreach ($url as $key => $u) {
-            $p = CoreString::removeSpaces(CoreString::removeAccents($u));
+            $p = Formater::removeSpaces(Formater::removeAccents($u));
             if ($p != $u) {
                 $url[$key] = $p;
             }
@@ -85,7 +90,7 @@ class Request
         $url = join('/', $url);
 
         if (!function_exists('curl_init')) {
-            CoreError::_die(__CLASS__, "cURL extension not found on this server.", __FILE__, __LINE__);
+            Error::_die(__CLASS__, "cURL extension not found on this server.", __FILE__, __LINE__);
         } else {
 
             if ($url && filter_var($url, FILTER_VALIDATE_URL)) {
@@ -165,7 +170,7 @@ class Request
                     curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
                 }
             } else {
-                CoreError::push(__CLASS__, "You can't make a resquest without a invalid ou empty URL", __FILE__, __LINE__);
+                Error::push(__CLASS__, "You can't make a resquest without a invalid ou empty URL", __FILE__, __LINE__);
             }
         }
         $this->parse_response = get_value_by_key('parseResponse', $this->ioptions);

@@ -1,5 +1,7 @@
 <?php
 
+namespace Winged\Form;
+
 class FormHtmlStore
 {
     public static $ELEMENTS = [

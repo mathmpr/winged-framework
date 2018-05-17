@@ -2,6 +2,11 @@
 
 namespace Winged\Database;
 
+use Winged\WingedConfig;
+use Winged\Winged;
+use Winged\Date\Date;
+use Winged\Model\Model;
+
 class DelegateQuery extends QueryBuilder
 {
     protected $last_query_key = '';
@@ -52,28 +57,28 @@ class DelegateQuery extends QueryBuilder
         if (!is_object($value) && in_array($key, ['date', 'time', 'year', 'timestamp', 'datetime'])) {
             switch ($key) {
                 case 'date':
-                    if (CoreDate::valid($value)) {
-                        $value = new CoreDate($value);
+                    if (Date::valid($value)) {
+                        $value = new Date($value);
                     }
                     break;
                 case 'time':
-                    if (CoreDate::valid('1994-09-15 ' . $value)) {
-                        $value = new CoreDate('1994-09-15 ' . $value);
+                    if (Date::valid('1994-09-15 ' . $value)) {
+                        $value = new Date('1994-09-15 ' . $value);
                     }
                     break;
                 case 'year':
                     if (strlen($value) === 4 && intval($value) > 0) {
-                        $value = new CoreDate($value . '-09-15');
+                        $value = new Date($value . '-09-15');
                     }
                     break;
                 case 'timestamp':
-                    if (CoreDate::valid($value)) {
-                        $value = new CoreDate($value);
+                    if (Date::valid($value)) {
+                        $value = new Date($value);
                     }
                     break;
                 case 'datetime':
-                    if (CoreDate::valid($value)) {
-                        $value = new CoreDate($value);
+                    if (Date::valid($value)) {
+                        $value = new Date($value);
                     }
                     break;
                 default:
@@ -87,9 +92,9 @@ class DelegateQuery extends QueryBuilder
     {
         if (in_array($key, ['date', 'time', 'year', 'timestamp', 'datetime'])) {
             if (is_object($value)) {
-                if (get_class($value) == 'CoreDate') {
+                if (get_class($value) == 'Date') {
                     /**
-                     * @var $value CoreDate
+                     * @var $value Date
                      */
                     switch ($key) {
                         case 'date':
@@ -917,7 +922,8 @@ class DelegateQuery extends QueryBuilder
                 } else {
                     $query = 'SELECT ';
                 }
-                if (count($this->from_arr) > 0) {
+                $selectArr = is_array($this->select_arr) ? count($this->select_arr) : -1;
+                if ($selectArr > 0) {
                     $first = true;
                     foreach ($this->select_arr as $key => $value) {
                         if ($first) {
@@ -935,14 +941,14 @@ class DelegateQuery extends QueryBuilder
                             }
                         }
                     }
-
-                    if (count($this->select_arr) == 0) {
-                        $query .= "*";
-                    }
-                    $query .= ' ' . $this->from_arr;
-                    return $query;
                 }
-                return false;
+
+                if (count($this->select_arr) == 0) {
+                    $query .= "*";
+                }
+                $query .= ' ' . $this->from_arr;
+                return $query;
+
                 break;
             case 'update':
                 $query = 'UPDATE ';
@@ -1073,10 +1079,10 @@ class DelegateQuery extends QueryBuilder
     protected function tN($obj)
     {
         $class_name = get_class($obj);
-        $reflect = new ReflectionMethod($class_name, 'tableName');
+        $reflect = new \ReflectionMethod($class_name, 'tableName');
         try {
             return $reflect->invoke(null);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $reflect->invoke($obj);
         }
     }
@@ -1084,10 +1090,10 @@ class DelegateQuery extends QueryBuilder
     protected function fK($obj)
     {
         $class_name = get_class($obj);
-        $reflect = new ReflectionMethod($class_name, 'primaryKeyName');
+        $reflect = new \ReflectionMethod($class_name, 'primaryKeyName');
         try {
             return $reflect->invoke(null);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $reflect->invoke($obj);
         }
     }
@@ -1095,7 +1101,7 @@ class DelegateQuery extends QueryBuilder
     protected function fkValue($obj)
     {
         $class_name = get_class($obj);
-        $reflect = new ReflectionMethod($class_name, 'primaryKey');
+        $reflect = new \ReflectionMethod($class_name, 'primaryKey');
         return $reflect->invoke($obj);
     }
 
@@ -1122,7 +1128,7 @@ class DelegateQuery extends QueryBuilder
     {
         /** @var $this Model */
         $class_name = get_class($this);
-        $reflection = new ReflectionClass($class_name);
+        $reflection = new \ReflectionClass($class_name);
         $props = get_class_vars($class_name);
         if ($this->primaryKey() != null) {
             $alias = randid(6);

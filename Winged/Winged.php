@@ -76,16 +76,19 @@ function findClass($className)
     file_put_contents(CLASS_PATH . 'autoload.cache.php', $cache . $exec);
 }
 
-spl_autoload_register(function ($className) {
+/**
+ * @param $className
+ */
+function findCache($className){
     global $__autoload__cache;
-    $className = explode('\\', $className);
-    $className = end($className);
     $included = false;
     if (is_array($__autoload__cache)) {
         foreach ($__autoload__cache as $file) {
             if (is_int(strpos($file, $className))) {
-                include_once $file;
-                $included = true;
+                if(file_exists($file)){
+                    $included = true;
+                    include_once $file;
+                }
             }
         }
         if (!$included) {
@@ -94,10 +97,21 @@ spl_autoload_register(function ($className) {
     } else {
         findClass($className);
     }
-});
-
+}
 
 spl_autoload_register(function ($className) {
+    $className = explode('\\', $className);
+    $className = end($className);
+    findCache($className);
+});
+
+/**
+ * Auto load for folder ./models/
+ * @param $className
+ */
+spl_autoload_register(function ($className) {
+    $className = explode('\\', $className);
+    $className = end($className);
     if(file_exists("./models/" . $className . ".php")){
         include_once "./models/" . $className . ".php";
     }
@@ -108,17 +122,20 @@ use Winged\Buffer\Buffer;
 use Winged\Error\Error;
 use Winged\Utils\Container;
 use Winged\Database\Connections;
+use Winged\Controller\Controller;
+use Winged\Restful\Restful;
+use Winged\Rewrite\Rewrite;
+use Winged\Utils\WingedLib;
 
 Microtime::init();
 
 Buffer::start();
 
-/**
- * Auto load for folder ./models/
- * @param $className
- */
+
 
 Container::$self = new Container(Container::$self);
+
+
 
 if (!file_exists(PATH_CONFIG)) {
     Error::_die('file config.php do not exists.', 110, 'winged.class.php', 110);
@@ -189,14 +206,14 @@ class Winged
     public static $pure_uri = false;
     public static $page;
     public static $parent = false;
-    public static $params = array();
-    public static $oparams = array();
-    public static $controller_params = array();
+    public static $params = [];
+    public static $oparams = [];
+    public static $controller_params = [];
     public static $key;
     public static $page_surname;
     public static $routed_file;
     public static $router = 1;
-    public static $routes = array();
+    public static $routes = [];
     public static $restful = false;
     public static $route_dir;
     /**
@@ -253,7 +270,7 @@ class Winged
         $arr_ext = ['.php', '.html', '.htm', '.xml', '.json'];
 
         if (WingedConfig::$NOT_WINGED) {
-            $dirs = self::getdir(wl::dotslash(self::$uri), 'pure-html');
+            $dirs = self::getdir(WingedLib::dotslash(self::$uri), 'pure-html');
             self::$parent = $dirs['parent'];
             self::$page_surname = $dirs['page'];
             foreach ($arr_ext as $ext) {
@@ -267,11 +284,11 @@ class Winged
             }
         }
 
-        $dirs = self::getdir(wl::dotslash(self::$uri));
+        $dirs = self::getdir(WingedLib::dotslash(self::$uri));
 
         $page = trim($dirs["page"]);
 
-        $parent = wl::dotslash(wl::dotslash(trim($dirs["parent"])), true);
+        $parent = WingedLib::dotslash(WingedLib::dotslash(trim($dirs["parent"])), true);
         $params = $dirs["params"];
 
         self::$key = $parent . $page . "/";
@@ -316,8 +333,8 @@ class Winged
 
     private static function controller_info()
     {
-        $exp = wl::slashexplode(Winged::$parent);
-        $uri = wl::slashexplode(self::$uri);
+        $exp = WingedLib::slashexplode(Winged::$parent);
+        $uri = WingedLib::slashexplode(self::$uri);
         $nar = [];
 
         if (isset($exp[0]) && $exp[0] == '') {
@@ -343,12 +360,12 @@ class Winged
 
         $b_uri = server("request_uri");
         $free_get = explode("?", $b_uri);
-        $uri = wl::convertslash($free_get[0]);
-        $self = wl::convertslash(server("php_self"));
-        $host = wl::convertslash(server("server_name"));
+        $uri = WingedLib::convertslash($free_get[0]);
+        $self = WingedLib::convertslash(server("php_self"));
+        $host = WingedLib::convertslash(server("server_name"));
 
-        $uris = wl::slashexplode($uri);
-        $selfs = wl::slashexplode($self);
+        $uris = WingedLib::slashexplode($uri);
+        $selfs = WingedLib::slashexplode($self);
 
         $self = "";
         $lastself = "";
@@ -366,7 +383,7 @@ class Winged
         $fix = false;
         $cont = 0;
         $find = 0;
-        $inarray = array();
+        $inarray = [];
 
         for ($x = 0; $x < count($uris); $x++) {
             if ($uris[$x] == $lastself || $lastself == "") {
@@ -425,19 +442,19 @@ class Winged
 
     public static function restful()
     {
-        $uri = wl::dotslash(self::$uri);
-        $exp = wl::slashexplode($uri);
+        $uri = WingedLib::dotslash(self::$uri);
+        $exp = WingedLib::slashexplode($uri);
         if (count($exp) > 0 && $exp[0] == "restful") {
             self::$restful = true;
             unset($exp[0]);
-            $uri = wl::dotslash(join("/", $exp), true);
+            $uri = WingedLib::dotslash(join("/", $exp), true);
             self::$uri = $uri;
         }
     }
 
     public static function getdir($uri, $extra_dir = false)
     {
-        $exp = wl::slashexplode($uri);
+        $exp = WingedLib::slashexplode($uri);
 
         $dir = '';
 
@@ -450,7 +467,7 @@ class Winged
             $x = 0;
 
             if ($dir == '') {
-                $dir .= wl::dotslash($exp[$x], true);
+                $dir .= WingedLib::dotslash($exp[$x], true);
             } else {
                 $dir .= $exp[$x] . '/';
             }
@@ -483,24 +500,24 @@ class Winged
 
             if (count($exp) == 0) {
                 self::$is_standard = true;
-                return array(
+                return [
                     "page" => self::$standard,
                     "parent" => $dir,
                     "params" => false
-                );
+                ];
             } else {
-                $exp = wl::resetarray($exp);
+                $exp = WingedLib::resetarray($exp);
                 $page = $exp[0];
                 unset($exp[0]);
-                $params = array();
+                $params = [];
                 foreach ($exp as $key => $value) {
                     array_push($params, $value);
                 }
-                return array(
+                return [
                     "page" => $page,
                     "parent" => $dir,
                     "params" => $params
-                );
+                ];
             }
         }
         self::$is_standard = true;
@@ -521,35 +538,35 @@ class Winged
         }
         switch ($router) {
             case 1:
-                return array(
+                return [
                     "file" => $parent . "routes/" . $page . ".php",
                     "dir" => $parent . "routes/",
                     "page" => $page
-                );
+                ];
                 break;
 
             case 2:
-                return array(
+                return [
                     "file" => "./routes/" . $page . ".php",
                     "dir" => "./routes/",
                     "page" => $page
-                );
+                ];
                 break;
 
             case 3:
-                return array(
+                return [
                     "file" => $parent . "routes/routes.php",
                     "dir" => $parent . "routes/",
                     "page" => "routes"
-                );
+                ];
                 break;
 
             default:
-                return array(
+                return [
                     "file" => "./routes/routes.php",
                     "dir" => "./routes/",
                     "page" => "routes"
-                );
+                ];
                 break;
         }
     }

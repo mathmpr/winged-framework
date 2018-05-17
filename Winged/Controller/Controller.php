@@ -2,6 +2,13 @@
 
 namespace Winged\Controller;
 
+use Winged\Assets\Assets;
+use Winged\Utils\WingedLib;
+use Winged\Winged;
+use Winged\WingedConfig;
+use Winged\Error\Error;
+use Winged\Buffer\Buffer;
+
 class Controller
 {
     public static $CONTROLLERS_PATH = './controllers/';
@@ -78,9 +85,9 @@ class Controller
         if (!$this->reset()) {
             $this->controller_name = $this->getControllerName();
             if (WingedConfig::$PARENT_FOLDER_MVC) {
-                self::$CONTROLLERS_PATH = Winged::$parent . wl::dotslash(self::$CONTROLLERS_PATH) . '/';
-                self::$MODELS_PATH = Winged::$parent . wl::dotslash(self::$MODELS_PATH) . '/';
-                self::$VIEWS_PATH = Winged::$parent . wl::dotslash(self::$VIEWS_PATH) . '/';
+                self::$CONTROLLERS_PATH = Winged::$parent . WingedLib::dotslash(self::$CONTROLLERS_PATH) . '/';
+                self::$MODELS_PATH = Winged::$parent . WingedLib::dotslash(self::$MODELS_PATH) . '/';
+                self::$VIEWS_PATH = Winged::$parent . WingedLib::dotslash(self::$VIEWS_PATH) . '/';
             }
             if (file_exists(self::$CONTROLLERS_PATH) && is_directory(self::$CONTROLLERS_PATH)) {
                 if (file_exists(self::$CONTROLLERS_PATH . $this->controller_name . '.php') && !is_directory(self::$CONTROLLERS_PATH . $this->controller_name . '.php')) {
@@ -104,7 +111,7 @@ class Controller
                         $to_call = [];
                         $this->getGetArgs();
                         if (method_exists($obj, 'beforeAction')) {
-                            $reflect = new ReflectionMethod($this->controller_name, 'beforeAction');
+                            $reflect = new \ReflectionMethod($this->controller_name, 'beforeAction');
                             $apply = $reflect->getParameters();
                             if (!empty($apply)) {
                                 foreach ($apply as $key => $value) {
@@ -119,12 +126,12 @@ class Controller
                                     try {
                                         $json = json_encode($return);
                                         echo $json;
-                                    } catch (Exception $error) {
+                                    } catch (\Exception $error) {
                                         return true;
                                     }
                                 }
-                                if (CoreError::exists() && WingedConfig::$CONTROLLER_DEBUG) {
-                                    CoreError::display(__LINE__, __FILE__);
+                                if (Error::exists() && WingedConfig::$CONTROLLER_DEBUG) {
+                                    Error::display(__LINE__, __FILE__);
                                 }
                                 return true;
                             }
@@ -132,14 +139,14 @@ class Controller
                         $to_call = [];
                         if (method_exists($obj, $method)) {
                             $this->getGetArgs();
-                            $reflect = new ReflectionMethod($this->controller_name, $method);
+                            $reflect = new \ReflectionMethod($this->controller_name, $method);
                             $apply = $reflect->getParameters();
                             $controller_warn = false;
                             if (!empty($apply)) {
                                 foreach ($apply as $key => $value) {
                                     if (!isset($this->method_args[$value->name])) {
                                         $controller_warn = true;
-                                        CoreError::push(__CLASS__, "Action '" . $method . "' requires parameter'" . $value->name . "'", __FILE__, __LINE__);
+                                        Error::push(__CLASS__, "Action '" . $method . "' requires parameter'" . $value->name . "'", __FILE__, __LINE__);
                                     } else {
                                         $to_call[] = $this->method_args[$value->name];
                                     }
@@ -147,25 +154,25 @@ class Controller
                             }
                             if (!$controller_warn) {
                                 if ($this->error_level == 1) {
-                                    CoreError::clear();
+                                    Error::clear();
                                 }
                                 $return = $reflect->invokeArgs($obj, $to_call);
                                 if (is_array($return)) {
                                     try {
                                         $json = json_encode($return);
                                         echo $json;
-                                    } catch (Exception $error) {
+                                    } catch (\Exception $error) {
                                         return true;
                                     }
                                 }
-                                if (CoreError::exists() && WingedConfig::$CONTROLLER_DEBUG) {
-                                    CoreError::display(__LINE__, __FILE__);
+                                if (Error::exists() && WingedConfig::$CONTROLLER_DEBUG) {
+                                    Error::display(__LINE__, __FILE__);
                                 }
                                 return true;
                             }
                         } else {
                             if (method_exists($obj, 'whenActionNotFound')) {
-                                $reflect = new ReflectionMethod($this->controller_name, 'whenActionNotFound');
+                                $reflect = new \ReflectionMethod($this->controller_name, 'whenActionNotFound');
                                 $apply = $reflect->getParameters();
                                 if (!empty($apply)) {
                                     foreach ($apply as $key => $value) {
@@ -179,19 +186,19 @@ class Controller
                                     try {
                                         $json = json_encode($return);
                                         echo $json;
-                                    } catch (Exception $error) {
+                                    } catch (\Exception $error) {
                                         return true;
                                     }
                                 }
-                                if (CoreError::exists() && WingedConfig::$CONTROLLER_DEBUG) {
-                                    CoreError::display(__LINE__, __FILE__);
+                                if (Error::exists() && WingedConfig::$CONTROLLER_DEBUG) {
+                                    Error::display(__LINE__, __FILE__);
                                 }
                                 return true;
                             }
                         }
                     } else {
                         if (WingedConfig::$CONTROLLER_DEBUG) {
-                            CoreError::push(__CLASS__, "Controller class '" . $this->controller_name . "' no exists in file '" . $this->controller_path . "'", __FILE__, __LINE__);
+                            Error::push(__CLASS__, "Controller class '" . $this->controller_name . "' no exists in file '" . $this->controller_path . "'", __FILE__, __LINE__);
                         }
                     }
                 }
@@ -244,7 +251,7 @@ class Controller
             include_once $outher_conf;
             mb_internal_encoding(WingedConfig::$INTERNAL_ENCODING);
             mb_http_output(WingedConfig::$OUTPUT_ENCODING);
-            CoreError::clear();
+            Error::clear();
             $this->controller_reset = true;
             Winged::start();
             return true;
@@ -289,7 +296,7 @@ class Controller
         if (file_exists($path)) {
             include_once($path);
         } else {
-            CoreError::push(__CLASS__, "model in " . $path . " can't included because file not found.", __FILE__, __LINE__);
+            Error::push(__CLASS__, "model in " . $path . " can't included because file not found.", __FILE__, __LINE__);
         }
     }
 
@@ -384,7 +391,7 @@ class Controller
             $args = '?' . $args;
         }
         if (WingedConfig::$PARENT_FOLDER_MVC) {
-            $parent = wl::dotslash(Winged::$parent);
+            $parent = WingedLib::dotslash(Winged::$parent);
             if ($parent == '') {
                 header('Location: ' . Winged::$protocol . $path . $args);
             } else {
@@ -474,28 +481,28 @@ class Controller
             }
             if ($this->first_render) {
                 $this->first_render = false;
-                CoreBuffer::reset();
+                Buffer::reset();
                 include_once $path;
-                if(CoreError::exists()){
-                    CoreError::display(__LINE__, __FILE__);
+                if(Error::exists()){
+                    Error::display(__LINE__, __FILE__);
                 }
-                $content = CoreBuffer::get();
-                CoreBuffer::reset();
+                $content = Buffer::get();
+                Buffer::reset();
                 echo '<!DOCTYPE html>';
                 echo '<html>';
                 $this->pureHtml($content);
                 echo '</html>';
             } else {
                 include_once $path;
-                if(CoreError::exists()){
-                    CoreError::display(__LINE__, __FILE__);
+                if(Error::exists()){
+                    Error::display(__LINE__, __FILE__);
                 }
             }
             if ($this->callable !== null) {
                 call_user_func($this->callable);
             }
         } else {
-            CoreError::push(__CLASS__, "file " . $path . " can't rendred because file not found.", __FILE__, __LINE__);
+            Error::push(__CLASS__, "file " . $path . " can't rendred because file not found.", __FILE__, __LINE__);
         }
     }
 
@@ -508,7 +515,7 @@ class Controller
     private function pureHtml($html_page)
     {
         if($this->html_class != null){
-            CoreBuffer::reset();
+            Buffer::reset();
             echo '<html class="'. $this->html_class .'">';
         }
         ?>
@@ -520,8 +527,8 @@ class Controller
             }
             if ($head_content_path !== null) {
                 if (file_exists($head_content_path) && !is_directory($head_content_path)) {
-                    $buffer = CoreBuffer::get();
-                    CoreBuffer::reset();
+                    $buffer = Buffer::get();
+                    Buffer::reset();
                     ob_start();
                     include_once $head_content_path;
                     $head_content_path = ob_get_clean();
@@ -621,13 +628,13 @@ class Controller
             if (Winged::$controller_debug) {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    if(CoreError::exists()){
-                        CoreError::display(__LINE__, __FILE__);
+                    if(Error::exists()){
+                        Error::display(__LINE__, __FILE__);
                     }
-                    $content = CoreBuffer::get();
-                    CoreBuffer::kill();
+                    $content = Buffer::get();
+                    Buffer::kill();
                     return $content;
                 } else {
                     include_once $path;
@@ -635,10 +642,10 @@ class Controller
             } else {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    $content = CoreBuffer::get();
-                    CoreBuffer::kill();
+                    $content = Buffer::get();
+                    Buffer::kill();
                     return $content;
                 } else {
                     include_once $path;
@@ -648,7 +655,7 @@ class Controller
                 call_user_func($this->callable);
             }
         } else {
-            CoreError::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
+            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
         }
     }
 
@@ -673,13 +680,13 @@ class Controller
             if (Winged::$controller_debug) {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    if(CoreError::exists()){
-                        CoreError::display(__LINE__, __FILE__);
+                    if(Error::exists()){
+                        Error::display(__LINE__, __FILE__);
                     }
-                    $content = CoreBuffer::get();
-                    CoreBuffer::kill();
+                    $content = Buffer::get();
+                    Buffer::kill();
                     echo $content;
                 } else {
                     include_once $path;
@@ -687,10 +694,10 @@ class Controller
             } else {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    $content = CoreBuffer::get();
-                    CoreBuffer::kill();
+                    $content = Buffer::get();
+                    Buffer::kill();
                     echo $content;
                 } else {
                     include_once $path;
@@ -700,7 +707,7 @@ class Controller
                 call_user_func($this->callable);
             }
         } else {
-            CoreError::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
+            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
         }
     }
 
@@ -726,13 +733,13 @@ class Controller
             if (Winged::$controller_debug) {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    if(CoreError::exists()){
-                        CoreError::display(__LINE__, __FILE__);
+                    if(Error::exists()){
+                        Error::display(__LINE__, __FILE__);
                     }
-                    $content = CoreBuffer::get();
-                    CoreBuffer::kill();
+                    $content = Buffer::get();
+                    Buffer::kill();
                     if($return){
                         return $content;
                     }
@@ -743,10 +750,10 @@ class Controller
             } else {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    $content = CoreBuffer::get();
-                    CoreBuffer::kill();
+                    $content = Buffer::get();
+                    Buffer::kill();
                     if($return){
                         return $content;
                     }
@@ -759,7 +766,7 @@ class Controller
                 call_user_func($this->callable);
             }
         } else {
-            CoreError::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
+            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
         }
         return false;
     }
@@ -786,12 +793,12 @@ class Controller
             if (Winged::$controller_debug) {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    if(CoreError::exists()){
-                        CoreError::display(__LINE__, __FILE__);
+                    if(Error::exists()){
+                        Error::display(__LINE__, __FILE__);
                     }
-                    CoreBuffer::kill();
+                    Buffer::kill();
                     $this->array2json();
                 } else {
                     include_once $path;
@@ -799,9 +806,9 @@ class Controller
             } else {
                 if ($this->first_render) {
                     $this->first_render = false;
-                    CoreBuffer::reset();
+                    Buffer::reset();
                     include_once $path;
-                    CoreBuffer::kill();
+                    Buffer::kill();
                     $this->array2json();
                 } else {
                     include_once $path;
@@ -811,7 +818,7 @@ class Controller
                 call_user_func($this->callable);
             }
         } else {
-            CoreError::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
+            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
         }
     }
 
@@ -850,7 +857,7 @@ class Controller
     {
         if (file_exists($string) && !is_directory($string) && !$url) {
             if (array_key_exists($identifier, $this->js)) {
-                CoreError::push(__CLASS__, "Index '" . $identifier . "' was doubled, js file '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, js file '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
             $this->js[$identifier] = [];
             $this->js[$identifier]['string'] = $string;
@@ -858,7 +865,7 @@ class Controller
             $this->js[$identifier]['options'] = $options;
         } else if (!$url) {
             if (array_key_exists($identifier, $this->js)) {
-                CoreError::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->js[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->js[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
             $this->js[$identifier] = array();
             $this->js[$identifier]['string'] = $string;
@@ -866,7 +873,7 @@ class Controller
             $this->js[$identifier]['options'] = $options;
         } else if ($url) {
             if (array_key_exists($identifier, $this->js)) {
-                CoreError::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
             $this->js[$identifier] = array();
             $this->js[$identifier]['string'] = $string;
@@ -880,7 +887,7 @@ class Controller
     {
         if (file_exists($string) && !is_directory($string) && !$url) {
             if (array_key_exists($identifier, $this->css)) {
-                CoreError::push(__CLASS__, "Index '" . $identifier . "' was doubled, script file '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script file '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
             $this->css[$identifier] = array();
             $this->css[$identifier]['string'] = $string;
@@ -888,7 +895,7 @@ class Controller
             $this->css[$identifier]['options'] = $options;
         } else if (!$url) {
             if (array_key_exists($identifier, $this->css)) {
-                CoreError::push(__CLASS__, "Index '" . $identifier . "' was doubled, css '" . htmlspecialchars($this->css[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css '" . htmlspecialchars($this->css[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
             $this->css[$identifier] = array();
             $this->css[$identifier]['string'] = $string;
@@ -896,7 +903,7 @@ class Controller
             $this->css[$identifier]['options'] = $options;
         } else if ($url) {
             if (array_key_exists($identifier, $this->css)) {
-                CoreError::push(__CLASS__, "Index '" . $identifier . "' was doubled, css url '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css url '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
             $this->css[$identifier] = array();
             $this->css[$identifier]['string'] = $string;
