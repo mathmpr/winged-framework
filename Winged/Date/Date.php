@@ -470,8 +470,19 @@ class Date
      */
     private function normalize($date = false, $hours = true)
     {
+        if(is_object($date)){
+            if(get_class($date) == 'Winged\Date\Date'){
+                /**
+                 * @var $date Date
+                 */
+                $date = $date->dmy(true);
+            }
+        }
         if (is_int($date)) {
             $date = date('Y/m/d H:i:s', $date);
+        }
+        if(gettype($date) == 'object'){
+            pre_clear_buffer_die($date);
         }
         $date = trim($date);
         if (!$date) {

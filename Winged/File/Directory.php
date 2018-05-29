@@ -119,7 +119,8 @@ class Directory
     {
         if ($this->folder != null) {
             $exp = explode('/', $this->folder);
-            while (count($exp) != 2) {
+            $expCount = count($exp);
+            while ($expCount != 2) {
                 array_pop($exp);
             }
             $folder = join('/', $exp) . '/';

@@ -185,7 +185,8 @@ class Rewrite
             $key = trim($key);
             $exp = explode("/", $key);
             $pos = stripos($key, $okey);
-            if (count($exp) >= 3) {
+            $countExp = count($exp);
+            if ($countExp >= 3) {
                 if (is_int($pos) && !$found) {
                     $replace = str_replace($okey, "", $key);
                     $found = ["key" => $key, "value" => $value, "uri_comp" => WingedLib::dotslash($replace)];
@@ -284,8 +285,11 @@ class Rewrite
 
             $init = true;
 
-            if (count($params) == count($exp)) {
-                for ($x = 0; $x < count($exp); $x++) {
+            $countParams = is_array($params) ? count($params) : 0;
+            $countExp = is_array($exp) ? count($exp) : 0;
+
+            if ($countParams == $countExp) {
+                for ($x = 0; $x < $countExp; $x++) {
                     $math = explode(":", $exp[$x]);
                     $is_action = false;
                     if (count($math) == 2 && $math[0] == "action") {
@@ -330,7 +334,8 @@ class Rewrite
 
     public function get_actions_count()
     {
-        return count($this->actions);
+        $count = is_array($this->actions) ? count($this->actions) : 0;
+        return $count;
     }
 
     public function get_actions()
