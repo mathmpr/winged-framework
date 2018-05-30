@@ -65,13 +65,15 @@ function findClass($className)
     $cache = "<?php global " . '$__autoload__cache' . "; ";
     $exec = '$__autoload__cache' . " = [";
     foreach ($files as $file) {
-        $exec .= '"' . $file . '",';
+        $exec .= '
+    "' . $file . '",';
         if (is_int(strpos($file, $className))) {
             include_once $file;
         }
     }
     $exec = substr($exec, 0, strlen($exec) - 1);
-    $exec .= '];';
+    $exec .= '
+];';
     eval($exec);
     file_put_contents(CLASS_PATH . 'autoload.cache.php', $cache . $exec);
 }

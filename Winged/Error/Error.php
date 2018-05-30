@@ -9,12 +9,15 @@ register_shutdown_function(["Winged\Error\ShutdownCallback", "shutdownHandler"])
 
 set_error_handler(["Winged\Error\ShutdownCallback", "errorHandler"], E_ALL);
 
+/**
+ * Class Error
+ * @package Winged\Error
+ */
 class Error
 {
 
     private static $ignore_errors = ["E_DEPRECATED"];
     public static $errors = [];
-    public static $warnings = [];
 
     private static function protocol()
     {
@@ -100,6 +103,22 @@ class Error
     public static function clear()
     {
         self::$errors = [];
+    }
+
+    /**
+     * @return int
+     */
+    public static function errorCount(){
+        return count(self::$errors);
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function deleteLastError(){
+        if(self::errorCount() > 0){
+            return array_pop(self::$errors);
+        }
     }
 
     public static function push($errno, $errstr, $errfile, $errline, $errcontext = false)

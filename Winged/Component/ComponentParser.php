@@ -2,20 +2,26 @@
 
 namespace Winged\Component;
 
-
-use Winged\External\PhpQuery\phpQuery;
-use Winged\External\PhpQuery\phpQueryObject;
+use Masterminds\HTML5;
 use Winged\File\File;
 
 /**
  * Class ComponentParser
  * @package Winged\Component
  */
+
 class ComponentParser
 {
+    /**
+     * @var null|Component
+     */
+    public $component = null;
 
     public $properties = [];
 
+    /**
+     * @var null|\pQuery
+     */
     public $DOM = null;
 
     /**
@@ -24,7 +30,27 @@ class ComponentParser
      */
     function __construct(File $template)
     {
-        $this->DOM = phpQuery::newDocument($template->read());
+        $html5 = new HTML5();
+        $this->DOM = \pQuery::parseStr($html5->saveHTML($html5->loadHTML($template->read())));
+        $includes = $this->DOM->query('x-include');
+        if($includes){
+            /**
+             * @var $include \pQuery
+             */
+            foreach ($includes as $include){
+                if($include->attr('template')){
+                    $component = new Component($include->attr('directory'));
+                    pre_clear_buffer_die($component);
+                    //$component->configure([
+                    //    $include->attr('template')
+                    //]);
+                }
+            }
+        }
+    }
+
+    function setComponent($component){
+        $this->component = $component;
     }
 
     /**
@@ -37,16 +63,17 @@ class ComponentParser
     }
 
     /**
-     * @param null | string $selector
+     * @param $selector
      * @param null $text
-     * @return String
+     * @return bool|String
      */
-    function text($selector, $text = null){
-        if(!is_null($selector)){
-            if(is_null($text)){
-                return $this->DOM->find($selector)->text();
-            }else{
-                $this->DOM->find($selector)->text($text);
+    function text($selector, $text = null)
+    {
+        if (!is_null($selector)) {
+            if (is_null($text)) {
+                return $this->DOM->query($selector)->text();
+            } else {
+                $this->DOM->query($selector)->text($text);
             }
         }
         return false;
@@ -55,8 +82,14 @@ class ComponentParser
     /**
      * @return string
      */
-    function free(){
-        return $this->DOM->markup();
+    function freeReturn()
+    {
+        return $this->DOM->html();
+    }
+
+    function free()
+    {
+        echo $this->DOM->html();
     }
 
 }

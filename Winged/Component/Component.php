@@ -30,12 +30,24 @@ class Component
      */
     public $templates = null;
 
+    public $registers = [];
+
     /**
      * Component constructor.
      * @param string $directory
+     * @param false|array $startComponent
      */
-    public function __construct($directory)
+    public function __construct($directory, $startComponent = null)
     {
+        $this->construct($directory, $startComponent);
+    }
+
+    /**
+     * Component constructor.
+     * @param string $directory
+     * @param false|array $startComponent
+     */
+    public function construct($directory, $startComponent = null){
         $directory = new Directory($directory, false);
         if ($directory->exists()) {
             $parser = new Directory($directory->folder . 'parsers/', false);
@@ -49,14 +61,30 @@ class Component
         } else {
             Error::_die('Component directory not exists.', 'null', __FILE__, __LINE__);
         }
+        if($startComponent){
+            if(is_array($startComponent)){
+                $this->startComponents($startComponent);
+            }
+        }
+    }
+
+    public function registerComponents($parsers){
+        if(is_array($parsers)){
+            $this->registers = array_merge($this->registers, $parsers);
+        }
     }
 
     /**
      * @param $parsers array
      */
-    public function configure($parsers)
+    public function startComponents($parsers)
     {
         foreach ($parsers as $class => $parserParameters) {
+            if(is_int($class) && is_string($parserParameters)){
+                $class = $parserParameters;
+                $parserParameters = false;
+            }
+
             if (is_int(stripos($class, '\\'))) {
                 $explodeNamespace = explode('\\', $class);
                 $templateName = end($explodeNamespace);
@@ -75,12 +103,17 @@ class Component
                 include_once $parser->file_path;
                 if (class_exists($class . 'Component')) {
                     $class = $class . 'Component';
+                    $parsedObject = new $class($template);
                     $this->parsersObjects[$preservedName] = new $class($template);
-                    foreach ($parserParameters as $key => $parameter){
-                        if(is_string($key)){
-                            $this->parsersObjects[$preservedName]->addProperty($key, $parameter);
+                    if(is_array($parserParameters)){
+                        foreach ($parserParameters as $key => $parameter){
+                            if(is_string($key)){
+                                $parsedObject->addProperty($key, $parameter);
+                            }
                         }
                     }
+                    $parsedObject->setComponent($this);
+                    $this->parsersObjects[$preservedName] = $parsedObject;
                 } else {
                     Error::_die('Class ' . $class . 'Component' . ' not exists in ' . $parser->file_path . '', 'null', __FILE__, __LINE__);
                 }
