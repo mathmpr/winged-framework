@@ -13,7 +13,8 @@ namespace pQuery;
  * parent, children, self close, etc.
  *
  */
-class DomNode implements IQuery {
+class DomNode implements IQuery
+{
 
     /**
      * Element Node, used for regular elements
@@ -235,12 +236,13 @@ class DomNode implements IQuery {
     /**
      * Class constructor
      * @param string|array $tag Name of the tag, or array with taginfo (array(
-     *	'tag_name' => 'tag',
-     *	'self_close' => false,
-     *	'attributes' => array('attribute' => 'value')))
+     *    'tag_name' => 'tag',
+     *    'self_close' => false,
+     *    'attributes' => array('attribute' => 'value')))
      * @param DomNode $parent Parent of node, null if none
      */
-    function __construct($tag, $parent) {
+    function __construct($tag, $parent)
+    {
         $this->parent = $parent;
 
         if (is_string($tag)) {
@@ -260,7 +262,8 @@ class DomNode implements IQuery {
      * Class destructor
      * @access private
      */
-    function __destruct() {
+    function __destruct()
+    {
         $this->delete();
     }
 
@@ -269,7 +272,8 @@ class DomNode implements IQuery {
      * @return string
      * @access private
      */
-    function __toString() {
+    function __toString()
+    {
         return (($this->tag === '~root~') ? $this->toString(true, true, 1) : $this->tag);
     }
 
@@ -278,7 +282,8 @@ class DomNode implements IQuery {
      * @return string
      * @access private
      */
-    function __get($attribute) {
+    function __get($attribute)
+    {
         return $this->getAttribute($attribute);
     }
 
@@ -286,7 +291,8 @@ class DomNode implements IQuery {
      * Class magic set method, performs {@link setAttribute()}
      * @access private
      */
-    function __set($attribute, $value) {
+    function __set($attribute, $value)
+    {
         $this->setAttribute($attribute, $value);
     }
 
@@ -295,7 +301,8 @@ class DomNode implements IQuery {
      * @return bool
      * @access private
      */
-    function __isset($attribute) {
+    function __isset($attribute)
+    {
         return $this->hasAttribute($attribute);
     }
 
@@ -303,7 +310,8 @@ class DomNode implements IQuery {
      * Class magic unset method, performs {@link deleteAttribute()}
      * @access private
      */
-    function __unset($attribute) {
+    function __unset($attribute)
+    {
         return $this->deleteAttribute($attribute);
     }
 
@@ -312,7 +320,8 @@ class DomNode implements IQuery {
      * @param string $query The css query to run on the nodes.
      * @return \pQuery
      */
-    function __invoke($query = '*') {
+    function __invoke($query = '*')
+    {
         return $this->query($query);
     }
 
@@ -320,8 +329,9 @@ class DomNode implements IQuery {
      * Returns place in document
      * @return string
      */
-    function dumpLocation() {
-        return (($this->parent) ? (($p = $this->parent->dumpLocation()) ? $p.' > ' : '').$this->tag.'('.$this->typeIndex().')' : '');
+    function dumpLocation()
+    {
+        return (($this->parent) ? (($p = $this->parent->dumpLocation()) ? $p . ' > ' : '') . $this->tag . '(' . $this->typeIndex() . ')' : '');
     }
 
     /**
@@ -329,13 +339,14 @@ class DomNode implements IQuery {
      * @return string
      * @access private
      */
-    protected function toString_attributes() {
+    protected function toString_attributes()
+    {
         $s = '';
-        foreach($this->attributes as $a => $v) {
-            $s .= ' '.$a;
+        foreach ($this->attributes as $a => $v) {
+            $s .= ' ' . $a;
             if ((!$this->attribute_shorttag) || ($v !== $a)) {
                 $quote = (strpos($v, '"') === false) ? '"' : "'";
-                $s .= '='.$quote.$v.$quote;
+                $s .= '=' . $quote . $v . $quote;
             }
         }
         return $s;
@@ -349,9 +360,10 @@ class DomNode implements IQuery {
      * @return string
      * @access private
      */
-    protected function toString_content($attributes = true, $recursive = true, $content_only = false) {
+    protected function toString_content($attributes = true, $recursive = true, $content_only = false)
+    {
         $s = '';
-        foreach($this->children as $c) {
+        foreach ($this->children as $c) {
             $s .= $c->toString($attributes, $recursive, $content_only);
         }
         return $s;
@@ -364,7 +376,8 @@ class DomNode implements IQuery {
      * @param bool|int $content_only Only print text, false will print tags too.
      * @return string
      */
-    function toString($attributes = true, $recursive = true, $content_only = false) {
+    function toString($attributes = true, $recursive = true, $content_only = false)
+    {
         if ($content_only) {
             if (is_int($content_only)) {
                 --$content_only;
@@ -372,18 +385,18 @@ class DomNode implements IQuery {
             return $this->toString_content($attributes, $recursive, $content_only);
         }
 
-        $s = '<'.$this->tag;
+        $s = '<' . $this->tag;
         if ($attributes) {
             $s .= $this->toString_attributes();
         }
         if ($this->self_close) {
-            $s .= $this->self_close_str.'>';
+            $s .= $this->self_close_str . '>';
         } else {
             $s .= '>';
-            if($recursive) {
+            if ($recursive) {
                 $s .= $this->toString_content($attributes);
             }
-            $s .= '</'.$this->tag.'>';
+            $s .= '</' . $this->tag . '>';
         }
         return $s;
     }
@@ -392,7 +405,8 @@ class DomNode implements IQuery {
      * Similar to JavaScript outerText, will return full (html formatted) node
      * @return string
      */
-    function getOuterText() {
+    function getOuterText()
+    {
         return html_entity_decode($this->toString(), ENT_QUOTES);
     }
 
@@ -402,7 +416,8 @@ class DomNode implements IQuery {
      * @param HtmlParserBase $parser Null to auto create instance
      * @return bool|array True on succeed, array with errors on failure
      */
-    function setOuterText($text, $parser = null) {
+    function setOuterText($text, $parser = null)
+    {
         if (trim($text)) {
             $index = $this->index();
             if ($parser === null) {
@@ -423,7 +438,8 @@ class DomNode implements IQuery {
      * @see toString()
      * @return string
      */
-    function html($value = null) {
+    function html($value = null)
+    {
         if ($value !== null) {
             $this->setInnerText($value);
         }
@@ -434,7 +450,8 @@ class DomNode implements IQuery {
      * Similar to JavaScript innerText, will return (html formatted) content
      * @return string
      */
-    function getInnerText() {
+    function getInnerText()
+    {
         return html_entity_decode($this->toString(true, true, 1), ENT_QUOTES);
     }
 
@@ -444,7 +461,8 @@ class DomNode implements IQuery {
      * @param HtmlParserBase $parser Null to auto create instance
      * @return bool|array True on succeed, array with errors on failure
      */
-    function setInnerText($text, $parser = null) {
+    function setInnerText($text, $parser = null)
+    {
         $this->clear();
         if (trim($text)) {
             if ($parser === null) {
@@ -461,7 +479,8 @@ class DomNode implements IQuery {
      * Similar to JavaScript plainText, will return text in node (and subnodes)
      * @return string
      */
-    function getPlainText() {
+    function getPlainText()
+    {
         return preg_replace('`\s+`', ' ', html_entity_decode($this->toString(true, true, true), ENT_QUOTES));
     }
 
@@ -469,7 +488,8 @@ class DomNode implements IQuery {
      * Return plaintext taking document encoding into account
      * @return string
      */
-    function getPlainTextUTF8() {
+    function getPlainTextUTF8()
+    {
         $txt = $this->toString(true, true, true);
         $enc = $this->getEncoding();
         if ($enc !== false) {
@@ -482,7 +502,8 @@ class DomNode implements IQuery {
      * Similar to JavaScript plainText, will replace child nodes with new text (literal)
      * @param string $text
      */
-    function setPlainText($text) {
+    function setPlainText($text)
+    {
         $this->clear();
         if (trim($text)) {
             $this->addText(htmlentities($text, ENT_QUOTES));
@@ -492,7 +513,8 @@ class DomNode implements IQuery {
     /**
      * Delete node from parent and clear node
      */
-    function delete() {
+    function delete()
+    {
         if (($p = $this->parent) !== null) {
             $this->parent = null;
             $p->deleteChild($this);
@@ -507,7 +529,8 @@ class DomNode implements IQuery {
      * @internal jquery (naming) compatibility
      * @see delete()
      */
-    function detach($move_children_up = false) {
+    function detach($move_children_up = false)
+    {
         if (($p = $this->parent) !== null) {
             $index = $this->index();
             $this->parent = null;
@@ -522,8 +545,9 @@ class DomNode implements IQuery {
     /**
      * Deletes all child nodes from node
      */
-    function clear() {
-        foreach($this->children as $c) {
+    function clear()
+    {
+        foreach ($this->children as $c) {
             $c->parent = null;
             $c->delete();
         }
@@ -534,7 +558,8 @@ class DomNode implements IQuery {
      * Get top parent
      * @return DomNode Root, null if node has no parent
      */
-    function getRoot() {
+    function getRoot()
+    {
         $r = $this->parent;
         $n = ($r === null) ? null : $r->parent;
         while ($n !== null) {
@@ -554,7 +579,8 @@ class DomNode implements IQuery {
     #function changeParent($to, &$index) {
     #php4e
     #php5
-    function changeParent($to, &$index = null) {
+    function changeParent($to, &$index = null)
+    {
         #php5e
         if ($this->parent !== null) {
             $this->parent->deleteChild($this, true);
@@ -574,7 +600,8 @@ class DomNode implements IQuery {
      * @param bool $recursive
      * @return bool
      */
-    function hasParent($tag = null, $recursive = false) {
+    function hasParent($tag = null, $recursive = false)
+    {
         if ($this->parent !== null) {
             if ($tag === null) {
                 return true;
@@ -595,7 +622,8 @@ class DomNode implements IQuery {
      * @return bool
      * @see hasParent()
      */
-    function isParent($tag, $recursive = false) {
+    function isParent($tag, $recursive = false)
+    {
         return ($this->hasParent($tag, $recursive) === ($tag !== null));
     }
 
@@ -603,7 +631,8 @@ class DomNode implements IQuery {
      * Find out if node is text
      * @return bool
      */
-    function isText() {
+    function isText()
+    {
         return false;
     }
 
@@ -611,7 +640,8 @@ class DomNode implements IQuery {
      * Find out if node is comment
      * @return bool
      */
-    function isComment() {
+    function isComment()
+    {
         return false;
     }
 
@@ -619,7 +649,8 @@ class DomNode implements IQuery {
      * Find out if node is text or comment node
      * @return bool
      */
-    function isTextOrComment() {
+    function isTextOrComment()
+    {
         return false;
     }
 
@@ -633,7 +664,8 @@ class DomNode implements IQuery {
     #function move($to, &$new_index) {
     #php4e
     #php5
-    function move($to, &$new_index = -1) {
+    function move($to, &$new_index = -1)
+    {
         #php5e
         $this->changeParent($to, $new_index);
     }
@@ -649,7 +681,8 @@ class DomNode implements IQuery {
     #function moveChildren($to, &$new_index, $start = 0, $end = -1) {
     #php4e
     #php5
-    function moveChildren($to, &$new_index = -1, $start = 0, $end = -1) {
+    function moveChildren($to, &$new_index = -1, $start = 0, $end = -1)
+    {
         #php5e
         if ($end < 0) {
             $end += count($this->children);
@@ -664,12 +697,13 @@ class DomNode implements IQuery {
      * @param bool $count_all True to count all tags, false to ignore text and comments
      * @return int -1 if not found
      */
-    function index($count_all = true) {
+    function index($count_all = true)
+    {
         if (!$this->parent) {
             return -1;
         } elseif ($count_all) {
             return $this->parent->findChild($this);
-        } else{
+        } else {
             $index = -1;
             //foreach($this->parent->children as &$c) {
             //	if (!$c->isTextOrComment()) {
@@ -680,7 +714,7 @@ class DomNode implements IQuery {
             //	}
             //}
 
-            foreach(array_keys($this->parent->children) as $k) {
+            foreach (array_keys($this->parent->children) as $k) {
                 if (!$this->parent->children[$k]->isTextOrComment()) {
                     ++$index;
                 }
@@ -696,7 +730,8 @@ class DomNode implements IQuery {
      * Change index of node in parent
      * @param int $index New index
      */
-    function setIndex($index) {
+    function setIndex($index)
+    {
         if ($this->parent) {
             if ($index > $this->index()) {
                 --$index;
@@ -710,7 +745,8 @@ class DomNode implements IQuery {
      * Index of all similar nodes in parent
      * @return int -1 if not found
      */
-    function typeIndex() {
+    function typeIndex()
+    {
         if (!$this->parent) {
             return -1;
         } else {
@@ -724,7 +760,7 @@ class DomNode implements IQuery {
             //	}
             //}
 
-            foreach(array_keys($this->parent->children) as $k) {
+            foreach (array_keys($this->parent->children) as $k) {
                 if (strcasecmp($this->tag, $this->parent->children[$k]->tag) === 0) {
                     ++$index;
                 }
@@ -740,7 +776,8 @@ class DomNode implements IQuery {
      * Calculate indent of node (number of parent tags - 1)
      * @return int
      */
-    function indent() {
+    function indent()
+    {
         return (($this->parent) ? $this->parent->indent() + 1 : -1);
     }
 
@@ -749,7 +786,8 @@ class DomNode implements IQuery {
      * @param int $offset Offset from current node
      * @return DomNode Null if not found
      */
-    function getSibling($offset = 1) {
+    function getSibling($offset = 1)
+    {
         $index = $this->index() + $offset;
         if (($index >= 0) && ($index < $this->parent->childCount())) {
             return $this->parent->getChild($index);
@@ -765,7 +803,8 @@ class DomNode implements IQuery {
      * @see getSibling()
      * @see getPreviousSibling()
      */
-    function getNextSibling($skip_text_comments = true) {
+    function getNextSibling($skip_text_comments = true)
+    {
         $offset = 1;
         while (($n = $this->getSibling($offset)) !== null) {
             if ($skip_text_comments && ($n->tag[0] === '~')) {
@@ -785,7 +824,8 @@ class DomNode implements IQuery {
      * @see getSibling()
      * @see getNextSibling()
      */
-    function getPreviousSibling($skip_text_comments = true) {
+    function getPreviousSibling($skip_text_comments = true)
+    {
         $offset = -1;
         while (($n = $this->getSibling($offset)) !== null) {
             if ($skip_text_comments && ($n->tag[0] === '~')) {
@@ -803,7 +843,8 @@ class DomNode implements IQuery {
      * @return string
      * @see setNamespace()
      */
-    function getNamespace() {
+    function getNamespace()
+    {
         if ($this->tag_ns === null) {
             $a = explode(':', $this->tag, 2);
             if (empty($a[1])) {
@@ -821,10 +862,11 @@ class DomNode implements IQuery {
      * @param string $ns
      * @see getNamespace()
      */
-    function setNamespace($ns) {
+    function setNamespace($ns)
+    {
         if ($this->getNamespace() !== $ns) {
             $this->tag_ns[0] = $ns;
-            $this->tag = $ns.':'.$this->tag_ns[1];
+            $this->tag = $ns . ':' . $this->tag_ns[1];
         }
     }
 
@@ -833,7 +875,8 @@ class DomNode implements IQuery {
      * @return string
      * @see setTag()
      */
-    function getTag() {
+    function getTag()
+    {
         if ($this->tag_ns === null) {
             $this->getNamespace();
         }
@@ -847,14 +890,15 @@ class DomNode implements IQuery {
      * @param bool $with_ns Does $tag include namespace?
      * @see getTag()
      */
-    function setTag($tag, $with_ns = false) {
+    function setTag($tag, $with_ns = false)
+    {
         $with_ns = $with_ns || (strpos($tag, ':') !== false);
         if ($with_ns) {
             $this->tag = $tag;
             $this->tag_ns = null;
         } elseif ($this->getTag() !== $tag) {
             $this->tag_ns[1] = $tag;
-            $this->tag = (($this->tag_ns[0]) ? $this->tag_ns[0].':' : '').$tag;
+            $this->tag = (($this->tag_ns[0]) ? $this->tag_ns[0] . ':' : '') . $tag;
         }
     }
 
@@ -862,7 +906,8 @@ class DomNode implements IQuery {
      * Try to determine the encoding of the current tag
      * @return string|bool False if encoding could not be found
      */
-    function getEncoding() {
+    function getEncoding()
+    {
         $root = $this->getRoot();
         if ($root !== null) {
             if ($enc = $root->select('meta[charset]', 0, true, true)) {
@@ -871,7 +916,7 @@ class DomNode implements IQuery {
                 return $enc->getAttribute("encoding");
             } elseif ($enc = $root->select('meta[content*="charset="]', 0, true, true)) {
                 $enc = $enc->getAttribute("content");
-                return substr($enc, strpos($enc, "charset=")+8);
+                return substr($enc, strpos($enc, "charset=") + 8);
             }
         }
 
@@ -883,10 +928,11 @@ class DomNode implements IQuery {
      * @param bool $ignore_text_comments Ignore text/comments with calculation
      * @return int
      */
-    function childCount($ignore_text_comments = false) {
+    function childCount($ignore_text_comments = false)
+    {
         if (!$ignore_text_comments) {
             return count($this->children);
-        } else{
+        } else {
             $count = 0;
             //foreach($this->children as &$c) {
             //	if (!$c->isTextOrComment()) {
@@ -894,7 +940,7 @@ class DomNode implements IQuery {
             //	}
             //}
 
-            foreach(array_keys($this->children) as $k) {
+            foreach (array_keys($this->children) as $k) {
                 if (!$this->children[$k]->isTextOrComment()) {
                     ++$count;
                 }
@@ -908,7 +954,8 @@ class DomNode implements IQuery {
      * @param DomNode $child
      * @return int False if not found
      */
-    function findChild($child) {
+    function findChild($child)
+    {
         return array_search($child, $this->children, true);
     }
 
@@ -917,8 +964,9 @@ class DomNode implements IQuery {
      * @param DomNode $child
      * @return bool
      */
-    function hasChild($child) {
-        return ((bool) findChild($child));
+    function hasChild($child)
+    {
+        return ((bool)findChild($child));
     }
 
     /**
@@ -927,7 +975,8 @@ class DomNode implements IQuery {
      * @param bool $ignore_text_comments Ignore text/comments with index calculation
      * @return DomNode
      */
-    function &getChild($child, $ignore_text_comments = false) {
+    function &getChild($child, $ignore_text_comments = false)
+    {
         if (!is_int($child)) {
             $child = $this->findChild($child);
         } elseif ($child < 0) {
@@ -946,7 +995,7 @@ class DomNode implements IQuery {
             //	}
             //}
 
-            foreach(array_keys($this->children) as $k) {
+            foreach (array_keys($this->children) as $k) {
                 if (!$this->children[$k]->isTextOrComment()) {
                     if ($count++ === $child) {
                         return $this->children[$k];
@@ -970,7 +1019,8 @@ class DomNode implements IQuery {
     #function &addChild($tag, &$offset) {
     #php4e
     #php5
-    function &addChild($tag, &$offset = null) {
+    function &addChild($tag, &$offset = null)
+    {
         #php5e
         if (is_array($tag)) {
             $tag = new $this->childClass($tag, $this);
@@ -1004,7 +1054,8 @@ class DomNode implements IQuery {
      * @param bool $ignore_text_comments Ignore text/comments with index calculation
      * @return DomNode
      */
-    function &firstChild($ignore_text_comments = false) {
+    function &firstChild($ignore_text_comments = false)
+    {
         return $this->getChild(0, $ignore_text_comments);
     }
 
@@ -1013,7 +1064,8 @@ class DomNode implements IQuery {
      * @param bool $ignore_text_comments Ignore text/comments with index calculation
      * @return DomNode
      */
-    function &lastChild($ignore_text_comments = false) {
+    function &lastChild($ignore_text_comments = false)
+    {
         return $this->getChild(-1, $ignore_text_comments);
     }
 
@@ -1024,7 +1076,8 @@ class DomNode implements IQuery {
      * @return DomNode Added node
      * @see addChild();
      */
-    function &insertChild($tag, $index) {
+    function &insertChild($tag, $index)
+    {
         return $this->addChild($tag, $index);
     }
 
@@ -1039,7 +1092,8 @@ class DomNode implements IQuery {
     #function &addText($text, &$offset) {
     #php4e
     #php5
-    function &addText($text, &$offset = null) {
+    function &addText($text, &$offset = null)
+    {
         #php5e
         return $this->addChild(new $this->childClass_Text($this, $text), $offset);
     }
@@ -1055,7 +1109,8 @@ class DomNode implements IQuery {
     #function &addComment($text, &$offset) {
     #php4e
     #php5
-    function &addComment($text, &$offset = null) {
+    function &addComment($text, &$offset = null)
+    {
         #php5e
         return $this->addChild(new $this->childClass_Comment($this, $text), $offset);
     }
@@ -1072,7 +1127,8 @@ class DomNode implements IQuery {
     #function &addConditional($condition, $hidden = true, &$offset) {
     #php4e
     #php5
-    function &addConditional($condition, $hidden = true, &$offset = null) {
+    function &addConditional($condition, $hidden = true, &$offset = null)
+    {
         #php5e
         return $this->addChild(new $this->childClass_Conditional($this, $condition, $hidden), $offset);
     }
@@ -1088,7 +1144,8 @@ class DomNode implements IQuery {
     #function &addCDATA($text, &$offset) {
     #php4e
     #php5
-    function &addCDATA($text, &$offset = null) {
+    function &addCDATA($text, &$offset = null)
+    {
         #php5e
         return $this->addChild(new $this->childClass_CDATA($this, $text), $offset);
     }
@@ -1104,7 +1161,8 @@ class DomNode implements IQuery {
     #function &addDoctype($dtd, &$offset) {
     #php4e
     #php5
-    function &addDoctype($dtd, &$offset = null) {
+    function &addDoctype($dtd, &$offset = null)
+    {
         #php5e
         return $this->addChild(new $this->childClass_Doctype($this, $dtd), $offset);
     }
@@ -1122,7 +1180,8 @@ class DomNode implements IQuery {
     #function &addXML($tag = 'xml', $text = '', $attributes = array(), &$offset) {
     #php4e
     #php5
-    function &addXML($tag = 'xml', $text = '', $attributes = array(), &$offset = null) {
+    function &addXML($tag = 'xml', $text = '', $attributes = array(), &$offset = null)
+    {
         #php5e
         return $this->addChild(new $this->childClass_XML($this, $tag, $text, $attributes), $offset);
     }
@@ -1140,7 +1199,8 @@ class DomNode implements IQuery {
     #function &addASP($tag = '', $text = '', $attributes = array(), &$offset) {
     #php4e
     #php5
-    function &addASP($tag = '', $text = '', $attributes = array(), &$offset = null) {
+    function &addASP($tag = '', $text = '', $attributes = array(), &$offset = null)
+    {
         #php5e
         return $this->addChild(new $this->childClass_ASP($this, $tag, $text, $attributes), $offset);
     }
@@ -1150,28 +1210,31 @@ class DomNode implements IQuery {
      * @param int|DomNode $child Child(index) to delete, negative to count from end
      * @param bool $soft_delete False to call {@link delete()} from child
      */
-    function deleteChild($child, $soft_delete = false) {
+    function deleteChild($child, $soft_delete = false)
+    {
         if (is_object($child)) {
             $child = $this->findChild($child);
         } elseif ($child < 0) {
             $child += count($this->children);
         }
 
-        if (!$soft_delete) {
-            $this->children[$child]->delete();
-        }
-        unset($this->children[$child]);
+        if (!is_bool($child)) {
+            if (!$soft_delete) {
+                $this->children[$child]->delete();
+            }
+            unset($this->children[$child]);
 
-        //Rebuild indices
-        $tmp = array();
+            //Rebuild indices
+            $tmp = array();
 
-        //foreach($this->children as &$c) {
-        //	$tmp[] =& $c;
-        //}
-        foreach(array_keys($this->children) as $k) {
-            $tmp[] =& $this->children[$k];
+            //foreach($this->children as &$c) {
+            //	$tmp[] =& $c;
+            //}
+            foreach (array_keys($this->children) as $k) {
+                $tmp[] =& $this->children[$k];
+            }
+            $this->children = $tmp;
         }
-        $this->children = $tmp;
     }
 
     /**
@@ -1181,7 +1244,8 @@ class DomNode implements IQuery {
      * @param int $node_index Index to insert wrapping node, null to keep at same position
      * @return DomNode Wrapping node
      */
-    function wrap($node, $wrap_index = -1, $node_index = null) {
+    function wrap($node, $wrap_index = -1, $node_index = null)
+    {
         if ($node_index === null) {
             $node_index = $this->index();
         }
@@ -1205,7 +1269,8 @@ class DomNode implements IQuery {
      * @param int $node_index Index to insert current node, null to keep at same position
      * @return DomNode Wrapping node
      */
-    function wrapInner($node, $start = 0, $end = -1, $wrap_index = -1, $node_index = null) {
+    function wrapInner($node, $start = 0, $end = -1, $wrap_index = -1, $node_index = null)
+    {
         if ($end < 0) {
             $end += count($this->children);
         }
@@ -1227,7 +1292,8 @@ class DomNode implements IQuery {
      * Number of attributes
      * @return int
      */
-    function attributeCount() {
+    function attributeCount()
+    {
         return count($this->attributes);
     }
 
@@ -1239,7 +1305,8 @@ class DomNode implements IQuery {
      * @return array array('ns', 'attr', 'ns:attr', index)
      * @access private
      */
-    protected function findAttribute($attr, $compare = 'total', $case_sensitive = false) {
+    protected function findAttribute($attr, $compare = 'total', $case_sensitive = false)
+    {
         if (is_int($attr)) {
             if ($attr < 0) {
                 $attr += count($this->attributes);
@@ -1257,7 +1324,7 @@ class DomNode implements IQuery {
 
             if (isset($t[$attr])) {
                 $index = 0;
-                foreach($this->attributes as $a => $v) {
+                foreach ($this->attributes as $a => $v) {
                     if (($v === $t[$attr]) && (strcasecmp($a, $attr) === 0)) {
                         $attr = $a;
                         $b = explode(':', $attr, 2);
@@ -1277,7 +1344,7 @@ class DomNode implements IQuery {
         } else {
             if ($this->attributes_ns === null) {
                 $index = 0;
-                foreach($this->attributes as $a => $v) {
+                foreach ($this->attributes as $a => $v) {
                     $b = explode(':', $a, 2);
                     if (empty($b[1])) {
                         $this->attributes_ns[$b[0]][] = array('', $b[0], $a, $index);
@@ -1297,8 +1364,8 @@ class DomNode implements IQuery {
 
             if ($compare === 'namespace') {
                 $res = array();
-                foreach($t as $ar) {
-                    foreach($ar as $a) {
+                foreach ($t as $ar) {
+                    foreach ($ar as $a) {
                         if ($a[0] === $attr) {
                             $res[] = $a;
                         }
@@ -1315,13 +1382,14 @@ class DomNode implements IQuery {
 
     /**
      * Checks if node has attribute
-     * @param string|int$attr Negative int to count from end
+     * @param string|int $attr Negative int to count from end
      * @param string $compare Find node using "namespace", "name" or "total"
      * @param bool $case_sensitive Compare with case sensitivity
      * @return bool
      */
-    function hasAttribute($attr, $compare = 'total', $case_sensitive = false) {
-        return ((bool) $this->findAttribute($attr, $compare, $case_sensitive));
+    function hasAttribute($attr, $compare = 'total', $case_sensitive = false)
+    {
+        return ((bool)$this->findAttribute($attr, $compare, $case_sensitive));
     }
 
     /**
@@ -1331,14 +1399,15 @@ class DomNode implements IQuery {
      * @param bool $case_sensitive Compare with case sensitivity
      * @return string|array False if not found
      */
-    function getAttributeNS($attr, $compare = 'name', $case_sensitive = false) {
+    function getAttributeNS($attr, $compare = 'name', $case_sensitive = false)
+    {
         $f = $this->findAttribute($attr, $compare, $case_sensitive);
         if (is_array($f) && $f) {
             if (count($f) === 1) {
                 return $this->attributes[$f[0][0]];
             } else {
                 $res = array();
-                foreach($f as $a) {
+                foreach ($f as $a) {
                     $res[] = $a[0];
                 }
                 return $res;
@@ -1356,16 +1425,17 @@ class DomNode implements IQuery {
      * @param bool $case_sensitive Compare with case sensitivity
      * @return bool
      */
-    function setAttributeNS($attr, $namespace, $compare = 'name', $case_sensitive = false) {
+    function setAttributeNS($attr, $namespace, $compare = 'name', $case_sensitive = false)
+    {
         $f = $this->findAttribute($attr, $compare, $case_sensitive);
         if (is_array($f) && $f) {
             if ($namespace) {
                 $namespace .= ':';
             }
-            foreach($f as $a) {
+            foreach ($f as $a) {
                 $val = $this->attributes[$a[2]];
                 unset($this->attributes[$a[2]]);
-                $this->attributes[$namespace.$a[1]] = $val;
+                $this->attributes[$namespace . $a[1]] = $val;
             }
             $this->attributes_ns = null;
             return true;
@@ -1381,14 +1451,15 @@ class DomNode implements IQuery {
      * @param bool $case_sensitive Compare with case sensitivity
      * @return string|array
      */
-    function getAttribute($attr, $compare = 'total', $case_sensitive = false) {
+    function getAttribute($attr, $compare = 'total', $case_sensitive = false)
+    {
         $f = $this->findAttribute($attr, $compare, $case_sensitive);
-        if (is_array($f) && $f){
+        if (is_array($f) && $f) {
             if (count($f) === 1) {
                 return $this->attributes[$f[0][2]];
             } else {
                 $res = array();
-                foreach($f as $a) {
+                foreach ($f as $a) {
                     $res[] = $this->attributes[$a[2]];
                 }
                 return $res;
@@ -1404,18 +1475,19 @@ class DomNode implements IQuery {
      * @param string $compare Find node using "namespace", "name" or "total"
      * @param bool $case_sensitive Compare with case sensitivity
      */
-    function setAttribute($attr, $val, $compare = 'total', $case_sensitive = false) {
+    function setAttribute($attr, $val, $compare = 'total', $case_sensitive = false)
+    {
         if ($val === null) {
             return $this->deleteAttribute($attr, $compare, $case_sensitive);
         }
 
         $f = $this->findAttribute($attr, $compare, $case_sensitive);
         if (is_array($f) && $f) {
-            foreach($f as $a) {
-                $this->attributes[$a[2]] = (string) $val;
+            foreach ($f as $a) {
+                $this->attributes[$a[2]] = (string)$val;
             }
         } else {
-            $this->attributes[$attr] = (string) $val;
+            $this->attributes[$attr] = (string)$val;
         }
     }
 
@@ -1424,7 +1496,8 @@ class DomNode implements IQuery {
      * @param string $attr
      * @param string $val
      */
-    function addAttribute($attr, $val) {
+    function addAttribute($attr, $val)
+    {
         $this->setAttribute($attr, $val, 'total', true);
     }
 
@@ -1434,10 +1507,11 @@ class DomNode implements IQuery {
      * @param string $compare Find node using "namespace", "name" or "total"
      * @param bool $case_sensitive Compare with case sensitivity
      */
-    function deleteAttribute($attr, $compare = 'total', $case_sensitive = false) {
+    function deleteAttribute($attr, $compare = 'total', $case_sensitive = false)
+    {
         $f = $this->findAttribute($attr, $compare, $case_sensitive);
         if (is_array($f) && $f) {
-            foreach($f as $a) {
+            foreach ($f as $a) {
                 unset($this->attributes[$a[2]]);
                 if ($this->attributes_ns !== null) {
                     unset($this->attributes_ns[$a[1]]);
@@ -1451,22 +1525,24 @@ class DomNode implements IQuery {
      * @param string $className
      * @return bool
      */
-    function hasClass($className) {
-        return ($className && preg_match('`\b'.preg_quote($className).'\b`si', $this->class));
+    function hasClass($className)
+    {
+        return ($className && preg_match('`\b' . preg_quote($className) . '\b`si', $this->class));
     }
 
     /**
      * Add new class(es)
      * @param string|array $className
      */
-    function addClass($className) {
+    function addClass($className)
+    {
         if (!is_array($className)) {
             $className = array($className);
         }
         $class = $this->class;
         foreach ($className as $c) {
-            if (!(preg_match('`\b'.preg_quote($c).'\b`si', $class) > 0)) {
-                $class .= ' '.$c;
+            if (!(preg_match('`\b' . preg_quote($c) . '\b`si', $class) > 0)) {
+                $class .= ' ' . $c;
             }
         }
         $this->class = trim($class);
@@ -1476,13 +1552,14 @@ class DomNode implements IQuery {
      * Remove clas(ses)
      * @param string|array $className
      */
-    function removeClass($className) {
+    function removeClass($className)
+    {
         if (!is_array($className)) {
             $className = array($className);
         }
         $class = $this->class;
         foreach ($className as $c) {
-            $class = preg_replace('`\b'.preg_quote($c).'\b`si', '', $class);
+            $class = preg_replace('`\b' . preg_quote($c) . '\b`si', '', $class);
         }
         if ($class) {
             $this->class = $class;
@@ -1498,7 +1575,8 @@ class DomNode implements IQuery {
      * @param bool $check_self Include this node in search?
      * @return array
      */
-    function getChildrenByCallback($callback, $recursive = true, $check_self = false) {
+    function getChildrenByCallback($callback, $recursive = true, $check_self = false)
+    {
         $count = $this->childCount();
         if ($check_self && $callback($this)) {
             $res = array($this);
@@ -1532,7 +1610,8 @@ class DomNode implements IQuery {
      * @param bool $check_self Include this node in search?
      * @return array
      */
-    function getChildrenByMatch($conditions, $recursive = true, $check_self = false, $custom_filters = array()) {
+    function getChildrenByMatch($conditions, $recursive = true, $check_self = false, $custom_filters = array())
+    {
         $count = $this->childCount();
         if ($check_self && $this->match($conditions, true, $custom_filters)) {
             $res = array($this);
@@ -1561,19 +1640,20 @@ class DomNode implements IQuery {
     /**
      * Checks if tag matches certain conditions
      * @param array $tags array('tag1', 'tag2') or array(array(
-     *	'tag' => 'tag1',
-     *	'operator' => 'or'/'and',
-     *	'compare' => 'total'/'namespace'/'name',
-     * 	'case_sensitive' => true))
+     *    'tag' => 'tag1',
+     *    'operator' => 'or'/'and',
+     *    'compare' => 'total'/'namespace'/'name',
+     *    'case_sensitive' => true))
      * @return bool
      * @internal Used by selector class
      * @see match()
      * @access private
      */
-    protected function match_tags($tags) {
+    protected function match_tags($tags)
+    {
         $res = false;
 
-        foreach($tags as $tag => $match) {
+        foreach ($tags as $tag => $match) {
             if (!is_array($match)) {
                 $match = array(
                     'match' => $match,
@@ -1624,22 +1704,23 @@ class DomNode implements IQuery {
     /**
      * Checks if attributes match certain conditions
      * @param array $attributes array('attr' => 'val') or array(array(
-     *	'operator_value' => 'equals'/'='/'contains_regex'/etc
-     *	'attribute' => 'attr',
-     *	'value' => 'val',
-     *	'match' => true,
-     *	'operator_result' => 'or'/'and',
-     *	'compare' => 'total'/'namespace'/'name',
-     *	'case_sensitive' => true))
+     *    'operator_value' => 'equals'/'='/'contains_regex'/etc
+     *    'attribute' => 'attr',
+     *    'value' => 'val',
+     *    'match' => true,
+     *    'operator_result' => 'or'/'and',
+     *    'compare' => 'total'/'namespace'/'name',
+     *    'case_sensitive' => true))
      * @return bool
      * @internal Used by selector class
      * @see match()
      * @access private
      */
-    protected function match_attributes($attributes) {
+    protected function match_attributes($attributes)
+    {
         $res = false;
 
-        foreach($attributes as $attribute => $match) {
+        foreach ($attributes as $attribute => $match) {
             if (!is_array($match)) {
                 $match = array(
                     'operator_value' => 'equals',
@@ -1680,26 +1761,26 @@ class DomNode implements IQuery {
                 $res = (($match['value'] === $has) || (($match['match'] === false) && ($has === $match['match'])));
 
                 if ((!$res) && $has && is_string($match['value'])) {
-                    foreach($possibles as $a) {
+                    foreach ($possibles as $a) {
                         $val = $this->attributes[$a[2]];
                         if (is_string($val) && (!$match['case_sensitive'])) {
                             $val = strtolower($val);
                         }
 
-                        switch($match['operator_value']) {
+                        switch ($match['operator_value']) {
                             case '%=':
                             case 'contains_regex':
-                                $res = ((preg_match('`'.$match['value'].'`s', $val) > 0) === $match['match']);
+                                $res = ((preg_match('`' . $match['value'] . '`s', $val) > 0) === $match['match']);
                                 if ($res) break 1; else break 2;
 
                             case '|=':
                             case 'contains_prefix':
-                                $res = ((preg_match('`\b'.preg_quote($match['value']).'[\-\s]`s', $val) > 0) === $match['match']);
+                                $res = ((preg_match('`\b' . preg_quote($match['value']) . '[\-\s]`s', $val) > 0) === $match['match']);
                                 if ($res) break 1; else break 2;
 
                             case '~=':
                             case 'contains_word':
-                                $res = ((preg_match('`\s'.preg_quote($match['value']).'\s`s', " $val ") > 0) === $match['match']);
+                                $res = ((preg_match('`\s' . preg_quote($match['value']) . '\s`s', " $val ") > 0) === $match['match']);
                                 if ($res) break 1; else break 2;
 
                             case '*=':
@@ -1738,7 +1819,7 @@ class DomNode implements IQuery {
                                 if ($res) break 1; else break 2;
 
                             default:
-                                trigger_error('Unknown operator "'.$match['operator_value'].'" to match attributes!');
+                                trigger_error('Unknown operator "' . $match['operator_value'] . '" to match attributes!');
                                 return false;
                         }
                     }
@@ -1752,16 +1833,17 @@ class DomNode implements IQuery {
     /**
      * Checks if node matches certain filters
      * @param array $tags array(array(
-     *	'filter' => 'last-child',
-     *	'params' => '123'))
+     *    'filter' => 'last-child',
+     *    'params' => '123'))
      * @param array $custom_filters Custom map next to {@link $filter_map}
      * @return bool
      * @internal Used by selector class
      * @see match()
      * @access private
      */
-    protected function match_filters($conditions, $custom_filters = array()) {
-        foreach($conditions as $c) {
+    protected function match_filters($conditions, $custom_filters = array())
+    {
+        foreach ($conditions as $c) {
             $c['filter'] = strtolower($c['filter']);
             if (isset($this->filter_map[$c['filter']])) {
                 if (!$this->{$this->filter_map[$c['filter']]}($c['params'])) {
@@ -1772,7 +1854,7 @@ class DomNode implements IQuery {
                     return false;
                 }
             } else {
-                trigger_error('Unknown filter "'.$c['filter'].'"!');
+                trigger_error('Unknown filter "' . $c['filter'] . '"!');
                 return false;
             }
         }
@@ -1792,14 +1874,15 @@ class DomNode implements IQuery {
      * @see match_filters();
      * @access private
      */
-    function match($conditions, $match = true, $custom_filters = array()) {
+    function match($conditions, $match = true, $custom_filters = array())
+    {
         $t = isset($conditions['tags']);
         $a = isset($conditions['attributes']);
         $f = isset($conditions['filters']);
 
         if (!($t || $a || $f)) {
             if (is_array($conditions) && $conditions) {
-                foreach($conditions as $c) {
+                foreach ($conditions as $c) {
                     if ($this->match($c, $match)) {
                         return true;
                     }
@@ -1833,7 +1916,8 @@ class DomNode implements IQuery {
      * @param bool|int $recursive
      * @return array
      */
-    function getChildrenByAttribute($attribute, $value, $mode = 'equals', $compare = 'total', $recursive = true) {
+    function getChildrenByAttribute($attribute, $value, $mode = 'equals', $compare = 'total', $recursive = true)
+    {
         if ($this->childCount() < 1) {
             return array();
         }
@@ -1863,7 +1947,8 @@ class DomNode implements IQuery {
      * @param bool|int $recursive
      * @return array
      */
-    function getChildrenByTag($tag, $compare = 'total', $recursive = true) {
+    function getChildrenByTag($tag, $compare = 'total', $recursive = true)
+    {
         if ($this->childCount() < 1) {
             return array();
         }
@@ -1890,7 +1975,8 @@ class DomNode implements IQuery {
      * @param bool|int $recursive
      * @return array
      */
-    function getChildrenByID($id, $recursive = true) {
+    function getChildrenByID($id, $recursive = true)
+    {
         return $this->getChildrenByAttribute('id', $id, 'equals', 'total', $recursive);
     }
 
@@ -1900,7 +1986,8 @@ class DomNode implements IQuery {
      * @param bool|int $recursive
      * @return array
      */
-    function getChildrenByClass($class, $recursive = true) {
+    function getChildrenByClass($class, $recursive = true)
+    {
         return $this->getChildrenByAttribute('class', $class, 'equals', 'total', $recursive);
     }
 
@@ -1910,16 +1997,18 @@ class DomNode implements IQuery {
      * @param bool|int $recursive
      * @return array
      */
-    function getChildrenByName($name, $recursive = true) {
+    function getChildrenByName($name, $recursive = true)
+    {
         return $this->getChildrenByAttribute('name', $name, 'equals', 'total', $recursive);
     }
 
     /**
      * Performs a css query on the node.
      * @param string $query
-     * @return IQuery Returns the matching nodes from the query.
+     * @return \pQuery | \pQuery[]
      */
-    public function query($query = '*') {
+    public function query($query = '*')
+    {
         $select = $this->select($query);
         $result = new \pQuery((array)$select);
         return $result;
@@ -1935,7 +2024,8 @@ class DomNode implements IQuery {
      * @return DomNode[]|DomNode Returns an array of matching {@link DomNode} objects
      *  or a single {@link DomNode} if `$index` is not false.
      */
-    function select($query = '*', $index = false, $recursive = true, $check_self = false) {
+    function select($query = '*', $index = false, $recursive = true, $check_self = false)
+    {
         $s = new $this->selectClass($this, $query, $check_self, $recursive);
         $res = $s->result;
         unset($s);
@@ -1957,7 +2047,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_root() {
+    protected function filter_root()
+    {
         return (strtolower($this->tag) === 'html');
     }
 
@@ -1968,8 +2059,9 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_nchild($n) {
-        return ($this->index(false)+1 === (int) $n);
+    protected function filter_nchild($n)
+    {
+        return ($this->index(false) + 1 === (int)$n);
     }
 
     /**
@@ -1979,8 +2071,9 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_gt($n) {
-        return ($this->index(false) > (int) $n);
+    protected function filter_gt($n)
+    {
+        return ($this->index(false) > (int)$n);
     }
 
     /**
@@ -1990,8 +2083,9 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_lt($n) {
-        return ($this->index(false) < (int) $n);
+    protected function filter_lt($n)
+    {
+        return ($this->index(false) < (int)$n);
     }
 
     /**
@@ -2001,11 +2095,12 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_nlastchild($n) {
+    protected function filter_nlastchild($n)
+    {
         if ($this->parent === null) {
             return false;
         } else {
-            return ($this->parent->childCount(true) - $this->index(false) === (int) $n);
+            return ($this->parent->childCount(true) - $this->index(false) === (int)$n);
         }
     }
 
@@ -2016,8 +2111,9 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_ntype($n) {
-        return ($this->typeIndex()+1 === (int) $n);
+    protected function filter_ntype($n)
+    {
+        return ($this->typeIndex() + 1 === (int)$n);
     }
 
     /**
@@ -2027,11 +2123,12 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_nlastype($n) {
+    protected function filter_nlastype($n)
+    {
         if ($this->parent === null) {
             return false;
         } else {
-            return (count($this->parent->getChildrenByTag($this->tag, 'total', false)) - $this->typeIndex() === (int) $n);
+            return (count($this->parent->getChildrenByTag($this->tag, 'total', false)) - $this->typeIndex() === (int)$n);
         }
     }
 
@@ -2041,7 +2138,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_odd() {
+    protected function filter_odd()
+    {
         return (($this->index(false) & 1) === 1);
     }
 
@@ -2051,7 +2149,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_even() {
+    protected function filter_even()
+    {
         return (($this->index(false) & 1) === 0);
     }
 
@@ -2061,8 +2160,9 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_every($n) {
-        return (($this->index(false) % (int) $n) === 0);
+    protected function filter_every($n)
+    {
+        return (($this->index(false) % (int)$n) === 0);
     }
 
     /**
@@ -2071,7 +2171,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_first() {
+    protected function filter_first()
+    {
         return ($this->index(false) === 0);
     }
 
@@ -2081,7 +2182,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_last() {
+    protected function filter_last()
+    {
         if ($this->parent === null) {
             return false;
         } else {
@@ -2095,7 +2197,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_firsttype() {
+    protected function filter_firsttype()
+    {
         return ($this->typeIndex() === 0);
     }
 
@@ -2105,7 +2208,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_lasttype() {
+    protected function filter_lasttype()
+    {
         if ($this->parent === null) {
             return false;
         } else {
@@ -2119,7 +2223,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_onlychild() {
+    protected function filter_onlychild()
+    {
         if ($this->parent === null) {
             return false;
         } else {
@@ -2133,7 +2238,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_onlytype() {
+    protected function filter_onlytype()
+    {
         if ($this->parent === null) {
             return false;
         } else {
@@ -2147,7 +2253,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_empty() {
+    protected function filter_empty()
+    {
         return ($this->childCount() === 0);
     }
 
@@ -2157,7 +2264,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_notempty() {
+    protected function filter_notempty()
+    {
         return ($this->childCount() !== 0);
     }
 
@@ -2167,7 +2275,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_hastext() {
+    protected function filter_hastext()
+    {
         return ($this->getPlainText() !== '');
     }
 
@@ -2177,7 +2286,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_notext() {
+    protected function filter_notext()
+    {
         return ($this->getPlainText() === '');
     }
 
@@ -2188,7 +2298,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_lang($lang) {
+    protected function filter_lang($lang)
+    {
         return ($this->lang === $lang);
     }
 
@@ -2199,7 +2310,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_contains($text) {
+    protected function filter_contains($text)
+    {
         return (strpos($this->getPlainTextUTF8(), $text) !== false);
     }
 
@@ -2210,8 +2322,9 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_has($selector) {
-        $s = $this->select((string) $selector, false);
+    protected function filter_has($selector)
+    {
+        $s = $this->select((string)$selector, false);
         return (is_array($s) && (count($s) > 0));
     }
 
@@ -2222,8 +2335,9 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_not($selector) {
-        $s = $this->select((string) $selector, false, true, true);
+    protected function filter_not($selector)
+    {
+        $s = $this->select((string)$selector, false, true, true);
         return ((!is_array($s)) || (array_search($this, $s, true) === false));
     }
 
@@ -2233,7 +2347,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_element() {
+    protected function filter_element()
+    {
         return true;
     }
 
@@ -2243,7 +2358,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_text() {
+    protected function filter_text()
+    {
         return false;
     }
 
@@ -2252,7 +2368,8 @@ class DomNode implements IQuery {
      * @return bool
      * @see match()
      */
-    protected function filter_checked() {
+    protected function filter_checked()
+    {
         $attr = $this->getAttribute('checked');
         if (is_array($attr))
             $attr = reset($attr);
@@ -2265,7 +2382,8 @@ class DomNode implements IQuery {
      * @see match()
      * @access private
      */
-    protected function filter_comment() {
+    protected function filter_comment()
+    {
         return false;
     }
 
@@ -2274,7 +2392,8 @@ class DomNode implements IQuery {
      * @return bool
      * @see match()
      */
-    protected function filter_selected() {
+    protected function filter_selected()
+    {
         $attr = $this->getAttribute('selected');
         if (is_array($attr))
             $attr = reset($attr);
@@ -2282,7 +2401,8 @@ class DomNode implements IQuery {
         return strcasecmp($attr, 'selected') === 0;
     }
 
-    public function after($content) {
+    public function after($content)
+    {
         $offset = $this->index() + 1;
         $parent = $this->parent;
         $nodes = $this->createNodes($content);
@@ -2299,7 +2419,8 @@ class DomNode implements IQuery {
      * @param string|DomNode $content
      * @return DomNode
      */
-    protected function createNode($content) {
+    protected function createNode($content)
+    {
         $nodes = $this->createNodes($content);
         return reset($nodes);
     }
@@ -2309,7 +2430,8 @@ class DomNode implements IQuery {
      * @param string|DomNode $content
      * @return DomNode[]
      */
-    protected function createNodes($content) {
+    protected function createNodes($content)
+    {
         if (is_string($content)) {
             if (strpos($content, ' ') === false) {
                 $nodes = array(new $this->childClass($content, $this));
@@ -2323,7 +2445,8 @@ class DomNode implements IQuery {
         return $nodes;
     }
 
-    public function append($content) {
+    public function append($content)
+    {
         $nodes = $this->createNodes($content);
         foreach ($nodes as $node) {
             $node->changeParent($this);
@@ -2331,7 +2454,8 @@ class DomNode implements IQuery {
         return $this;
     }
 
-    public function attr($name, $value = null) {
+    public function attr($name, $value = null)
+    {
         if ($value === null)
             return $this->getAttribute($name);
 
@@ -2339,7 +2463,8 @@ class DomNode implements IQuery {
         return $this;
     }
 
-    public function before($content) {
+    public function before($content)
+    {
         $offset = $this->index();
         $parent = $this->parent;
         $nodes = $this->createNodes($content);
@@ -2351,7 +2476,8 @@ class DomNode implements IQuery {
         return $this;
     }
 
-    public function count() {
+    public function count()
+    {
         return 1;
     }
 
@@ -2359,7 +2485,8 @@ class DomNode implements IQuery {
 //
 //   }
 
-    public function prepend($content = null) {
+    public function prepend($content = null)
+    {
         $offset = 0;
         $parent = $this;
         $nodes = $this->createNodes($content);
@@ -2371,7 +2498,8 @@ class DomNode implements IQuery {
         return $this;
     }
 
-    public function prop($name, $value = null) {
+    public function prop($name, $value = null)
+    {
         switch (strtolower($name)) {
             case 'checked':
             case 'disabled':
@@ -2395,7 +2523,8 @@ class DomNode implements IQuery {
             return null;
     }
 
-    public function remove($selector = null) {
+    public function remove($selector = null)
+    {
         if ($selector == null) {
             $this->delete();
         } else {
@@ -2406,13 +2535,15 @@ class DomNode implements IQuery {
         }
     }
 
-    public function removeAttr($name) {
+    public function removeAttr($name)
+    {
         $this->deleteAttribute($name);
 
         return $this;
     }
 
-    function replaceWith($content) {
+    function replaceWith($content)
+    {
         $node_index = $this->index();
 
         // Add the new node.
@@ -2429,7 +2560,8 @@ class DomNode implements IQuery {
      * @param type $value
      * @return string|DomNode
      */
-    public function tagName($value = null) {
+    public function tagName($value = null)
+    {
         if ($value !== null) {
             $this->setTag($value);
             return $this;
@@ -2437,7 +2569,8 @@ class DomNode implements IQuery {
         return $this->getTag();
     }
 
-    public function text($value = null) {
+    public function text($value = null)
+    {
         if ($value === null)
             return $this->getPlainText();
 
@@ -2445,7 +2578,8 @@ class DomNode implements IQuery {
         return $this;
     }
 
-    public function toggleClass($classname, $switch = null) {
+    public function toggleClass($classname, $switch = null)
+    {
         if ($switch === true) {
             $this->addClass($classname);
         } elseif ($switch === false) {
@@ -2459,12 +2593,14 @@ class DomNode implements IQuery {
         return $this;
     }
 
-    public function unwrap() {
+    public function unwrap()
+    {
         $this->parent->detach(true);
         return $this;
     }
 
-    public function val($value = null) {
+    public function val($value = null)
+    {
         switch (strtolower($this->tag)) {
             case 'select':
                 if ($value === null) {

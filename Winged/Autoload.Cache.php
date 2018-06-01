@@ -1,8 +1,8 @@
 <?php global $__autoload__cache; $__autoload__cache = [
     "./winged/Autoload.Cache.php",
     "./winged/Buffer/Buffer.php",
-    "./winged/Component/Component.php",
-    "./winged/Component/ComponentParser.php",
+    "./winged/Components/ComponentParser.php",
+    "./winged/Components/Components.php",
     "./winged/Controller/Assets.php",
     "./winged/Controller/Controller.php",
     "./winged/Database/Connections.php",
