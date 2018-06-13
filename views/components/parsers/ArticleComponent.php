@@ -4,22 +4,26 @@ namespace Site\Component;
 
 
 use Winged\Components\ComponentParser;
-use Winged\File\File;
 
 /**
  * Class ArticleComponent
  * @package Site\Component
  */
-class ArticleComponent extends ComponentParser {
-
-    public function articles(){
-        $ndom = \pQuery::parseStr('');
-        foreach ($this->component->articles as $art){
-            $DOM = \pQuery::parseStr($this->DOM->html());
-            $DOM->query('h2')->text($art->titulo);
-            $ndom->append($DOM->html());
+class ArticleComponent extends ComponentParser
+{
+    public function articles()
+    {
+        $empty = $this->getEmptyDOM();
+        foreach ($this->component->articles as $art) {
+            $original = $this->getOriginalDOM();
+            $original->query('h2')->text($art->titulo);
+            $original->query('img')->attr('src', $art->getImagem());
+            $original->query('img')->attr('alt', $art->titulo);
+            $original->query('img')->attr('title', $art->titulo);
+            $empty->append($original->html());
         }
-        $this->DOM = $ndom;
+        $this->DOM = $empty;
     }
+
 
 }

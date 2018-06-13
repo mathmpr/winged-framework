@@ -1,5 +1,6 @@
 <?php
 namespace Winged\Validator;
+use Winged\Date\Date;
 
 /**
  * Class validation for forms, combine this class with the rules method of the models
@@ -212,6 +213,12 @@ class Validator
         return false;
     }
 
+    /**
+     * Tests whether the input is greater than the comparison parameter or equal
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
     public static function largerOrEqual($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
@@ -223,6 +230,12 @@ class Validator
         return false;
     }
 
+    /**
+     * Tests whether the input is smaller than the comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
     public static function smaller($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
@@ -234,6 +247,12 @@ class Validator
         return false;
     }
 
+    /**
+     * Tests whether the input is smaller than the comparison parameter or equal
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
     public static function smallerOrEqual($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
@@ -245,6 +264,12 @@ class Validator
         return false;
     }
 
+    /**
+     * Tests if entry is equal of comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
     public static function equals($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
@@ -256,6 +281,12 @@ class Validator
         return false;
     }
 
+    /**
+     * Tests if entry is different of comparison parameter
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
     public static function different($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
@@ -267,6 +298,13 @@ class Validator
         return false;
     }
 
+    /**
+     * Tests whether the entry is smaller the date passed as an argument or equal
+     * @param null $entry
+     * @param bool $smaller
+     * @param bool $larger
+     * @return bool
+     */
     public static function between($entry = null, $smaller = false, $larger = false)
     {
         if (empty($entry) || empty($smaller) || empty($larger)) {
@@ -278,7 +316,13 @@ class Validator
         return false;
     }
 
-
+    /**
+     * Tests whether the date of entry is smaller the date passed as an argument or equal
+     * @param null $entry
+     * @param bool $smaller
+     * @param bool $larger
+     * @return bool
+     */
     public static function betweenEqual($entry = null, $smaller = false, $larger = false)
     {
         if (empty($entry) || empty($smaller) || empty($larger)) {
@@ -290,34 +334,65 @@ class Validator
         return false;
     }
 
+    /**
+     * Tests whether the date of entry is greater the date passed as an argument
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
     public static function dateGreater($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
         }
-        if ((new CoreDate($entry))->greater($comp)) {
+        if ((new Date($entry))->greater($comp)) {
             return true;
         }
         return false;
     }
 
+    /**
+     * Tests whether the date of entry is smaller the date passed as an argument
+     * @param null $entry
+     * @param bool $comp
+     * @return bool
+     */
     public static function dateSmaller($entry = null, $comp = false)
     {
         if (empty($entry) || empty($comp)) {
             return false;
         }
-        if ((new CoreDate($entry))->smaller($comp)) {
+        if ((new Date($entry))->smaller($comp)) {
             return true;
         }
         return false;
     }
 
+    /**
+     * Tests whether the date of entry is between the dates passed as an argument
+     * @param null $entry
+     * @param bool $begin
+     * @param bool $final
+     * @return bool
+     */
     public static function dateBetween($entry = null, $begin = false, $final = false)
     {
         if (empty($entry) || empty($begin) || empty($final)) {
             return false;
         }
-        if ((new CoreDate($entry))->smaller($final) && (new CoreDate($entry))->greater($begin)) {
+        if ((new Date($entry))->smaller($final) && (new Date($entry))->greater($begin)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Test if argument is a valid URL
+     * @param $url string
+     * @return bool
+     */
+    public static function isUrl($url){
+        if (filter_var($url, FILTER_VALIDATE_URL) === true) {
             return true;
         }
         return false;

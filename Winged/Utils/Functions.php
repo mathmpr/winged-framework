@@ -5,31 +5,52 @@ use Winged\WingedConfig;
 use Winged\Winged;
 use Winged\Database\CurrentDB;
 
+/**
+ * return all memory used
+ * @return string
+ */
 function get_memory_usage()
 {
     return number_format((memory_get_usage(false) / 1024 / 1024), 2);
 }
 
+/**
+ * return the max memory usage in the request
+ * @return string
+ */
 function get_memory_peak_usage()
 {
     return number_format((memory_get_peak_usage(false) / 1024 / 1024), 2);
 }
 
-function numeric_is($value){
+/**
+ * return the int or float value if is a valid number, else return false
+ * @param $value
+ * @return bool|float|int
+ */
+function numeric_is($value)
+{
     $cp_int = intval($value);
     $cp_flo = floatval($value);
     $str_val = strval($value);
     $cp_int_str = strval($cp_int);
     $cp_flo_str = strval($cp_flo);
-    if($str_val == $cp_flo_str){
+    if ($str_val == $cp_flo_str) {
         return $cp_flo;
     }
-    if($str_val == $cp_int_str){
+    if ($str_val == $cp_int_str) {
         return $cp_int;
     }
     return false;
 }
 
+/**
+ * if is array and key exists in array, return value from index, else return false
+ * util use inside if statements
+ * @param $key
+ * @param $haystack
+ * @return bool|mixed
+ */
 function array_key_exists_check($key, $haystack)
 {
     if (is_array($haystack)) {
@@ -40,6 +61,13 @@ function array_key_exists_check($key, $haystack)
     return false;
 }
 
+/**
+ * if is object and property exists in object, return value from property, else return false
+ * util use inside if statements
+ * @param $property
+ * @param $object
+ * @return bool|mixed
+ */
 function object_key_exists_check($property, $object)
 {
     if (is_object($object)) {
@@ -50,6 +78,11 @@ function object_key_exists_check($property, $object)
     return false;
 }
 
+/**
+ * alias for $_SERVER, ignore case sentive and if key not exists in $_SERVER returns false
+ * @param $key
+ * @return bool
+ */
 function server($key)
 {
     $ukey = strtoupper($key);
@@ -60,6 +93,11 @@ function server($key)
     return false;
 }
 
+/**
+ * return true if key exists inside $_SERVER or false if not exists
+ * @param $key
+ * @return bool
+ */
 function serverset($key)
 {
     $ukey = strtoupper($key);
@@ -70,6 +108,11 @@ function serverset($key)
     return false;
 }
 
+/**
+ * return true if key exists inside $_POST or false if not exists
+ * @param $key
+ * @return bool
+ */
 function postset($key)
 {
     if (array_key_exists($key, $_POST)) {
@@ -78,8 +121,9 @@ function postset($key)
     return false;
 }
 
-
 /**
+ * return value from parsed $_POST if key exists or false if not exists
+ * @param $key
  * @return boolean | array | string
  */
 function post($key)
@@ -90,6 +134,11 @@ function post($key)
     return false;
 }
 
+/**
+ * return value from original $_POST if key exists or false if not exists
+ * @param $key
+ * @return boolean | array | string
+ */
 function unpost($key)
 {
     global $_OPOST;
@@ -99,6 +148,11 @@ function unpost($key)
     return false;
 }
 
+/**
+ * return true if key exists inside $_GET or false if not exists
+ * @param $key
+ * @return bool
+ */
 function getset($key)
 {
     if (array_key_exists($key, $_GET)) {
@@ -107,6 +161,11 @@ function getset($key)
     return false;
 }
 
+/**
+ * return value from parsed $_GET if key exists or false if not exists
+ * @param $key
+ * @return boolean | array | string
+ */
 function get($key)
 {
     if (array_key_exists($key, $_GET)) {
@@ -115,6 +174,11 @@ function get($key)
     return false;
 }
 
+/**
+ * return value from original $_GET if key exists or false if not exists
+ * @param $key
+ * @return boolean | array | string
+ */
 function unget($key)
 {
     global $_OGET;
@@ -124,6 +188,11 @@ function unget($key)
     return false;
 }
 
+/**
+ * return true if $_SERVER['REQUEST_METHOD'] matchs with $method_name
+ * @param $method_name
+ * @return bool
+ */
 function method($method_name)
 {
     if (strtolower($_SERVER["REQUEST_METHOD"]) == strtolower($method_name)) {
@@ -132,6 +201,14 @@ function method($method_name)
     return false;
 }
 
+/**
+ * cut the string from the beginning to the size limit only if it is necessary to make the cut
+ * @param string $str
+ * @param int $from
+ * @param int $length
+ * @param string $append
+ * @return string
+ */
 function substr_if_need($str = '', $from = 0, $length = 0, $append = '')
 {
     if ($length == null) {
@@ -149,6 +226,12 @@ function substr_if_need($str = '', $from = 0, $length = 0, $append = '')
     return $str;
 }
 
+/**
+ * return true if all keys exists in array
+ * @param array $keys
+ * @param array $array
+ * @return bool
+ */
 function check_all_keys($keys = [], $array = [])
 {
     $exists = true;
@@ -167,6 +250,12 @@ function check_all_keys($keys = [], $array = [])
     return false;
 }
 
+/**
+ * remove all index from array by values array and return new array
+ * @param array $values
+ * @param array $array
+ * @return array
+ */
 function remove_key_from_array_by_value($values = [], $array = [])
 {
     $narr = [];
@@ -180,6 +269,11 @@ function remove_key_from_array_by_value($values = [], $array = [])
     return $narr;
 }
 
+/**
+ * @param array $needle
+ * @param array $array
+ * @return int|string
+ */
 function get_key_by_value($needle = [], $array = [])
 {
     if (is_string($needle)) {
@@ -206,6 +300,7 @@ function get_key_by_value($needle = [], $array = [])
 }
 
 /**
+ * convert array into object recursive
  * @param array $arg
  * @return object | null | array | string | int | bool
  */
@@ -227,6 +322,12 @@ function recursive_object($arg)
     return $arg;
 }
 
+/**
+ * return key of array by value in key
+ * @param null $needle
+ * @param array $array
+ * @return mixed|null
+ */
 function get_value_by_key($needle = null, $array = [])
 {
     if (array_key_exists($needle, $array)) {
@@ -262,31 +363,55 @@ if (!function_exists('array_column')) {
     }
 }
 
+/**
+ * return true if $_SERVER["REQUEST_METHOD"] is post
+ * @return bool
+ */
 function is_post()
 {
     return method('post');
 }
 
+/**
+ * return true if $_SERVER["REQUEST_METHOD"] is get
+ * @return bool
+ */
 function is_get()
 {
     return method('get');
 }
 
+/**
+ * return true if $_SERVER["REQUEST_METHOD"] is delete
+ * @return bool
+ */
 function is_delete()
 {
     return method('delete');
 }
 
+/**
+ * return true if $_SERVER["REQUEST_METHOD"] is post
+ * @return bool
+ */
 function is_put()
 {
     return method('put');
 }
 
+/**
+ * return true if $_SERVER["REQUEST_METHOD"] is update
+ * @return bool
+ */
 function is_update()
 {
     return method('update');
 }
 
+/**
+ * return true if $_SERVER["REQUEST_METHOD"] is uri
+ * @return bool
+ */
 function uri($index)
 {
     if (array_key_exists($index, Winged::$params)) {
@@ -299,6 +424,10 @@ function uri($index)
     return false;
 }
 
+/**
+ * return true if path is a directory
+ * @return bool
+ */
 function is_directory($path = './')
 {
     if (is_dir($path)) {
@@ -308,6 +437,10 @@ function is_directory($path = './')
     return false;
 }
 
+/**
+ * return true if WingedConfig::$DEV is true
+ * @return bool
+ */
 function is_dev()
 {
     if (WingedConfig::$DEV != null && is_bool(WingedConfig::$DEV)) {
@@ -315,6 +448,11 @@ function is_dev()
     }
 }
 
+/**
+ * convert string into ancci numbers separated by dot
+ * @param $str
+ * @return string
+ */
 function ancci_conv($str)
 {
     $nums = "";
@@ -324,19 +462,31 @@ function ancci_conv($str)
     return $nums;
 }
 
+/**
+ * apply anti-mysql injection to an array
+ * @param $array array
+ * @return array
+ */
 function no_injection_array($array)
 {
-    $each = array();
-    foreach ($array as $key => $value) {
-        if (gettype($value) == "array") {
-            $each[$key] = no_injection_array($value);
-        } else {
-            $each[$key] = no_injection($value);
+    $each = [];
+    if (is_array($array)) {
+        foreach ($array as $key => $value) {
+            if (gettype($value) == "array") {
+                $each[$key] = no_injection_array($value);
+            } else {
+                $each[$key] = no_injection($value);
+            }
         }
     }
     return $each;
 }
 
+/**
+ * apply anti-mysql injection to an string
+ * @param $str string
+ * @return mixed
+ */
 function no_injection($str)
 {
     if (WingedConfig::$STD_DB_CLASS === IS_MYSQLI) {
@@ -345,38 +495,50 @@ function no_injection($str)
     return $str;
 }
 
-function get_first_time()
-{
-    global $beggin_time;
-
-    return $beggin_time;
-}
-
-function execution_time()
-{
-    return microtime() - get_first_time() / 1000;
-}
-
+/**
+ * return string with all slash to left
+ * @param $str string
+ * @return mixed
+ */
 function trade_slash_left($str)
 {
     return str_replace("\\", "/", $str);
 }
 
+/**
+ * return string with all slash to right
+ * @param $str string
+ * @return mixed
+ */
 function trade_slash_right($str)
 {
     return str_replace("/", "\\", $str);
 }
 
+/**
+ * trade any new line for all systems to html tag <br>
+ * @param $str
+ * @return mixed
+ */
 function nltobr($str)
 {
     return str_replace(["\r\n", "\n", "\r", '\r\n', '\n', '\r'], "<br>", $str);
 }
 
+/**
+ * trade any <br> tag to correct new line
+ * @param $str
+ * @return mixed
+ */
 function brtonl($str)
 {
     return str_ireplace("<br>", "\r\n", $str);
 }
 
+/**
+ * @param $array
+ * @param bool $die
+ */
 function pre($array, $die = false)
 {
     if (is_array($array) && empty($array)) {
@@ -400,6 +562,9 @@ function pre($array, $die = false)
     }
 }
 
+/**
+ * @param array $array
+ */
 function pre_clear_buffer_die($array = [])
 {
     if (is_array($array) && empty($array)) {
@@ -418,9 +583,9 @@ function pre_clear_buffer_die($array = [])
     Buffer::reset();
     ?>
     <html>
-        <head>
-            <meta charset="utf-8">
-        </head>
+    <head>
+        <meta charset="utf-8">
+    </head>
     <body>
     <?php
     echo "<pre style='padding: 20px; background: #fefefe; font-family: monospace; font-size: 14px; border: 1px solid #494949; margin: 10px 5px; border-radius: 2px; word-wrap: break-word'>";
@@ -437,19 +602,29 @@ function pre_clear_buffer_die($array = [])
 $printed_pre = [];
 $beggin_pre = false;
 
+/**
+ * begin manual debugger array
+ */
 function begin_pre()
 {
     global $beggin_pre;
     $beggin_pre = true;
 }
 
+/**
+ * reset manual debugger array
+ */
 function reset_pre()
 {
     global $printed_pre;
     $printed_pre = [];
 }
 
-
+/**
+ * register output for debugger array
+ * @param $array
+ * @param bool $force_beggin
+ */
 function register_pre($array, $force_beggin = false)
 {
     global $printed_pre, $beggin_pre;
@@ -461,6 +636,10 @@ function register_pre($array, $force_beggin = false)
     }
 }
 
+/**
+ * free all index in debugger array
+ * @param bool $die
+ */
 function delegate_pre($die = false)
 {
     global $printed_pre;
@@ -487,6 +666,10 @@ function delegate_pre($die = false)
     }
 }
 
+/**
+ * free all index in debugger array and stop execution
+ * @param bool $die
+ */
 function delegate_pre_clear_buffer_die()
 {
     global $printed_pre;
@@ -496,7 +679,7 @@ function delegate_pre_clear_buffer_die()
     <head>
         <meta charset="utf-8">
     </head>
-    <body>
+<body>
     <?php
     if (count($printed_pre) > 0) {
         foreach ($printed_pre as $array) {
@@ -526,47 +709,29 @@ function delegate_pre_clear_buffer_die()
     }
 }
 
+/**
+ * echo argument with br
+ * @param $arg
+ */
 function echobr($arg)
 {
     echo $arg . "<br>";
 }
 
+/**
+ * echo argument with new line
+ * @param $arg
+ */
 function echon($arg)
 {
     echo $arg . "\n";
 }
 
-function jslog($arg = "", $line = "unspecified", $file = "unspecified")
-{
-    $encode = false;
-    if (is_array($arg)) {
-        $arg = json_encode($arg);
-        $encode = true;
-    }
-    if ($encode) {
-        echo "<script> console.log('From php at line : " . $line . " / on file " . trade_slash_left($file) . " - " . $arg . "'); </script>";
-    } else {
-        echo "<script> 
-                    var json = JSON.parse('" . $arg . "');
-                    console.log('From php at line : " . $line . " / on file " . trade_slash_left($file) . " - ' + json); 
-              </script>";
-    }
-
-}
-
 /**
- * @param array $json
+ * generates a random id of size twelve as default
+ * @param int $length
+ * @return string
  */
-function jsonStringify($json = array())
-{
-    if (is_array($json)) {
-        $json = json_encode($json, JSON_PRETTY_PRINT);
-        echo '<br><pre>';
-        echo $json;
-        echo '</pre><br>';
-    }
-}
-
 function randid($length = 12)
 {
     $id = '';
@@ -606,6 +771,10 @@ function randid($length = 12)
     return $id;
 }
 
+/**
+ * return system name from server
+ * @return bool|string
+ */
 function what_is_my_system()
 {
     phpinfo(1);
@@ -639,62 +808,73 @@ function what_is_my_system()
     return false;
 }
 
-/* Array Helpers */
-
-function exec_function($function, $args = [])
-{
-    if ((is_callable($function) || function_exists($function)) && is_array($args)) {
-        $str = '$function(';
-        $f = true;
-        $cp = [];
-        foreach ($args as $key => $value) {
-            $args['winged_' . uniqid()] = $args[$key];
-            unset($args[$key]);
-        }
-        extract($cp);
-        foreach ($cp as $key => $value) {
-            if ($f) {
-                $f = false;
-                $str .= '$' . $key;
-            } else {
-                $str .= ', $' . $key;
-            }
-        }
-        $str .= ');';
-        return eval($str);
-    }
-}
-
+/**
+ * return first char of string
+ * @param $str string
+ * @return string | false
+ */
 function begstr($str)
 {
-    if (strlen($str) > 0) {
-        return $str[0];
+    if(is_string($str)){
+        if (strlen($str) > 0) {
+            return $str[0];
+        }
+        return '';
     }
-    return '';
+    return false;
 }
 
+/**
+ * replace first char of string
+ * @param $str string
+ * @param string $replace_with
+ */
 function begstr_replace(&$str, $replace_with = '')
 {
-    $str = substr($str, 1, strlen($str) - 1);
-    $str = $replace_with . $str;
-    $str = trim($str);
-}
-
-function endstr($str, $length = 1)
-{
-    if (strlen($str) - $length > 0) {
-        return $str[strlen($str) - $length];
-    }
-}
-
-function endstr_replace(&$str, $length = 1, $replace_with = '')
-{
-    if (strlen($str) - $length > 0) {
-        $str[strlen($str) - $length] = $replace_with;
+    if(is_string($str)){
+        $str = substr($str, 1, strlen($str) - 1);
+        $str = $replace_with . $str;
         $str = trim($str);
     }
 }
 
+/**
+ * return last char of string
+ * @param $str string
+ * @param int $length
+ * @return string | bool
+ */
+function endstr($str, $length = 1)
+{
+    if(is_string($str)){
+        if (strlen($str) - $length > 0) {
+            return $str[strlen($str) - $length];
+        }
+    }
+    return false;
+}
+
+/**
+ * replace first char of string
+ * @param $str string
+ * @param string $replace_with
+ */
+function endstr_replace(&$str, $length = 1, $replace_with = '')
+{
+    if(is_string($str)){
+        if (strlen($str) - $length > 0) {
+            $str[strlen($str) - $length] = $replace_with;
+            $str = trim($str);
+        }
+    }
+}
+
+/**
+ * @param array $array
+ * @param string $field
+ * @param string $id_field
+ * @return array
+ */
 function array2htmlselect($array = [], $field = '', $id_field = '')
 {
     $select = [];

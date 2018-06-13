@@ -43,6 +43,13 @@ class ComponentParser
     public $DOM = null;
 
     /**
+     * @var null|\pQuery|DomNode|IQuery
+     */
+    public $original = null;
+
+    public $finalDOM = null;
+
+    /**
      * @param $directory
      * @param null $class
      * @param null $properties
@@ -94,6 +101,7 @@ class ComponentParser
 
                         $html5 = new HTML5();
                         $class->DOM = \pQuery::parseStr($html5->saveHTML($html5->loadHTML($class->template->read())));
+                        $class->original = \pQuery::parseStr($html5->saveHTML($html5->loadHTML($class->template->read())));
 
                         return $class;
 
@@ -105,6 +113,21 @@ class ComponentParser
         }
         return false;
     }
+
+    /**
+     * @return null|\pQuery|DomNode|IQuery
+     */
+    public function getOriginalDOM(){
+        return \pQuery::parseStr($this->original->html());
+    }
+
+    /**
+     * @return null|\pQuery|DomNode|IQuery
+     */
+    public function getEmptyDOM(){
+        return \pQuery::parseStr('');
+    }
+
 
     /**
      * @return $this
@@ -128,6 +151,9 @@ class ComponentParser
      * @return $this
      */
     public function render(){
+
+        if($this->changed)
+
         $includes = $this->DOM->query('x-include');
         if ($includes) {
             /**

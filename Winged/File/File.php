@@ -4,6 +4,7 @@ namespace Winged\File;
 
 use Winged\Directory\Directory;
 use Winged\Formater\Formater;
+use Winged\Utils\WingedLib;
 
 class File
 {
@@ -25,6 +26,7 @@ class File
     public function __construct($file, $forceCreate = true)
     {
         if (is_string($file)) {
+
             if (!is_int(stripos($file, './'))) {
                 $file = './' . $file;
             } else {
@@ -107,7 +109,7 @@ class File
             $exp = explode('.', $end);
             $new_name = $name . '.' . end($exp);
             $npath = implode('/', $expf);
-            $npath = wl::dotslash(wl::dotslash($npath), true);
+            $npath = WingedLib::dotslash(WingedLib::dotslash($npath), true);
             $npath = $npath . $new_name;
             if (rename($this->file_path, $npath)) {
                 $this->file = $new_name;
