@@ -88,7 +88,7 @@ class Order
     {
         $results = $this->results;
         $orders = $this->orders;
-        $ordersCount = is_array($orders) ? count($orders) : 0;
+        $ordersCount = is_array($orders) ? count7($orders) : 0;
         $groups = [];
         if($ordersCount === 0){
             $this->results = $results;
@@ -98,7 +98,7 @@ class Order
             $remake_results = [];
             $order = array_shift($orders);
             list($field, $direction) = $order;
-            $groupsCount = is_array($groups) ? count($groups) : 0;
+            $groupsCount = is_array($groups) ? count7($groups) : 0;
             if ($groupsCount > 0) {
                 $merged = [];
                 foreach ($groups as $key => $group) {
@@ -171,7 +171,7 @@ class Order
     {
         $results = $this->results;
         $orders = $this->orders;
-        $ordersCount = is_array($orders) ? count($orders) : 0;
+        $ordersCount = is_array($orders) ? count7($orders) : 0;
         $groups = [];
         if($ordersCount === 0){
             $this->results = $results;
@@ -181,7 +181,7 @@ class Order
             $remake_results = [];
             $order = array_shift($orders);
             list($field, $direction) = $order;
-            $groupsCount = is_array($groups) ? count($groups) : 0;
+            $groupsCount = is_array($groups) ? count7($groups) : 0;
             if ($groupsCount > 0) {
                 $merged = [];
                 foreach ($groups as $key => $group) {

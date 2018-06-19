@@ -164,7 +164,7 @@ class Model extends DelegateQuery
 
         $trade = false;
 
-        if (empty($this->old_values) || count($this->old_values) == 0) {
+        if (empty($this->old_values) || count7($this->old_values) == 0) {
             $trade = true;
         }
 
@@ -319,17 +319,8 @@ class Model extends DelegateQuery
     public function loadMultiple($args = [])
     {
         $class_name = get_class($this);
-        $reflection = new \ReflectionClass($class_name);
-        $behaviors = $this->behaviors();
-
-        $trade = false;
-
-        if (empty($this->old_values)) {
-            $trade = true;
-        }
-
+        $models = [];
         $to_load = [];
-
         foreach ($args as $key => $value) {
             if (is_array($value) && ucfirst($key) == $class_name) {
                 if (array_key_exists(0, $value)) {
@@ -340,44 +331,32 @@ class Model extends DelegateQuery
             }
         }
 
-        $models = [];
-
-        for ($x = 0; $x < count($to_load); $x++) {
-            $models[$x] = $this->getNewObjectType();
-            foreach ($to_load[$x] as $key => $value) {
-                if (in_array(strtolower($key), $this->table_fields) && property_exists($class_name, strtolower($key))) {
-                    $reflection->getProperty(strtolower($key))->setValue($models[$x], $value);
-                    $models[$x]->loaded_fields[] = $key;
-                    if ($trade && !array_key_exists($key, $models[$x]->old_values) && !$models[$x]->is_new) {
-                        $models[$x]->old_values[strtolower($key)] = $value;
-                        $this->old_value_loaded = true;
+        if (is_array($to_load)) {
+            if (count7($to_load) === 1) {
+                $to_load = $to_load[0];
+                $count = 0;
+                foreach ($to_load as $key => $value) {
+                    if (count7($value) > $count) {
+                        $count = count7($value);
                     }
                 }
-            }
-            foreach ($behaviors as $key => $apply) {
-                if (property_exists($class_name, $key)) {
-                    if (in_array($key, $this->table_fields)) {
-                        if (!in_array($key, $models[$x]->loaded_fields)) {
-                            $models[$x]->loaded_fields[] = $key;
+                for ($x = 0; $x < $count; $x++) {
+                    $arr = [
+                        $class_name => []
+                    ];
+                    foreach ($to_load as $key => $value) {
+                        if (array_key_exists($x, $to_load[$key])) {
+                            $arr[$class_name][$key] = $to_load[$key][$x];
                         }
                     }
-                    if (is_callable($apply)) {
-                        $apply = call_user_func($apply);
-                    }
-                    $reflection->getProperty($key)->setValue($models[$x], $apply);
-                    if ($trade && !array_key_exists($key, $models[$x]->old_values) && !$models[$x]->is_new) {
-                        $models[$x]->old_values[$key] = $apply;
-                        $this->old_value_loaded = true;
-                    }
+                    $model = new $class_name();
+                    $model->load($arr);
+                    $models[] = $model;
                 }
             }
-
-            $models[$x]->is_new = false;
-
         }
 
         return $models;
-
     }
 
 
@@ -462,7 +441,7 @@ class Model extends DelegateQuery
                                     $ret = null;
                                     if (is_callable($func)) {
                                         $ret = call_user_func_array($func, [$this->{$property_rule}]);
-                                    } else if (is_array($func) && count($func) >= 2) {
+                                    } else if (is_array($func) && count7($func) >= 2) {
                                         if (is_object($func[0]) && is_string($func[1])) {
                                             if (method_exists($func[0], $func[1])) {
                                                 $params = [$this->{$property_rule}];

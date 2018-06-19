@@ -38,11 +38,6 @@ class HomeController extends Controller
     public function actionMyImage()
     {
         $image = new Image('http://www.tempie.com.br/assets/images/cacau.png', false);
-
-        pre_clear_buffer_die();
-
-
-        $image = new Image('./try.jpg');
         $image->printable();
     }
 

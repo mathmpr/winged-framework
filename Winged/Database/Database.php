@@ -357,7 +357,7 @@ class Database
                     unset($columns[$key]);
                 }
             }
-            if (count($columns) > 0) {
+            if (count7($columns) > 0) {
                 $columns_ok = false;
             }
         } else {

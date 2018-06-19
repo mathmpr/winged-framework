@@ -30,7 +30,7 @@ class FileTree
         $sh = scandir($path);
         $vect = false;
         $bpath = false;
-        for ($x = 2; $x < count($sh); $x++) {
+        for ($x = 2; $x < count7($sh); $x++) {
             if ($sh[$x] != '.' && $sh[$x] != '..') {
                 $npath = $path . $sh[$x];
                 if (is_directory($npath)) {
@@ -38,7 +38,7 @@ class FileTree
                     $vect = $this->getTree($npath);
                     $bpath = $npath;
                     if ($vect) {
-                        for ($y = 0; $y < count($vect); $y++) {
+                        for ($y = 0; $y < count7($vect); $y++) {
                             $file = $sh[$x] . "/" . $vect[$y];
                             if ($extensions) {
                                 $exp = explode('.', $file);
@@ -98,7 +98,7 @@ class FileTree
             $path .= "/";
         }
 
-        for ($x = 0; $x < count($all); $x++) {
+        for ($x = 0; $x < count7($all); $x++) {
             $name = $path . $all[$x];
             $this->files[] = $name;
             $all[$x] = [];

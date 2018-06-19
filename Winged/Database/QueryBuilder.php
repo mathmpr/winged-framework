@@ -128,7 +128,7 @@ class QueryBuilder
      */
     public function from($from = [])
     {
-        if (count($from) > 0) {
+        if (count7($from) > 0) {
             $key = array_keys($from);
             if (is_string($key[0]) && is_string($from[$key[0]]) && $this->from_arr == '') {
                 if (!CurrentDB::tableExists(trim($from[$key[0]]))) {
@@ -149,7 +149,7 @@ class QueryBuilder
      */
     public function innerJoin($inner = [], $condition = '')
     {
-        if ($condition != '' && count($inner) > 0) {
+        if ($condition != '' && count7($inner) > 0) {
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
                 if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
@@ -169,7 +169,7 @@ class QueryBuilder
      */
     public function leftJoin($inner = [], $condition = '')
     {
-        if ($condition != '' && count($inner) > 0) {
+        if ($condition != '' && count7($inner) > 0) {
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
                 if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
@@ -189,7 +189,7 @@ class QueryBuilder
      */
     public function rightJoin($inner = [], $condition = '')
     {
-        if ($condition != '' && count($inner) > 0) {
+        if ($condition != '' && count7($inner) > 0) {
             $key = array_keys($inner);
             if (is_string($key[0])) {
                 if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
@@ -209,7 +209,7 @@ class QueryBuilder
      */
     public function having($condition = '', $args = [])
     {
-        if ($condition != '' && count($args) > 0) {
+        if ($condition != '' && count7($args) > 0) {
             $key = array_keys($args);
             if (is_string($key[0])) {
                 $this->having_arr[] = [
@@ -232,7 +232,7 @@ class QueryBuilder
      */
     public function andHaving($condition = '', $args = [])
     {
-        if ($condition != '' && count($args) > 0) {
+        if ($condition != '' && count7($args) > 0) {
             $key = array_keys($args);
             if (is_string($key[0])) {
                 $this->having_arr[] = [
@@ -255,7 +255,7 @@ class QueryBuilder
      */
     public function orHaving($condition = '', $args = [])
     {
-        if ($condition != '' && count($args) > 0) {
+        if ($condition != '' && count7($args) > 0) {
             $key = array_keys($args);
             if (is_string($key[0])) {
                 $this->having_arr[] = [
@@ -301,9 +301,9 @@ class QueryBuilder
     public function where($condition = '', $args = [], $extra = null)
     {
         $condition = trim($condition);
-        if ($condition != '' && count($args) > 0) {
+        if ($condition != '' && count7($args) > 0) {
             if ($condition == DbDict::BETWEEN) {
-                if (count($args) == 3) {
+                if (count7($args) == 3) {
                     $this->where_order[] = [
                         'type' => 'beggin',
                         'condition' => DbDict::BETWEEN,
@@ -316,7 +316,7 @@ class QueryBuilder
                         'extra' => $extra
                     ];
                 } else {
-                    Error::push(__CLASS__, "Between requires exactly three args in array. Given: " . count($args), __FILE__, __LINE__);
+                    Error::push(__CLASS__, "Between requires exactly three args in array. Given: " . count7($args), __FILE__, __LINE__);
                 }
             } else if ($condition == DbDict::NOTIN || $condition == DbDict::IN) {
                 $key = array_keys($args);
@@ -383,9 +383,9 @@ class QueryBuilder
     public function andWhere($condition = '', $args = [], $extra = null)
     {
         $condition = trim($condition);
-        if ($condition != '' && count($args) > 0) {
+        if ($condition != '' && count7($args) > 0) {
             if ($condition == DbDict::BETWEEN) {
-                if (count($args) == 3) {
+                if (count7($args) == 3) {
                     $this->where_order[] = [
                         'type' => 'and',
                         'condition' => DbDict::BETWEEN,
@@ -398,7 +398,7 @@ class QueryBuilder
                         'extra' => $extra
                     ];
                 } else {
-                    Error::push(__CLASS__, "Between requires exactly three args in array. Given: " . count($args), __FILE__, __LINE__);
+                    Error::push(__CLASS__, "Between requires exactly three args in array. Given: " . count7($args), __FILE__, __LINE__);
                 }
             } else if ($condition == DbDict::NOTIN || $condition == DbDict::IN) {
                 $key = array_keys($args);
@@ -465,9 +465,9 @@ class QueryBuilder
     public function orWhere($condition = '', $args = [], $extra = null)
     {
         $condition = trim($condition);
-        if ($condition != '' && count($args) > 0) {
+        if ($condition != '' && count7($args) > 0) {
             if ($condition == DbDict::BETWEEN) {
-                if (count($args) == 3) {
+                if (count7($args) == 3) {
                     $this->where_order[] = [
                         'type' => 'or',
                         'condition' => DbDict::BETWEEN,
@@ -477,7 +477,7 @@ class QueryBuilder
                         'extra' => $extra
                     ];
                 } else {
-                    Error::push(__CLASS__, "Between requires exactly three args in array. Given: " . count($args), __FILE__, __LINE__);
+                    Error::push(__CLASS__, "Between requires exactly three args in array. Given: " . count7($args), __FILE__, __LINE__);
                 }
             } else if ($condition == DbDict::NOTIN || $condition == DbDict::IN) {
                 $key = array_keys($args);
@@ -541,7 +541,7 @@ class QueryBuilder
      */
     public function orderBy($direction = '', $field = '')
     {
-        if (is_array($direction) && count($direction) == 2) {
+        if (is_array($direction) && count7($direction) == 2) {
             $field = trim($direction[1]);
             $direction = $direction[0];
         }
@@ -559,7 +559,7 @@ class QueryBuilder
      */
     public function addOrderBy($direction = '', $field = '')
     {
-        if (is_array($direction) && count($direction) == 2) {
+        if (is_array($direction) && count7($direction) == 2) {
             $field = trim($direction[1]);
             $direction = $direction[0];
         }

@@ -119,7 +119,7 @@ class Directory
     {
         if ($this->folder != null) {
             $exp = explode('/', $this->folder);
-            $expCount = count($exp);
+            $expCount = count7($exp);
             while ($expCount != 2) {
                 array_pop($exp);
             }

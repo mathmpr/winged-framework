@@ -26,7 +26,7 @@ class Error
         $selfs = WingedLib::slashexplode($self);
 
         $self = "";
-        for ($x = 0; $x < count($selfs); $x++) {
+        for ($x = 0; $x < count7($selfs); $x++) {
             if ($selfs[$x] != "index.php") {
                 if ($x == 0) {
                     $self = $selfs[$x];
@@ -109,7 +109,7 @@ class Error
      * @return int
      */
     public static function errorCount(){
-        return count(self::$errors);
+        return count7(self::$errors);
     }
 
     /**
@@ -135,7 +135,7 @@ class Error
 
     public static function exists()
     {
-        if (is_array(self::$errors) && count(self::$errors)) {
+        if (is_array(self::$errors) && count7(self::$errors)) {
             return self::$errors;
         }
         return false;

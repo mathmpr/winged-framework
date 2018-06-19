@@ -34,12 +34,12 @@ class Date
     {
         $date = trim($date);
         $exp = explode(' ', $date);
-        if (count($exp) == 2) {
+        if (count7($exp) == 2) {
             $f1 = explode('/', str_replace('-', '/', $exp[0]));
-            if (count($f1) == 3) {
+            if (count7($f1) == 3) {
                 if ((strlen($f1[0]) == 2 || strlen($f1[0]) == 4) && (strlen($f1[1]) == 2) && (strlen($f1[2]) == 2 || strlen($f1[2]) == 4)) {
                     $f2 = explode(':', $exp[1]);
-                    if (count($f2) == 3) {
+                    if (count7($f2) == 3) {
                         if (strlen($f2[0]) == 2 && strlen($f2[1]) == 2 && strlen($f2[2]) == 2) {
                             return true;
                         }
@@ -49,7 +49,7 @@ class Date
             return false;
         } else {
             $f1 = explode('/', $exp[0]);
-            if (count($f1) == 3) {
+            if (count7($f1) == 3) {
                 if ((strlen($f1[0]) == 2 || strlen($f1[0]) == 4) && (strlen($f1[1]) == 2) && (strlen($f1[2]) == 2 || strlen($f1[2]) == 4)) {
                     return true;
                 }
@@ -175,7 +175,7 @@ class Date
     {
         try {
             if ($capitalize) {
-                if (is_array($not) && count($not) > 0) {
+                if (is_array($not) && count7($not) > 0) {
                     $exp = explode(' ', strftime($format, $this->timestamp()));
                     foreach ($exp as $key => $value) {
                         if (!in_array($value, $not)) {
@@ -497,14 +497,14 @@ class Date
 
         $nd = explode(' ', $date);
 
-        if ($hours && count($nd) == 1) {
+        if ($hours && count7($nd) == 1) {
             $hours = false;
         }
-        if (count($nd) == 2) {
+        if (count7($nd) == 2) {
             $hs = explode(':', $nd[1]);
-            if (count($hs) > 0) {
+            if (count7($hs) > 0) {
                 $format = '';
-                $format_h = count($hs);
+                $format_h = count7($hs);
                 $vect = [
                     '%H',
                     '%M',
@@ -523,7 +523,7 @@ class Date
 
         $c = str_replace(['-', '/'], ';', $nd[0]);
         $exp = explode(';', $c);
-        if (count($exp) != 3) {
+        if (count7($exp) != 3) {
             throw new Exception('Invalid date string.');
         }
 
@@ -537,7 +537,7 @@ class Date
         $c = explode(' ', $c);
         $od = explode(';', $c[0]);
 
-        if (count($od) == 3) {
+        if (count7($od) == 3) {
             if ($gregorian) {
                 $a = $od[0];
                 $od[0] = $od[1];

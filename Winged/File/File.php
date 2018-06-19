@@ -25,7 +25,18 @@ class File
      */
     public function __construct($file, $forceCreate = true)
     {
+        $content = false;
+
         if (is_string($file)) {
+
+            if (filter_var($file, FILTER_VALIDATE_URL)) {
+                if (ini_get('allow_url_fopen')) {
+                    $exp = explode('/', $file);
+                    $content = file_get_contents($file);
+                    $file = end($exp);
+                    $forceCreate = true;
+                }
+            }
 
             if (!is_int(stripos($file, './'))) {
                 $file = './' . $file;
@@ -93,6 +104,9 @@ class File
                 $this->folder = null;
                 $this->file = $file;
             }
+        }
+        if($content){
+            $this->write($content);
         }
     }
 

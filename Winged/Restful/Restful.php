@@ -41,7 +41,7 @@ class Restful
             $x = 0;
             $array = array();
 
-            if (count(Winged::$params) > 0 && gettype(Winged::$params) == "array") {
+            if (count7(Winged::$params) > 0 && gettype(Winged::$params) == "array") {
                 foreach ($vect as $key => $value) {
                     if (is_int($key)) {
                         $param = Winged::$params[$x];
@@ -57,7 +57,7 @@ class Restful
                                 $array[$value->name] = $param;
                             }
                             $x++;
-                            if ($x >= count(Winged::$params)) {
+                            if ($x >= count7(Winged::$params)) {
                                 break;
                             }
                         } else {
@@ -70,21 +70,21 @@ class Restful
             Winged::$oparams = Winged::$params;
             Winged::$params = $array;
 
-            if (count($array) > 0) {
-                if ($vect[count($array) - 1]->method) {
-                    $function = $vect[count($array) - 1]->method;
+            if (count7($array) > 0) {
+                if ($vect[count7($array) - 1]->method) {
+                    $function = $vect[count7($array) - 1]->method;
                 }
-                if ($vect[count($array) - 1]->class_path) {
-                    $path = $vect[count($array) - 1]->class_path;
+                if ($vect[count7($array) - 1]->class_path) {
+                    $path = $vect[count7($array) - 1]->class_path;
                 }
-                if ($vect[count($array) - 1]->class_name) {
-                    $class_name = $vect[count($array) - 1]->class_name;
+                if ($vect[count7($array) - 1]->class_name) {
+                    $class_name = $vect[count7($array) - 1]->class_name;
                 }
-                if ($vect[count($array) - 1]->construct) {
-                    $construct = $vect[count($array) - 1]->construct;
+                if ($vect[count7($array) - 1]->construct) {
+                    $construct = $vect[count7($array) - 1]->construct;
                 }
-                if ($vect[count($array) - 1]->extra) {
-                    $extra = $vect[count($array) - 1]->extra;
+                if ($vect[count7($array) - 1]->extra) {
+                    $extra = $vect[count7($array) - 1]->extra;
                 }
             }
 
@@ -124,7 +124,7 @@ class Restful
                                 $num++;
                             }
                         }
-                        if (count(Winged::$oparams) >= $num) {
+                        if (count7(Winged::$oparams) >= $num) {
                             $the_params = Winged::$oparams;
                             if (array_key_exists("extra_params", $extra) && is_array($extra["extra_params"])) {
                                 array_push($the_params, $extra["extra_params"]);
@@ -134,7 +134,7 @@ class Restful
                                 echo json_encode($ret);
                             }
                         } else {
-                            Winged::error("the number of arguments to the method (" . $function . ") '" . $num . "'  is greater than that found in the url '" . count(Winged::$oparams) . "'");
+                            Winged::error("the number of arguments to the method (" . $function . ") '" . $num . "'  is greater than that found in the url '" . count7(Winged::$oparams) . "'");
                         }
                     } else {
                         Winged::error("method '" . $function . "' no exists on class '" . $class_name . "'");
@@ -188,13 +188,13 @@ class Restful
                 $exp = explode("/", $found["uri_comp"]);
             }
             $params = Winged::$params;
-            if (count($params) == count($exp) || Winged::$is_standard) {
+            if (count7($params) == count7($exp) || Winged::$is_standard) {
 
                 $init = true;
-                for ($x = 0; $x < count($exp); $x++) {
+                for ($x = 0; $x < count7($exp); $x++) {
                     $math = explode(":", $exp[$x]);
                     $is_action = false;
-                    if (@count($math) == 2 && trim($math[0]) == "action") {
+                    if (@count7($math) == 2 && trim($math[0]) == "action") {
                         $preg = trim($math[1]);
                         $is_action = true;
                     } else {
@@ -246,11 +246,11 @@ class Restful
             }
 
             $init = true;
-            if (count($params) == count($exp)) {
-                for ($x = 0; $x < count($exp); $x++) {
+            if (count7($params) == count7($exp)) {
+                for ($x = 0; $x < count7($exp); $x++) {
                     $math = explode(":", $exp[$x]);
                     $is_action = false;
-                    if (count($math) == 2 && $math[0] == "action") {
+                    if (count7($math) == 2 && $math[0] == "action") {
                         $preg = trim($math[1]);
                         $is_action = true;
                     } else {

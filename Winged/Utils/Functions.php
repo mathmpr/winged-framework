@@ -906,3 +906,11 @@ function array2htmlselect($array = [], $field = '', $id_field = '')
     }
     return $select;
 }
+
+/**
+ * @param $arg
+ * @return bool|int
+ */
+function count7($arg){
+    return is_array($arg) ? count($arg) : false;
+}

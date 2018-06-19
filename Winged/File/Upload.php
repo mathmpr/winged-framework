@@ -4,25 +4,25 @@ namespace Winged\Upload;
 
 class Upload
 {
-    private $allow = array(
-        "img" => array(".jpg", ".jpeg", ".png", ".tiff", ".gif"),
-        "doc" => array(".docx", ".txt", ".doc", ".pdf"),
-        "zip" => array(".zip", ".rar", ".tar", ".tar.gz"),
-        "audio" => array(".mp3", ".ogg", ".wav"),
-        "video" => array(".mp4", ".avi", ".mpeg", ".wmv", "webm", "ogg"),
-    );
-    private $allowed = array(), $max_size, $path, $lastuploaded = array(), $nametype;
+    private $allow = [
+        "img" => [".jpg", ".jpeg", ".png", ".tiff", ".gif"],
+        "doc" => [".docx", ".txt", ".doc", ".pdf"],
+        "zip" => [".zip", ".rar", ".tar", ".tar.gz"],
+        "audio" => [".mp3", ".ogg", ".wav"],
+        "video" => [".mp4", ".avi", ".mpeg", ".wmv", "webm", "ogg"],
+    ];
+    private $allowed = [], $max_size, $path, $lastuploaded = [], $nametype;
 
     public function setOptions($path, $type = "", $add = "", $allow_no = "", $max_size = 64, $nametype = "token")
     {
         $types = explode(",", $type);
         $adds = explode(",", $add);
         $allown = explode(",", $allow_no);
-        $merge = array();
-        $right = array();
+        $merge = [];
+        $right = [];
 
-        if (count($types) > 1) {
-            for ($x = 0; $x < count($types); $x++) {
+        if (count7($types) > 1) {
+            for ($x = 0; $x < count7($types); $x++) {
                 if (array_key_exists(trim($types[$x]), $this->allow)) {
                     if ($x == 0) {
                         $merge = $this->allow[trim($types[$x])];
@@ -39,7 +39,7 @@ class Upload
             }
         }
 
-        for ($x = 0; $x < count($adds); $x++) {
+        for ($x = 0; $x < count7($adds); $x++) {
             if ($adds[$x] != ".") {
                 $adds[$x] = "." . trim($adds[$x]);
             } else {
@@ -48,7 +48,7 @@ class Upload
             $merge[] = $adds[$x];
         }
 
-        for ($x = 0; $x < count($allown); $x++) {
+        for ($x = 0; $x < count7($allown); $x++) {
             if ($allown[$x] != ".") {
                 $allown[$x] = "." . trim($allown[$x]);
             } else {
@@ -93,7 +93,7 @@ class Upload
                     if (array_key_exists($input_name, $input['name'])) {
                         if (gettype($input["name"][$input_name]) == "array") {
                             if ($input["name"][$input_name][0] != "") {
-                                for ($x = 0; $x < count($input["name"][$input_name]); $x++) {
+                                for ($x = 0; $x < count7($input["name"][$input_name]); $x++) {
                                     $name_img = $input["name"][$input_name][$x];
                                     $size = round($input['size'][$input_name][$x]);
                                     $tmp = $input['tmp_name'][$input_name][$x];
@@ -180,7 +180,7 @@ class Upload
                 if ($input["name"] != "") {
                     if (gettype($input["name"]) == "array") {
                         if ($input["name"][0] != "") {
-                            for ($x = 0; $x < count($input["name"]); $x++) {
+                            for ($x = 0; $x < count7($input["name"]); $x++) {
                                 $name_img = $input["name"][$x];
                                 $size = round($input['size'][$x]);
                                 $tmp = $input['tmp_name'][$x];
@@ -263,8 +263,8 @@ class Upload
         $grand = array("y" => 31556926, "w" => 604800, "d" => 86400, "h" => 3600, "i" => 60, "s" => 1);
         $vals = array();
 
-        for ($x = 0; $x < count($exp); $x++) {
-            for ($y = 0; $y < count($words); $y++) {
+        for ($x = 0; $x < count7($exp); $x++) {
+            for ($y = 0; $y < count7($words); $y++) {
                 if (strpos($exp[$x], $words[$y]) !== false) {
                     $exp[$x][strpos($exp[$x], $words[$y])] = "";
                     $vals[$words[$y]] = intval($exp[$x]);
@@ -277,9 +277,9 @@ class Upload
         }
 
         $scan = scandir($this->path);
-        for ($x = 2; $x < count($scan); $x++) {
+        for ($x = 2; $x < count7($scan); $x++) {
             $exp = explode("rand", $scan[$x]);
-            if (count($exp) > 1) {
+            if (count7($exp) > 1) {
                 if ($this->getFileTime($exp[0]) > $seg) {
                     unlink($this->path . "/" . $scan[$x]);
                 }

@@ -170,7 +170,7 @@ class Image extends File
                     if ($quality < 10) {
                         $quality = 1;
                     } else {
-                        $quality = (int)($quality / 9);
+                        $quality = ((int)($quality / 9)) - 1;
                     }
                     Buffer::kill();
                     header_remove();

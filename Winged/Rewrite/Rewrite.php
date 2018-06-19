@@ -47,7 +47,7 @@ class Rewrite
                             if (array_key_exists('index', $vect)) {
                                 $find = $vect["index"];
                             }
-                            if (count(Winged::$params) > 0 && gettype(Winged::$params) == "array") {
+                            if (count7(Winged::$params) > 0 && gettype(Winged::$params) == "array") {
                                 foreach ($vect as $key => $value) {
                                     if (is_int($key)) {
                                         $param = Winged::$params[$x];
@@ -58,7 +58,7 @@ class Rewrite
                                                 $array[$value->name] = $param;
                                             }
                                             $x++;
-                                            if ($x >= count(Winged::$params)) {
+                                            if ($x >= count7(Winged::$params)) {
                                                 break;
                                             }
                                         } else {
@@ -69,14 +69,14 @@ class Rewrite
                             }
 
                             Winged::$oparams = Winged::$params;
-                            if (count($array) > 0) {
+                            if (count7($array) > 0) {
                                 Winged::$params = $array;
                             }
 
 
-                            if (count($array) > 0) {
-                                if ($vect[count($array) - 1]->index) {
-                                    $find = $vect[count($array) - 1]->index;
+                            if (count7($array) > 0) {
+                                if ($vect[count7($array) - 1]->index) {
+                                    $find = $vect[count7($array) - 1]->index;
                                 }
                             }
 
@@ -185,7 +185,7 @@ class Rewrite
             $key = trim($key);
             $exp = explode("/", $key);
             $pos = stripos($key, $okey);
-            $countExp = count($exp);
+            $countExp = count7($exp);
             if ($countExp >= 3) {
                 if (is_int($pos) && !$found) {
                     $replace = str_replace($okey, "", $key);
@@ -222,15 +222,15 @@ class Rewrite
             if (is_bool($params)) {
                 $params = [];
             }
-            $countParams = is_array($params) ? count($params) : 0;
-            $countExp = is_array($exp) ? count($exp) : 1;
+            $countParams = is_array($params) ? count7($params) : 0;
+            $countExp = is_array($exp) ? count7($exp) : 1;
             if ($countParams == $countExp || Winged::$is_standard || $exp == false) {
                 $init = true;
-                $countExp = is_array($exp) ? count($exp) : 0;
+                $countExp = is_array($exp) ? count7($exp) : 0;
                 for ($x = 0; $x < $countExp; $x++) {
                     $math = explode(":", $exp[$x]);
                     $is_action = false;
-                    if ($math && (count($math) == 2 && trim($math[0]) == "action")) {
+                    if ($math && (count7($math) == 2 && trim($math[0]) == "action")) {
                         $preg = trim($math[1]);
                         $is_action = true;
                     } else {
@@ -285,14 +285,14 @@ class Rewrite
 
             $init = true;
 
-            $countParams = is_array($params) ? count($params) : 0;
-            $countExp = is_array($exp) ? count($exp) : 0;
+            $countParams = is_array($params) ? count7($params) : 0;
+            $countExp = is_array($exp) ? count7($exp) : 0;
 
             if ($countParams == $countExp) {
                 for ($x = 0; $x < $countExp; $x++) {
                     $math = explode(":", $exp[$x]);
                     $is_action = false;
-                    if (count($math) == 2 && $math[0] == "action") {
+                    if (count7($math) == 2 && $math[0] == "action") {
                         $preg = trim($math[1]);
                         $is_action = true;
                     } else {
@@ -334,7 +334,7 @@ class Rewrite
 
     public function get_actions_count()
     {
-        $count = is_array($this->actions) ? count($this->actions) : 0;
+        $count = is_array($this->actions) ? count7($this->actions) : 0;
         return $count;
     }
 

@@ -50,7 +50,7 @@ class Controller
     public function virtualString($path = '')
     {
         $exp = explode('/', $path);
-        if (count($exp) >= 1 && $exp[0] != '') {
+        if (count7($exp) >= 1 && $exp[0] != '') {
             Winged::$controller_page = $exp[0];
             if (isset($exp[1])) {
                 Winged::$controller_action = $exp[1];
@@ -60,7 +60,7 @@ class Controller
             }
             array_splice($exp, 0, 1);
         }
-        if (count($exp) > 0) {
+        if (count7($exp) > 0) {
             Winged::$params = $exp;
         }
         return $this->find();
@@ -349,18 +349,18 @@ class Controller
         $path = $args_path[0];
         $args = explode('?', server('request_uri'));
         $join = [];
-        if (count($args) >= 2 && $keep_args) {
-            if (count($args_path) >= 2) {
+        if (count7($args) >= 2 && $keep_args) {
+            if (count7($args_path) >= 2) {
                 $args = explode('&', end($args));
                 $args_path = explode('&', end($args_path));
                 foreach ($args_path as $arg) {
                     $from_redi = explode('=', $arg);
                     $key_redi = array_shift($from_redi);
-                    $from_redi = [$key_redi => (count($from_redi) > 1 ? implode('=', $from_redi) : end($from_redi))];
+                    $from_redi = [$key_redi => (count7($from_redi) > 1 ? implode('=', $from_redi) : end($from_redi))];
                     foreach ($args as $varg) {
                         $from_url = explode('=', $varg);
                         $key_url = array_shift($from_url);
-                        $from_url = [$key_url => (count($from_url) > 1 ? implode('=', $from_url) : end($from_url))];
+                        $from_url = [$key_url => (count7($from_url) > 1 ? implode('=', $from_url) : end($from_url))];
                         if ($key_redi == $key_url) {
                             $join[$key_redi] = $from_redi[$key_redi];
                         } else {
@@ -376,7 +376,7 @@ class Controller
                 $args = '?' . array_pop($args);
             }
         } else {
-            if (count($args_path) >= 2) {
+            if (count7($args_path) >= 2) {
                 $args = end($args_path);
             } else {
                 $args = '';
@@ -406,12 +406,12 @@ class Controller
     public function setNicknamesToUri($nicks = array())
     {
         $narr = array();
-        if (count($nicks) > count(Winged::$controller_params)) {
-            for ($x = 0; $x < count(Winged::$controller_params); $x++) {
+        if (count7($nicks) > count7(Winged::$controller_params)) {
+            for ($x = 0; $x < count7(Winged::$controller_params); $x++) {
                 $narr[$nicks[$x]] = Winged::$controller_params[$x];
             }
         } else {
-            for ($x = 0; $x < count($nicks); $x++) {
+            for ($x = 0; $x < count7($nicks); $x++) {
                 $narr[$nicks[$x]] = Winged::$controller_params[$x];
             }
         }

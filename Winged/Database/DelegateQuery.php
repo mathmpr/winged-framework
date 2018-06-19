@@ -238,7 +238,7 @@ class DelegateQuery extends QueryBuilder
     public function find($as_array = false)
     {
         $unic = $this->fetch();
-        if (count($unic) > 0 && is_array($unic)) {
+        if (count7($unic) > 0 && is_array($unic)) {
             if ($as_array) {
                 return $this->realValueOf($unic);
             }
@@ -274,7 +274,7 @@ class DelegateQuery extends QueryBuilder
     {
         $this->limit(0, 1);
         $unic = $this->fetch();
-        if (count($unic) > 0 && is_array($unic)) {
+        if (count7($unic) > 0 && is_array($unic)) {
             $unic = $unic[0];
             if ($as_array) {
                 foreach ($unic as $key => $uni) {
@@ -336,13 +336,13 @@ class DelegateQuery extends QueryBuilder
         $unic = $obj->fetch();
 
         if ($as_array) {
-            if (count($unic) > 0 && is_array($unic)) {
+            if (count7($unic) > 0 && is_array($unic)) {
                 return $this->realValueOf($unic);
             }
             return null;
         }
 
-        if (count($unic) > 0 && is_array($unic)) {
+        if (count7($unic) > 0 && is_array($unic)) {
             $unic = $this->realValueOf($unic);
             $models = array();
             foreach ($unic as $key => $value) {
@@ -380,14 +380,14 @@ class DelegateQuery extends QueryBuilder
 
         if ($as_array) {
             $unic = $obj->fetch();
-            if (count($unic) > 0 && is_array($unic)) {
+            if (count7($unic) > 0 && is_array($unic)) {
                 $unic = $unic[0];
                 return $this->realValueOf($unic);
             }
             return null;
         }
         $unic = $obj->fetch();
-        if (count($unic) > 0 && is_array($unic)) {
+        if (count7($unic) > 0 && is_array($unic)) {
             $unic = $this->realValueOf($unic[0]);
             return $this->populateModel($obj, $unic);
         }
@@ -404,17 +404,17 @@ class DelegateQuery extends QueryBuilder
         if (array_key_exists(0, $info['select_arr'])) {
             $key = $info['select_arr'][0];
             $preg = preg_split('/as/i', $key);
-            if (count($preg) == 2) {
+            if (count7($preg) == 2) {
                 $key = trim(array_pop($preg));
             } else {
                 $exp = explode('.', $key);
-                if (count($exp) == 2) {
+                if (count7($exp) == 2) {
                     $key = trim(array_pop($exp));
                 }
             }
         }
         $ret = [];
-        if ($arr && !empty($arr) && count($arr) > 0) {
+        if ($arr && !empty($arr) && count7($arr) > 0) {
             foreach ($arr as $index => $value) {
                 $ret[] = $value[$key];
             }
@@ -434,12 +434,12 @@ class DelegateQuery extends QueryBuilder
             ->from(array($alias => $obj->tN($obj)));
         $unic = $obj->fetch();
         if ($as_array) {
-            if (count($unic) > 0 && is_array($unic)) {
+            if (count7($unic) > 0 && is_array($unic)) {
                 return $this->realValueOf($unic);
             }
             return null;
         }
-        if (count($unic) > 0 && is_array($unic)) {
+        if (count7($unic) > 0 && is_array($unic)) {
             $models = array();
             $unic = $this->realValueOf($unic);
             foreach ($unic as $key => $value) {
@@ -468,13 +468,13 @@ class DelegateQuery extends QueryBuilder
             ->where(DbDict::EQUAL, array($alias . '.' . $obj->fK($obj) => $id));
         if ($as_array) {
             $unic = $obj->fetch();
-            if (count($unic) > 0 && is_array($unic)) {
+            if (count7($unic) > 0 && is_array($unic)) {
                 return $this->realValueOf($unic[0]);
             }
             return null;
         }
         $unic = $obj->fetch();
-        if (count($unic) > 0 && is_array($unic)) {
+        if (count7($unic) > 0 && is_array($unic)) {
             $unic = $this->realValueOf($unic[0]);
             return $this->populateModel($obj, $unic);
         }
@@ -672,14 +672,14 @@ class DelegateQuery extends QueryBuilder
         } else if ($condition == DbDict::IS_NULL) {
             return $value . ' IS NULL';
         } else if ($condition == DbDict::BETWEEN) {
-            if (count($value) == 2) {
+            if (count7($value) == 2) {
                 $this->prepare($key, $value[0]);
                 $this->prepare($key, $value[1]);
                 return $key . ' ' . $condition . ' ? AND ?';
             }
         } else if ($condition == DbDict::NOTIN || $condition == DbDict::IN) {
             $names = [];
-            for ($x = 0; $x < count($value); $x++) {
+            for ($x = 0; $x < count7($value); $x++) {
                 $names[] = '?';
                 $this->prepare($key, $value[$x]);
             }
@@ -820,7 +820,7 @@ class DelegateQuery extends QueryBuilder
 
     private function addLimitToQuery($query = '')
     {
-        if (count($this->limit_arr) > 0) {
+        if (count7($this->limit_arr) > 0) {
             if ($this->limit_arr['final'] == 0) {
                 $this->addPrepared('i', $this->limit_arr['init']);
                 $query .= ' LIMIT ?';
@@ -835,7 +835,7 @@ class DelegateQuery extends QueryBuilder
 
     private function addSetToQuery($query = '')
     {
-        if (count($this->set_arr) > 0) {
+        if (count7($this->set_arr) > 0) {
             $query .= ' SET ';
             $names = [];
             foreach ($this->set_arr as $key => $value) {
@@ -851,7 +851,7 @@ class DelegateQuery extends QueryBuilder
     {
         $names = [];
         $values = [];
-        if (count($this->values_arr) > 0) {
+        if (count7($this->values_arr) > 0) {
             foreach ($this->values_arr as $key => $value) {
                 $this->prepare($key, $value);
                 $names[] = $key;
@@ -922,7 +922,7 @@ class DelegateQuery extends QueryBuilder
                 } else {
                     $query = 'SELECT ';
                 }
-                $selectArr = is_array($this->select_arr) ? count($this->select_arr) : -1;
+                $selectArr = is_array($this->select_arr) ? count7($this->select_arr) : -1;
                 if ($selectArr > 0) {
                     $first = true;
                     foreach ($this->select_arr as $key => $value) {
@@ -943,7 +943,7 @@ class DelegateQuery extends QueryBuilder
                     }
                 }
 
-                if (count($this->select_arr) == 0) {
+                if (count7($this->select_arr) == 0) {
                     $query .= "*";
                 }
                 $query .= ' ' . $this->from_arr;

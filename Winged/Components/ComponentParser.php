@@ -151,9 +151,6 @@ class ComponentParser
      * @return $this
      */
     public function render(){
-
-        if($this->changed)
-
         $includes = $this->DOM->query('x-include');
         if ($includes) {
             /**

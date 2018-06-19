@@ -166,7 +166,7 @@ if (!file_exists(PATH_CONFIG)) {
 
     if (!is_null(WingedConfig::$INCLUDES)) {
         if (gettype(WingedConfig::$INCLUDES) == "array") {
-            for ($x = 0; $x < count(WingedConfig::$INCLUDES); $x++) {
+            for ($x = 0; $x < count7(WingedConfig::$INCLUDES); $x++) {
                 include_once WingedConfig::$INCLUDES[$x];
             }
         } else {
@@ -342,14 +342,14 @@ class Winged
         if (isset($exp[0]) && $exp[0] == '') {
             return ['controller' => self::$standard_controller, 'action' => 'index'];
         } else {
-            for ($i = 0; $i < count($uri); $i++) {
+            for ($i = 0; $i < count7($uri); $i++) {
                 if (!in_array($uri[$i], $exp)) {
                     $nar[] = $uri[$i];
                 }
             }
-            if (count($nar) == 0) {
+            if (count7($nar) == 0) {
                 return ['controller' => self::$standard_controller, 'action' => 'index'];
-            } else if (count($nar) == 1) {
+            } else if (count7($nar) == 1) {
                 return ['controller' => $nar[0], 'action' => 'index'];
             } else {
                 return ['controller' => $nar[0], 'action' => $nar[1]];
@@ -371,7 +371,7 @@ class Winged
 
         $self = "";
         $lastself = "";
-        for ($x = 0; $x < count($selfs); $x++) {
+        for ($x = 0; $x < count7($selfs); $x++) {
             if ($selfs[$x] != "index.php") {
                 if ($x == 0) {
                     $self = $selfs[$x];
@@ -387,13 +387,13 @@ class Winged
         $find = 0;
         $inarray = [];
 
-        for ($x = 0; $x < count($uris); $x++) {
+        for ($x = 0; $x < count7($uris); $x++) {
             if ($uris[$x] == $lastself || $lastself == "") {
                 $fix = true;
                 array_push($inarray, $lastself);
             }
 
-            $str_count = count($inarray);
+            $str_count = count7($inarray);
 
             if (($fix && $uris[$x] != $lastself) || ($fix && $str_count >= 2)) {
                 if ($cont == 0) {
@@ -421,7 +421,7 @@ class Winged
         }
 
         self::$uri = $uri;
-        if (count($free_get) > 1) {
+        if (count7($free_get) > 1) {
             self::$pure_uri = $uri . '?' . $free_get[1];
         } else {
             self::$pure_uri = $uri;
@@ -446,7 +446,7 @@ class Winged
     {
         $uri = WingedLib::dotslash(self::$uri);
         $exp = WingedLib::slashexplode($uri);
-        if (count($exp) > 0 && $exp[0] == "restful") {
+        if (count7($exp) > 0 && $exp[0] == "restful") {
             self::$restful = true;
             unset($exp[0]);
             $uri = WingedLib::dotslash(join("/", $exp), true);
@@ -464,7 +464,7 @@ class Winged
             $dir .= './' . $extra_dir . '/';
         }
 
-        if (count($exp) > 0) {
+        if (count7($exp) > 0) {
 
             $x = 0;
 
@@ -500,7 +500,7 @@ class Winged
                 $x++;
             }
 
-            if (count($exp) == 0) {
+            if (count7($exp) == 0) {
                 self::$is_standard = true;
                 return [
                     "page" => self::$standard,
