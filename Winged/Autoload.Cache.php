@@ -63,6 +63,7 @@
     "./winged/File/Directory.php",
     "./winged/File/Download.php",
     "./winged/File/File.php",
+    "./winged/File/Ftp.php",
     "./winged/File/Image.php",
     "./winged/File/Upload.php",
     "./winged/Form/ActiveForm.php",

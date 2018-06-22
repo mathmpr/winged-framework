@@ -137,6 +137,13 @@ class File
     }
 
     /**
+     * @return bool|string
+     */
+    public function getPerms(){
+        return substr(sprintf('%o', fileperms($this->file_path)), -4);
+    }
+
+    /**
      * Cut the file to the specified location, if the location does not exist, the location will be created dynamically.
      * @param string $to
      * @return $this|CoreFile

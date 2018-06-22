@@ -819,7 +819,6 @@ function begstr($str)
         if (strlen($str) > 0) {
             return $str[0];
         }
-        return '';
     }
     return false;
 }
@@ -855,15 +854,15 @@ function endstr($str, $length = 1)
 }
 
 /**
- * replace first char of string
- * @param $str string
+ * @param $str
+ * @param int $length
  * @param string $replace_with
  */
-function endstr_replace(&$str, $length = 1, $replace_with = '')
+function endstr_replace(&$str, $length = -1, $replace_with = '')
 {
     if(is_string($str)){
         if (strlen($str) - $length > 0) {
-            $str[strlen($str) - $length] = $replace_with;
+            $str = substr_replace($str, $replace_with, strlen($str) - 1, $length);
             $str = trim($str);
         }
     }

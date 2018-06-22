@@ -5,6 +5,7 @@ use Winged\Image\Image;
 use Winged\Model\News;
 use Winged\Components\Components;
 use Winged\Components\ComponentParser;
+use Winged\File\Ftp;
 
 /**
  * Class HomeController
@@ -21,6 +22,22 @@ class HomeController extends Controller
 
     public function actionIndex()
     {
+
+        $ftp = new Ftp('pradoit-com-br.umbler.net', 'pradoit-com-br', 'QWEqwe123');
+
+        //$ftp->up();
+
+        //pre_clear_buffer_die($ftp);
+
+        $ftp->down('public');
+
+        $ftp->put('./cacau.png', './now/gety/images/cacau.png', true);
+
+        pre_clear_buffer_die($ftp->path);
+
+        //$ftp->rmdir('now');
+
+        //$ftp->put('./cacau.png', './now/try/create/cacau.png', true);
 
         $articles = new News();
         $articles = $articles->select()->from(['fg' => News::tableName()])->find();
