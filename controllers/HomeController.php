@@ -2,10 +2,10 @@
 
 use Winged\Controller\Controller;
 use Winged\Image\Image;
-use Winged\Model\News;
 use Winged\Components\Components;
 use Winged\Components\ComponentParser;
 use Winged\File\Ftp;
+use Winged\Form\Form;
 
 /**
  * Class HomeController
@@ -22,33 +22,48 @@ class HomeController extends Controller
 
     public function actionIndex()
     {
+        $usuarios = new Usuarios();
+        $form = new Form($usuarios);
+        $form->begin();
 
-        $ftp = new Ftp('pradoit-com-br.umbler.net', 'pradoit-com-br', 'QWEqwe123');
+        $form->addInput('nome', 'radio', [
+            'values' => [
+                0 => 'ADM',
+                1 => 'FUN',
+            ]
+        ]);
+
+        $form->end();
+
+
+        //$ftp = new Ftp('pradoit-com-br.umbler.net', 'pradoit-com-br', 'QWEqwe123');
 
         //$ftp->up();
 
         //pre_clear_buffer_die($ftp);
 
-        $ftp->down('public');
+        //$ftp->access('public/admin/assets/css/core/files/');
 
-        $ftp->put('./cacau.png', './now/gety/images/cacau.png', true);
+        //$ftp->put('./cacau.png', './now/gety/images/cacau.png', true);
 
-        pre_clear_buffer_die($ftp->path);
+        //$ftp->rmdir('now');
+
+        //pre_clear_buffer_die($ftp->currentDir);
 
         //$ftp->rmdir('now');
 
         //$ftp->put('./cacau.png', './now/try/create/cacau.png', true);
 
-        $articles = new News();
-        $articles = $articles->select()->from(['fg' => News::tableName()])->find();
+        //$articles = new News();
+        //$articles = $articles->select()->from(['fg' => News::tableName()])->find();
 
-        $component = new Components('Home', ComponentParser::getComponent('./views/components/', 'Site\Components\Home', [
-            'articles' => $articles
-        ]));
+        //$component = new Components('Home', ComponentParser::getComponent('./views/components/', 'Site\Components\Home', [
+        //    'articles' => $articles
+        //]));
 
-        $component->get('Home')->begin();
+        //$component->get('Home')->begin();
 
-        $component->get('Home')->free();
+        //$component->get('Home')->free();
 
     }
 

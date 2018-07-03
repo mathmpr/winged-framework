@@ -1,6 +1,7 @@
 <?php
 namespace Winged\Validator;
 use Winged\Date\Date;
+use Winged\Formater\Formater;
 
 /**
  * Class validation for forms, combine this class with the rules method of the models
@@ -20,8 +21,7 @@ class Validator
         if (empty($cpf)) {
             return false;
         }
-        $cpf = preg_replace('[^0-9]', '', $cpf);
-        $cpf = str_pad($cpf, 11, '0', STR_PAD_LEFT);
+        $cpf = str_replace('-', '', Formater::removeSymbols($cpf));
         if (strlen($cpf) != 11) {
             return false;
         } else if ($cpf == '00000000000' ||

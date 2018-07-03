@@ -116,7 +116,7 @@ class WingedConfig extends \stdClass
      * @property $DBNAME string
      * default database name for mysql connection
      */
-    public static $DBNAME = "winged";
+    public static $DBNAME = "generic";
 
     /**
      * @property $PASSWORD string

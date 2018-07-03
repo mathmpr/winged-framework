@@ -3,7 +3,12 @@
 namespace Winged\Assets;
 
 use Winged\Controller\Controller;
+use Winged\Winged;
 
+/**
+ * Class Assets
+ * @package Winged\Assets
+ */
 class Assets
 {
     /**
@@ -30,6 +35,9 @@ class Assets
         $this->controller->addJs("mainjs", "./assets/js/main.js");
     }
 
+    /**
+     * @return $this
+     */
     public function admin()
     {
         $this->controller->rewriteHeadContentPath('./admin/head.content.php');

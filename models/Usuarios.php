@@ -1,9 +1,21 @@
 <?php
 
+use Winged\Validator\Validator;
+use Winged\Http\Session;
+use Winged\Database\DbDict;
+use Winged\Date\Date;
+use Winged\Model\Model;
+
+/**
+ * class Usuarios
+ * @package Winged\Model
+ **/
 class Usuarios extends Model
 {
-    public function __construct()
-    {
+    /**
+     * Usuarios constructor.
+     */
+    public function __construct(){
         parent::__construct();
         return $this;
     }
@@ -16,6 +28,8 @@ class Usuarios extends Model
     public $email;
     /** @var $senha string */
     public $senha;
+    /** @var $repeat string */
+    public $repeat;
     /** @var $senha_antiga string */
     public $senha_antiga;
     /** @var $tipo integer */
@@ -26,12 +40,32 @@ class Usuarios extends Model
     public $session_namespace;
     /** @var $status integer */
     public $status;
-    /** @var $repeat string */
-    public $repeat;
-    /** @var $warn_days string */
-    public $warn_days;
     /** @var $telefone string */
     public $telefone;
+    /** @var $celular string */
+    public $celular;
+    /** @var $cpf string */
+    public $cpf;
+    /** @var $cnpj string */
+    public $cnpj;
+    /** @var $cep string */
+    public $cep;
+    /** @var $cidade integer */
+    public $cidade;
+    /** @var $estado integer */
+    public $estado;
+    /** @var $rua string */
+    public $rua;
+    /** @var $numero string */
+    public $numero;
+    /** @var $bairro integer */
+    public $bairro;
+    /** @var $complemento string */
+    public $complemento;
+    /** @var $nome_fantasia integer */
+    public $nome_fantasia;
+    /** @var $razao_social string */
+    public $razao_social;
 
     public static function tableName()
     {
@@ -69,8 +103,8 @@ class Usuarios extends Model
                 return null;
             },
             'data_cadastro' => function () {
-                if (CoreSession::get('action') == 'insert') {
-                    return (new CoreDate(time()))->sql();
+                if (Admin::isInsert()) {
+                    return (new Date(time()));
                 }
             },
             'session_namespace' => function () {
@@ -85,11 +119,6 @@ class Usuarios extends Model
                     return 0;
                 }
             },
-            'warn_days' => function () {
-                if ($this->loaded('warn_days') === false) {
-                    return 5;
-                }
-            }
         ];
     }
 
@@ -97,7 +126,7 @@ class Usuarios extends Model
     {
         return [
             'data_cadastro' => function () {
-                return (new CoreDate($this->data_cadastro))->dmy();
+                return (new Date($this->data_cadastro))->dmy();
             },
         ];
     }
@@ -109,7 +138,7 @@ class Usuarios extends Model
                 'required' => true,
                 'email' => true,
                 'db' => function () {
-                    if (CoreSession::get('action') == 'insert') {
+                    if (Session::get('action') == 'insert') {
                         $model = (new Usuarios())
                             ->select()
                             ->from(['USUARIOS' => 'usuarios'])
@@ -136,15 +165,15 @@ class Usuarios extends Model
             ],
             'senha' => [
                 'required' => function () {
-                    if (CoreSession::get('action') == 'insert') {
+                    if (Session::get('action') == 'insert') {
                         return true;
                     }
                     return false;
                 },
                 'equals' => [
                     function ($senha, $comp) {
-                        if (CoreSession::get('action') == 'insert' || strlen($this->senha) > 0 || strlen($this->repeat) > 0) {
-                            return CoreValidator::equals($senha, $comp);
+                        if (Session::get('action') == 'insert' || strlen($this->senha) > 0 || strlen($this->repeat) > 0) {
+                            return Validator::equals($senha, $comp);
                         } else {
                             $this->unload('senha');
                             $this->unload('repaet');
@@ -157,8 +186,8 @@ class Usuarios extends Model
                 ],
                 'length' => [
                     function ($senha, $length) {
-                        if (CoreSession::get('action') == 'insert' || strlen($this->senha) > 0 || strlen($this->repeat) > 0) {
-                            return CoreValidator::lengthLargerOrEqual($this->getOldValue('senha'), $length);
+                        if (Session::get('action') == 'insert' || strlen($this->senha) > 0 || strlen($this->repeat) > 0) {
+                            return Validator::lengthLargerOrEqual($this->getOldValue('senha'), $length);
                         } else {
                             $this->unload('senha');
                             $this->unload('repaet');
@@ -201,8 +230,19 @@ class Usuarios extends Model
             'tipo' => 'Tipo do usuário: ',
             'repeat' => 'Repita a senha: ',
             'status' => 'Ativo / Inativo: ',
-            'warn_days' => 'Buscar próximos pedidos agendados em quantos dias? ',
             'telefone' => 'Telefone: ',
+            'celular' => 'Celular: ',
+            'cpf' => 'CPF (se for pessoa física): ',
+            'cnpj' => 'CNPJ (se for pessoa jurídica): ',
+            'cep' => 'CEP: ',
+            'cidade' => 'Cidade: ',
+            'estado' => 'Estado: ',
+            'rua' => 'Rua: ',
+            'numero' => 'Número: ',
+            'bairro' => 'Bairro: ',
+            'complemento' => 'Complemento: ',
+            'razao_social' => 'Razão social (somente pessoa jurídica): ',
+            'nome_fantasia' => 'Nome fantasia (somente pessoa jurídica): '
         ];
     }
 }

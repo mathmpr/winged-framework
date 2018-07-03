@@ -140,7 +140,7 @@ class Model extends DelegateQuery
 
     public function unloadAll()
     {
-        foreach ($this->loaded_fields as $key => $value){
+        foreach ($this->loaded_fields as $key => $value) {
             unset($this->loaded_fields[$key]);
         }
         return true;
@@ -387,13 +387,26 @@ class Model extends DelegateQuery
                 $messages = [];
             }
 
-
             if (is_array($rules)) {
                 foreach ($rules as $property_rule => $rule) {
                     if (property_exists($class_name, $property_rule)) {
                         $erros = [
                             'required' =>
-                                ['text' => 'Field ' . $property_rule . ' is required.', 'filter' => false],
+                                ['text' => 'Field ' . $property_rule . ' is required.', 'filter' => function($arg){
+                                    if($arg === null){
+                                        return false;
+                                    }
+                                    if($arg === ''){
+                                        return null;
+                                    }
+                                    if(numeric_is($arg) === 0){
+                                        return false;
+                                    }
+                                    if($arg === false){
+                                        return false;
+                                    }
+                                    return true;
+                                }],
                             'email' =>
                                 ['text' => 'Field ' . $property_rule . ' required a valid email.', 'filter' => FILTER_VALIDATE_EMAIL],
                             'float' =>
@@ -417,25 +430,40 @@ class Model extends DelegateQuery
                             foreach ($finds as $pn => $test) {
                                 if (is_callable($test)) {
                                     $test = call_user_func($test);
-                                }
-                                if ($test) {
-                                    $message = $erros[$pn]['text'];
-                                    if (array_key_exists($property_rule, $messages)) {
-                                        if (array_key_exists($pn, $messages[$property_rule])) {
-                                            $message = $messages[$property_rule][$pn];
+                                    if ($test) {
+                                        $message = $erros[$pn]['text'];
+                                        if (array_key_exists($property_rule, $messages)) {
+                                            if (array_key_exists($pn, $messages[$property_rule])) {
+                                                $message = $messages[$property_rule][$pn];
+                                            }
                                         }
-                                    }
-                                    if ($erros[$pn]['filter']) {
-                                        if (!filter_var($this->{$property_rule}, $erros[$pn]['filter'])) {
-                                            $continue = false;
-                                            $this->pushValidateError($property_rule, $message);
-                                        }
-                                    } else if ($this->{$property_rule} === null || $this->{$property_rule} === false || $this->{$property_rule} === '') {
-                                        $continue = false;
                                         $this->pushValidateError($property_rule, $message);
+                                    }
+                                } else {
+                                    if ($test) {
+                                        $message = $erros[$pn]['text'];
+                                        if (array_key_exists($property_rule, $messages)) {
+                                            if (array_key_exists($pn, $messages[$property_rule])) {
+                                                $message = $messages[$property_rule][$pn];
+                                            }
+                                        }
+                                        if ($erros[$pn]['filter']) {
+                                            if(is_callable($erros[$pn]['filter'])){
+                                                if(!$erros[$pn]['filter']($this->{$property_rule})){
+                                                    $continue = false;
+                                                    $this->pushValidateError($property_rule, $message);
+                                                }
+                                            }else{
+                                                if (!filter_var($this->{$property_rule}, $erros[$pn]['filter'])) {
+                                                    $continue = false;
+                                                    $this->pushValidateError($property_rule, $message);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
+
                             foreach ($rule as $pn => $func) {
                                 if (!array_key_exists($pn, $erros) && $func !== 'safe') {
                                     $ret = null;

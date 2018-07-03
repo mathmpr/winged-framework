@@ -3,10 +3,7 @@
 namespace Winged\File;
 
 use Masterminds\HTML5\Exception;
-use Winged\Directory\Directory;
 use Winged\Error\Error;
-use Winged\Formater\Formater;
-use Winged\Utils\WingedLib;
 
 /**
  * Class Ftp
@@ -178,20 +175,27 @@ class Ftp
     }
 
     /**
-     * @param $directory
-     * @param bool $createJump
+     * @param $path
      * @return $this
      */
-    public function mkdir($directory, $createJump = true)
+    public function mkdir($path)
     {
-        if($directory === 'images'){
-            pre_clear_buffer_die('asdasd');
-        }
-        if (!$this->exists($directory)) {
-            ftp_mkdir($this->connection, $directory);
-        }
-        if ($createJump) {
-            $this->down($directory);
+        $exist = $this->deepExists($path);
+        if(!$exist){
+            $paths = $this->pathNormalize($path);
+            $paths = $this->parseDirectory($paths);
+            foreach ($paths['dirs'] as $key => $value) {
+                if ($value !== '.') {
+                    if ($value === '..') {
+                        $this->up();
+                    }
+                    if (!$this->exists($value)) {
+                        ftp_mkdir($this->connection, $value);
+                        $this->ls();
+                        $this->down($value);
+                    }
+                }
+            }
         }
         return $this;
     }
@@ -397,30 +401,36 @@ class Ftp
     public function asyncPut($local, $remote, $forceCreate = true)
     {
         $local = new File($local, false);
+        $oldPath = $this->path;
         if ($local->exists()) {
             $file = $this->parseFile($remote);
             if ($forceCreate) {
-                if (count7($file['dirs']) > 0) {
-                    foreach ($file['dirs'] as $dir) {
-                        if ($dir !== '.') {
-                            if ($dir === '..') {
-                                $this->up();
-                            } else {
-                                $this->mkdir($dir);
-                            }
-                        }
-                    }
-                }
+                $remote = explode('/', $remote);
+                array_pop($remote);
+                $this->mkdir(implode('/', $remote));
             }
             ftp_nb_put($this->connection, $file['file'], $local->file_path, FTP_BINARY);
+            $this->upRoot();
+            $this->access($oldPath);
             return $this;
         }
         return false;
     }
 
-    public function asyncGet()
+    /**
+     * @param $local
+     * @param $remote
+     * @return bool|File
+     */
+    public function asyncGet($local, $remote)
     {
-        //ftp_nb_get
+        $exist = $this->deepExists($remote);
+        if($exist && $exist === 'file'){
+            $local = new File($local, true);
+            ftp_nb_get($this->connection, $local->file_path, $remote, FTP_BINARY);
+            return $local;
+        }
+        return false;
     }
 
     /**
@@ -436,17 +446,9 @@ class Ftp
         if ($local->exists()) {
             $file = $this->parseFile($remote);
             if ($forceCreate) {
-                if (count7($file['dirs']) > 0) {
-                    foreach ($file['dirs'] as $dir) {
-                        if ($dir !== '.') {
-                            if ($dir === '..') {
-                                $this->up();
-                            } else {
-                                $this->mkdir($dir);
-                            }
-                        }
-                    }
-                }
+                $remote = explode('/', $remote);
+                array_pop($remote);
+                $this->mkdir(implode('/', $remote));
             }
             ftp_put($this->connection, $file['file'], $local->file_path, FTP_BINARY);
             $this->upRoot();
@@ -456,9 +458,20 @@ class Ftp
         return false;
     }
 
-    public function get()
+    /**
+     * @param $local
+     * @param $remote
+     * @return bool|File
+     */
+    public function get($local, $remote)
     {
-        //ftp_get
+        $exist = $this->deepExists($remote);
+        if($exist && $exist === 'file'){
+            $local = new File($local, true);
+            ftp_get($this->connection, $local->file_path, $remote, FTP_BINARY);
+            return $local;
+        }
+        return false;
     }
 
     /**

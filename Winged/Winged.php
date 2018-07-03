@@ -28,9 +28,9 @@ define("DB_DRIVER_SQLITE", "sqlite:%s"); //dbname
 
 define("PATH_CONFIG", "./config.php");
 define("PATH_EXTRA_CONFIG", "./extra.config.php");
-define("CLASS_PATH", "./winged/");
-define("STD_CONFIG", "./winged/config/config.php");
-define("STD_ROUTES", "./winged/routes/");
+define("CLASS_PATH", "./Winged/");
+define("STD_CONFIG", "./Winged/config/config.php");
+define("STD_ROUTES", "./Winged/routes/");
 
 ini_set("display_errors", true);
 
@@ -50,7 +50,7 @@ $__autoload__cache = false;
 
 include_once CLASS_PATH . 'Utils/Functions.php';
 include_once CLASS_PATH . 'Utils/FileTree.php';
-include_once CLASS_PATH . 'autoload.cache.php';
+include_once CLASS_PATH . 'Autoload.Cache.php';
 
 use Winged\Utils\FileTree;
 

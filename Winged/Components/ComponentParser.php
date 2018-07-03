@@ -117,14 +117,16 @@ class ComponentParser
     /**
      * @return null|\pQuery|DomNode|IQuery
      */
-    public function getOriginalDOM(){
+    public function getOriginalDOM()
+    {
         return \pQuery::parseStr($this->original->html());
     }
 
     /**
      * @return null|\pQuery|DomNode|IQuery
      */
-    public function getEmptyDOM(){
+    public function getEmptyDOM()
+    {
         return \pQuery::parseStr('');
     }
 
@@ -132,7 +134,8 @@ class ComponentParser
     /**
      * @return $this
      */
-    public function includeCheck(){
+    public function includeCheck()
+    {
         $includes = $this->DOM->query('x-include');
         if ($includes) {
             /**
@@ -150,7 +153,8 @@ class ComponentParser
     /**
      * @return $this
      */
-    public function render(){
+    public function render()
+    {
         $includes = $this->DOM->query('x-include');
         if ($includes) {
             /**
@@ -189,4 +193,83 @@ class ComponentParser
         echo $this->DOM->html();
     }
 
+    /**
+     * @param $html \pQuery|DomNode|IQuery
+     * @param $options array | callable
+     * @return mixed
+     */
+    public function addOptions($html, $options)
+    {
+        if (($type = array_key_exists_check('type', $options)) !== false) {
+            $html->attr('type', $type);
+        }
+
+        if (($placeholder = array_key_exists_check('placeholder', $options)) !== false) {
+            $html->attr('placeholder', $placeholder);
+        }
+
+        if (($disable = array_key_exists_check('disable', $options)) !== false) {
+            $html->attr('disable', $disable);
+        }
+
+        if (($autocomplete = array_key_exists_check('autocomplete', $options)) !== false) {
+            $html->attr('autocomplete', $autocomplete);
+        }
+
+        if (($value = array_key_exists_check('value', $options)) !== false) {
+            $html->attr('value', $value);
+        }
+
+        if (($id = array_key_exists_check('id', $options)) !== false) {
+            $html->attr('id', $id);
+        }
+
+        if (($attrs = array_key_exists_check('attrs', $options)) !== false) {
+            if (is_array($attrs) && !empty($attrs)) {
+                foreach ($attrs as $attr => $value) {
+                    if ($value) {
+                        $html->attr($attr, $value);
+                    }
+                }
+            }
+        }
+
+        if (($class = array_key_exists_check('class', $options)) !== false) {
+            if (is_array($class) && !empty($class)) {
+                foreach ($class as $cla) {
+                    $html->addClass($cla);
+                }
+            }
+        }
+
+        if (($data = array_key_exists_check('data', $options))) {
+            if (is_array($data) && !empty($data)) {
+                foreach ($data as $key => $cla) {
+                    $html->attr($key, $cla);
+                }
+            }
+        }
+
+        if (($selectors = array_key_exists_check('selectors', $options))) {
+            if (is_array($selectors)) {
+                foreach ($selectors as $selector => $function) {
+                    if (is_array($function)) {
+                        $keys = array_keys($function);
+                        $method = array_shift($keys);
+                        if ($method === 0) {
+                            if (method_exists($html, $function[$method])) {
+                                $html->query($selector)->{$function[$method]}();
+                            }
+                        } else {
+                            if (method_exists($html, $method)) {
+                                $html->query($selector)->{$method}($function[$method]);
+                            }
+                        }
+                        $this->addOptions($html->query($selector), $function);
+                    }
+                }
+            }
+        }
+        return true;
+    }
 }

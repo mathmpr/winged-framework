@@ -1139,7 +1139,13 @@ class DelegateQuery extends QueryBuilder
                 if (!in_array($field, $this->safe_fields) && $this->{$field} !== null) {
                     if ($field != $this->fK($this)) {
                         if ($this->{$field} !== $this->getOldValue($field)) {
-                            $real_load[$field] = $this->{$field};
+                            if(is_object($this->{$field})){
+                                if(get_class($this->{$field}) === 'Winged\Date\Date'){
+                                    $real_load[$field] = $this->{$field}->sql();
+                                }
+                            }else{
+                                $real_load[$field] = $this->{$field};
+                            }
                         }
                     }
                 }
@@ -1148,7 +1154,13 @@ class DelegateQuery extends QueryBuilder
                 if (!in_array($field, $this->loaded_fields) && in_array($field, $this->table_fields)) {
                     if ($this->{$field} !== $this->getOldValue($field)) {
                         if ($this->{$field} !== null) {
-                            $real_load[$field] = $this->{$field};
+                            if(is_object($this->{$field})){
+                                if(get_class($this->{$field}) === 'Winged\Date\Date'){
+                                    $real_load[$field] = $this->{$field}->sql();
+                                }
+                            }else{
+                                $real_load[$field] = $this->{$field};
+                            }
                         }
                     }
                 }
@@ -1181,7 +1193,13 @@ class DelegateQuery extends QueryBuilder
             $real_load = [];
             foreach ($this->loaded_fields as $key => $field) {
                 if (!in_array($field, $this->safe_fields) && $this->{$field} !== null) {
-                    $real_load[$field] = $this->{$field};
+                    if(is_object($this->{$field})){
+                        if(get_class($this->{$field}) === 'Winged\Date\Date'){
+                            $real_load[$field] = $this->{$field}->sql();
+                        }
+                    }else{
+                        $real_load[$field] = $this->{$field};
+                    }
                 }
             }
             $this->values($real_load);
