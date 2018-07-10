@@ -16,7 +16,10 @@ set_error_handler(["Winged\Error\ShutdownCallback", "errorHandler"], E_ALL);
 class Error
 {
 
+    public static $FRAMEWORK_RULE = "FRAMEWORK RULE";
+
     private static $ignore_errors = ["E_DEPRECATED"];
+
     public static $errors = [];
 
     private static function protocol()
@@ -52,7 +55,7 @@ class Error
         return $http;
     }
 
-    public static function _die($description = '', $call = false, $file = false, $line = false)
+    public static function _die($type = 'Die | Fatal', $description = '', $call = false, $file = false, $line = false)
     {
         Buffer::reset();
         ?>
@@ -85,7 +88,7 @@ class Error
             </thead>
             <tbody>
             <tr>
-                <td>Die | Fatal</td>
+                <td><?= $type ?></td>
                 <td class="amp"><?= $description ?></td>
                 <td><?= $call ? $call : 'undefined' ?></td>
                 <td class="amp"><?= $file ? $file : 'undefined' ?></td>
@@ -108,15 +111,17 @@ class Error
     /**
      * @return int
      */
-    public static function errorCount(){
+    public static function errorCount()
+    {
         return count7(self::$errors);
     }
 
     /**
      * @return mixed
      */
-    public static function deleteLastError(){
-        if(self::errorCount() > 0){
+    public static function deleteLastError()
+    {
+        if (self::errorCount() > 0) {
             return array_pop(self::$errors);
         }
     }

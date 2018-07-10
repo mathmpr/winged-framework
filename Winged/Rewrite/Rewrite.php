@@ -343,7 +343,7 @@ class Rewrite
         return $this->actions;
     }
 
-    public function addroute($index, $route)
+    public function addRoute($index, $route)
     {
         $index = WingedLib::dotslash(WingedLib::dotslash($index), true);
         if (!array_key_exists($index, $this->routes)) {

@@ -2,189 +2,15 @@
 
 namespace Winged;
 
-ini_set('memory_limit', '2048M');
-ini_set('max_execution_time', '120');
-ini_set('upload_max_filesize', '64MB');
-ini_set('max_file_uploads', '100');
-ini_set('post_max_size', '64MB');
-
-define("PARENT_DIR_PAGE_NAME", 1);
-define("ROOT_ROUTES_PAGE_NAME", 2);
-define("PARENT_ROUTES_ROUTE_PHP", 3);
-define("ROOT_ROUTES_ROUTE_PHP", 4);
-
-define("USE_PREPARED_STMT", true);
-define("NO_USE_PREPARED_STMT", false);
-define("IS_PDO", "PDO");
-define("IS_MYSQLI", "MYSQLI");
-
-define("DB_DRIVER_CUBRID", "cubrid:host=%s;port=%s;dbname=%s"); //host, port, dbname, user pass
-define("DB_DRIVER_FIREBIRD", "firebird:dbname=%s/%s:%s"); //host(dmname), port(dbname), file_path, user, pass
-define("DB_DRIVER_MYSQL", "mysql:host=%s;port=%s;dbname=%s"); //host || unix_socket, port, dbname, user, pass
-define("DB_DRIVER_MYSQL_UNIX", "mysql_unix:unix_socket=%s;port=%s;dbname=%s"); //host || unix_socket, port, dbname, user, pass
-define("DB_DRIVER_SQLSRV", "sqlsrv:Server=%s,%s;Database=%s"); //host, port, dbname, user, pass
-define("DB_DRIVER_PGSQL", "pgsql:dbname=%s;host=%s"); //dbname, host, user, pass
-define("DB_DRIVER_SQLITE", "sqlite:%s"); //dbname
-
-define("PATH_CONFIG", "./config.php");
-define("PATH_EXTRA_CONFIG", "./extra.config.php");
-define("CLASS_PATH", "./Winged/");
-define("STD_CONFIG", "./Winged/config/config.php");
-define("STD_ROUTES", "./Winged/routes/");
-
-ini_set("display_errors", true);
-
-ini_set("display_startup_errors", true);
-
-umask(0);
-
-clearstatcache();
-
-global $_ORIGINAL_POST, $_ORIGINAL_GET;
-
-$_ORIGINAL_POST = $_POST;
-$_ORIGINAL_GET = $_GET;
-
-global $__autoload__cache;
-$__autoload__cache = false;
-
-include_once CLASS_PATH . 'Utils/Functions.php';
-include_once CLASS_PATH . 'Utils/FileTree.php';
-include_once CLASS_PATH . 'Autoload.Cache.php';
-
-use Winged\Utils\FileTree;
-
-/**
- * @param $className
- */
-function findClass($className)
-{
-    $tree = new FileTree();
-    $tree->gemTree(CLASS_PATH, ['php']);
-    $files = $tree->getFiles();
-    $cache = "<?php global " . '$__autoload__cache' . "; ";
-    $exec = '$__autoload__cache' . " = [";
-    foreach ($files as $file) {
-        $exec .= '
-    "' . $file . '",';
-        if (is_int(strpos($file, $className))) {
-            include_once $file;
-        }
-    }
-    $exec = substr($exec, 0, strlen($exec) - 1);
-    $exec .= '
-];';
-    eval($exec);
-    file_put_contents(CLASS_PATH . 'autoload.cache.php', $cache . $exec);
-}
-
-/**
- * @param $className
- */
-function findCache($className){
-    global $__autoload__cache;
-    $included = false;
-    if (is_array($__autoload__cache)) {
-        foreach ($__autoload__cache as $file) {
-            if (is_int(strpos($file, $className))) {
-                if(file_exists($file)){
-                    $included = true;
-                    include_once $file;
-                }
-            }
-        }
-        if (!$included) {
-            findClass($className);
-        }
-    } else {
-        findClass($className);
-    }
-}
-
-spl_autoload_register(function ($className) {
-    $className = explode('\\', $className);
-    $className = end($className);
-    findCache($className);
-});
-
-/**
- * Auto load for folder ./models/
- * @param $className
- */
-spl_autoload_register(function ($className) {
-    $className = explode('\\', $className);
-    $className = end($className);
-    if(file_exists("./models/" . $className . ".php")){
-        include_once "./models/" . $className . ".php";
-    }
-});
-
-use Winged\Date\Microtime;
-use Winged\Buffer\Buffer;
-use Winged\Error\Error;
-use Winged\Utils\Container;
-use Winged\Database\Connections;
 use Winged\Controller\Controller;
 use Winged\Restful\Restful;
 use Winged\Rewrite\Rewrite;
 use Winged\Utils\WingedLib;
+use Winged\Buffer\Buffer;
+use Winged\Error\Error;
+use Winged\Utils\Container;
 
-Microtime::init();
-
-Buffer::start();
-
-
-
-Container::$self = new Container(Container::$self);
-
-
-
-if (!file_exists(PATH_CONFIG)) {
-    Error::_die('file config.php do not exists.', 110, 'winged.class.php', 110);
-} else {
-    include_once PATH_CONFIG;
-
-    if (!class_exists('Winged\WingedConfig')) {
-        Error::_die('class WingedConfig do not exists in config.php', 101, 'winged.class.php', 101);
-    }
-
-    if (WingedConfig::$DBEXT) {
-        Connections::init();
-        $_GET = no_injection_array($_ORIGINAL_GET);
-        $_POST = no_injection_array($_ORIGINAL_POST);
-    }
-
-    if (file_exists(PATH_EXTRA_CONFIG)) {
-        include_once PATH_EXTRA_CONFIG;
-    }
-
-    if (!is_null(WingedConfig::$TIMEZONE)) {
-        date_default_timezone_set(WingedConfig::$TIMEZONE);
-    } else {
-        date_default_timezone_set("Brazil/West");
-    }
-
-    if (!is_null(WingedConfig::$INCLUDES)) {
-        if (gettype(WingedConfig::$INCLUDES) == "array") {
-            for ($x = 0; $x < count7(WingedConfig::$INCLUDES); $x++) {
-                include_once WingedConfig::$INCLUDES[$x];
-            }
-        } else {
-            include_once WingedConfig::$INCLUDES;
-        }
-    }
-}
-
-
-if (WingedConfig::$DEBUG) {
-    error_reporting(E_ALL);
-} else {
-    error_reporting(E_WARNING | E_NOTICE | E_ERROR);
-}
-
-mb_internal_encoding(WingedConfig::$INTERNAL_ENCODING);
-mb_http_output(WingedConfig::$OUTPUT_ENCODING);
-header('Content-type: ' . WingedConfig::$MAIN_CONTENT_TYPE . '; charset=' . WingedConfig::$HTML_CHARSET . '');
+WingedHead::init();
 
 /**
  * This class its a main class of Winged
@@ -267,19 +93,21 @@ class Winged
     public static function nosplit()
     {
         self::normalize();
-        self::restful();
 
         $arr_ext = ['.php', '.html', '.htm', '.xml', '.json'];
 
         if (WingedConfig::$NOT_WINGED) {
+
+
+
             $dirs = self::getdir(WingedLib::dotslash(self::$uri), 'pure-html');
             self::$parent = $dirs['parent'];
             self::$page_surname = $dirs['page'];
             foreach ($arr_ext as $ext) {
                 if (file_exists(self::$parent . self::$page_surname . $ext)) {
                     include_once self::$parent . self::$page_surname . $ext;
-                    if (WingedConfig::$DEBUG && CoreError::warnings()) {
-                        CoreBuffer::flush();
+                    if (WingedConfig::$DEBUG && Error::warnings()) {
+                        Buffer::flush();
                     }
                     exit;
                 }
@@ -312,7 +140,9 @@ class Winged
         self::$controller_page = $controller_info['controller'];
         self::$controller_action = $controller_info['action'];
 
-        if (!self::$restful) {
+        if(server('php_auth_user') && server('php_auth_pw')){
+            self::$restful_obj->restful_page();
+        }else{
             $before = false;
             if (Container::$self->methodExists('beforeSearchController')) {
                 $before = Container::$self->beforeSearchController();
@@ -330,7 +160,6 @@ class Winged
                 }
             }
         }
-
     }
 
     private static function controller_info()
@@ -357,6 +186,9 @@ class Winged
         }
     }
 
+    /**
+     * normalize uri and ignore domain name and al folder before root of application
+     */
     public static function normalize()
     {
 
@@ -365,10 +197,8 @@ class Winged
         $uri = WingedLib::convertslash($free_get[0]);
         $self = WingedLib::convertslash(server("php_self"));
         $host = WingedLib::convertslash(server("server_name"));
-
         $uris = WingedLib::slashexplode($uri);
         $selfs = WingedLib::slashexplode($self);
-
         $self = "";
         $lastself = "";
         for ($x = 0; $x < count7($selfs); $x++) {
@@ -381,20 +211,16 @@ class Winged
                 $lastself = $selfs[$x];
             }
         }
-
         $fix = false;
         $cont = 0;
         $find = 0;
         $inarray = [];
-
         for ($x = 0; $x < count7($uris); $x++) {
             if ($uris[$x] == $lastself || $lastself == "") {
                 $fix = true;
                 array_push($inarray, $lastself);
             }
-
             $str_count = count7($inarray);
-
             if (($fix && $uris[$x] != $lastself) || ($fix && $str_count >= 2)) {
                 if ($cont == 0) {
                     $uri = "./" . $uris[$x];
@@ -405,13 +231,10 @@ class Winged
                 $find++;
             }
         }
-
         if ($find == 0) {
             $uri = ".";
         }
-
         $uri .= "/";
-
         if ($self == "") {
             $https = "https://" . $host . "/";
             $http = "http://" . $host . "/";
@@ -419,18 +242,14 @@ class Winged
             $https = "https://" . $host . "/" . $self . "/";
             $http = "http://" . $host . "/" . $self . "/";
         }
-
         self::$uri = $uri;
         if (count7($free_get) > 1) {
             self::$pure_uri = $uri . '?' . $free_get[1];
         } else {
             self::$pure_uri = $uri;
         }
-
         self::$https = $https;
         self::$http = $http;
-
-
         if (server('https')) {
             if (server('https') != 'off') {
                 self::$protocol = $https;
@@ -442,38 +261,26 @@ class Winged
         }
     }
 
-    public static function restful()
-    {
-        $uri = WingedLib::dotslash(self::$uri);
-        $exp = WingedLib::slashexplode($uri);
-        if (count7($exp) > 0 && $exp[0] == "restful") {
-            self::$restful = true;
-            unset($exp[0]);
-            $uri = WingedLib::dotslash(join("/", $exp), true);
-            self::$uri = $uri;
-        }
-    }
-
-    public static function getdir($uri, $extra_dir = false)
+    /**
+     * return page name or controler name, current dir of application and params founded in uri
+     * @param $uri
+     * @param bool $extra_dir
+     * @return array
+     */
+    private static function getdir($uri, $extra_dir = false)
     {
         $exp = WingedLib::slashexplode($uri);
-
         $dir = '';
-
         if ($extra_dir) {
             $dir .= './' . $extra_dir . '/';
         }
-
         if (count7($exp) > 0) {
-
             $x = 0;
-
             if ($dir == '') {
                 $dir .= WingedLib::dotslash($exp[$x], true);
             } else {
                 $dir .= $exp[$x] . '/';
             }
-
             if (is_directory($dir)) {
                 unset($exp[$x]);
             } else {
@@ -483,7 +290,6 @@ class Winged
                     $dir = './' . $extra_dir . '/';
                 }
             }
-
             foreach ($exp as $key => $value) {
                 $ant = $dir;
                 if ($x == 0) {
@@ -499,7 +305,6 @@ class Winged
                 }
                 $x++;
             }
-
             if (count7($exp) == 0) {
                 self::$is_standard = true;
                 return [
@@ -523,11 +328,11 @@ class Winged
             }
         }
         self::$is_standard = true;
-        return array(
+        return [
             "page" => self::$standard,
             "parent" => "./",
             "params" => false
-        );
+        ];
     }
 
     public static function return_path_route()
@@ -592,19 +397,14 @@ class Winged
      * @param array $route is an array with all parameters.
      * @return void
      */
-    public static function addroute($index, $route)
+    public static function addRoute($index, $route)
     {
-        self::$rewrite_obj->addroute($index, $route);
+        self::$rewrite_obj->addRoute($index, $route);
     }
 
-    public static function addrest($index, $rest)
+    public static function addRest($index, $rest)
     {
-        self::$restful_obj->addrest($index, $rest);
-    }
-
-    public function setDefault404()
-    {
-        self::$restful_obj->setDefault404();
+        self::$restful_obj->addRest($index, $rest);
     }
 
     public static function post()
@@ -627,9 +427,4 @@ class Winged
                     window.controller_action = "' . Winged::$controller_action . '";                
                 </script>';
     }
-
-}
-
-if (file_exists('./winged.globals.php')) {
-    include_once './winged.globals.php';
 }

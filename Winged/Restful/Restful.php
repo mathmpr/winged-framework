@@ -2,14 +2,15 @@
 
 namespace Winged\Restful;
 
+use Winged\Error\Error;
+use Winged\Utils\WingedLib;
 use Winged\Winged;
 
 class Restful
 {
-
-    private $rests = array();
+    private $rests = [];
     public static $rest = false;
-    private $actions = array();
+    private $actions = [];
 
     public function restful_page()
     {
@@ -19,177 +20,183 @@ class Restful
         $routed_file = Winged::$routed_file;
         $route_dir = Winged::$route_dir;
 
-        $vect = $this->find_key($page_key);
+        if (file_exists($route_dir) && is_directory($route_dir)) {
+            if (file_exists($routed_file)) {
+                include_once($routed_file);
+                $vect = $this->findKey($page_key);
+                if ($vect) {
+                    $active_method = $vect["method"];
+                    $path = $vect["class_path"];
+                    $class_name = $vect["class_name"];
+                    $function = $vect["function"];
+                    $construct = false;
+                    $extra = [];
 
-        if ($vect) {
+                    if (array_key_exists("construct", $vect)) {
+                        $construct = $vect["construct"];
+                    }
 
-            $active_method = $vect["method"];
-            $path = $vect["class_path"];
-            $class_name = $vect["class_name"];
-            $function = $vect["function"];
-            $construct = false;
-            $extra = array();
+                    if (array_key_exists("extra", $vect)) {
+                        $extra = $vect["extra"];
+                    }
 
-            if (array_key_exists("construct", $vect)) {
-                $construct = $vect["construct"];
-            }
+                    $x = 0;
+                    $array = [];
 
-            if (array_key_exists("extra", $vect)) {
-                $extra = $vect["extra"];
-            }
-
-            $x = 0;
-            $array = array();
-
-            if (count7(Winged::$params) > 0 && gettype(Winged::$params) == "array") {
-                foreach ($vect as $key => $value) {
-                    if (is_int($key)) {
-                        $param = Winged::$params[$x];
-                        if (gettype($value) == "object" && get_class($value) == "Rest") {
-                            if ($value->rule) {
-                                if (!preg_match("/" . $value->rule . "/", $param) && $value->rule != 'no-rule') {
-                                    Winged::error("the parameter '" . $param . "' failed by the rule '" . $value->rule . "'");
+                    if (count7(Winged::$params) > 0 && gettype(Winged::$params) == "array") {
+                        foreach ($vect as $key => $value) {
+                            if (is_int($key)) {
+                                $param = Winged::$params[$x];
+                                if (gettype($value) == "object" && get_class($value) == "Rest") {
+                                    if ($value->rule) {
+                                        if (!preg_match("/" . $value->rule . "/", $param) && $value->rule != 'no-rule') {
+                                            Error::_die(Error::$FRAMEWORK_RULE, "the parameter '" . $param . "' failed by the rule '" . $value->rule . "'", __LINE__, __FILE__, __LINE__);
+                                        }
+                                    }
+                                    if (array_key_exists($value->name, $array)) {
+                                        Error::_die(Error::$FRAMEWORK_RULE, "the nickname for the parameters was doubled. duplicate nickname '" . $value->name . "'", __LINE__, __FILE__, __LINE__);
+                                    } else {
+                                        $array[$value->name] = $param;
+                                    }
+                                    $x++;
+                                    if ($x >= count7(Winged::$params)) {
+                                        break;
+                                    }
+                                } else {
+                                    Error::_die(Error::$FRAMEWORK_RULE, "the value found during the looping is not a type 'Rest' object.", __LINE__, __FILE__, __LINE__);
                                 }
                             }
-                            if (array_key_exists($value->name, $array)) {
-                                Winged::error("the nickname for the parameters was doubled. duplicate nickname '" . $value->name . "'");
-                            } else {
-                                $array[$value->name] = $param;
+                        }
+                    }
+
+                    Winged::$oparams = Winged::$params;
+                    Winged::$params = $array;
+
+                    if (count7($array) > 0) {
+                        if ($vect[count7($array) - 1]->method) {
+                            $function = $vect[count7($array) - 1]->method;
+                        }
+                        if ($vect[count7($array) - 1]->class_path) {
+                            $path = $vect[count7($array) - 1]->class_path;
+                        }
+                        if ($vect[count7($array) - 1]->class_name) {
+                            $class_name = $vect[count7($array) - 1]->class_name;
+                        }
+                        if ($vect[count7($array) - 1]->construct) {
+                            $construct = $vect[count7($array) - 1]->construct;
+                        }
+                        if ($vect[count7($array) - 1]->extra) {
+                            $extra = $vect[count7($array) - 1]->extra;
+                        }
+                    }
+
+                    Winged::$geted_file = false;
+
+                    if (file_exists($path) && !is_directory($path)) {
+                        include_once($path);
+                        if (class_exists($class_name)) {
+                            if (array_key_exists("loads", $extra)) {
+                                foreach ($extra["loads"] as $key => $load) {
+                                    if (file_exists($load) && !is_directory($load)) {
+                                        include_once $load;
+                                    } else {
+                                        Error::_die(Error::$FRAMEWORK_RULE, "include_once fails for expression {$load}", __LINE__, __FILE__, __LINE__);
+                                    }
+                                }
                             }
-                            $x++;
-                            if ($x >= count7(Winged::$params)) {
-                                break;
+                            if (array_key_exists("vars", $extra)) {
+                                foreach ($extra["vars"] as $key => $var) {
+                                    ${$key} = $var;
+                                }
+                            }
+                            if ($construct && is_array($construct)) {
+                                $reflection = new \ReflectionClass($class_name);
+                                $obj = $reflection->newInstanceArgs($construct);
+                            } else {
+                                $obj = new $class_name();
+                            }
+                            if (method_exists($obj, $function)) {
+                                self::$rest = $vect;
+                                $reflect = new \ReflectionMethod($class_name, $function);
+                                $apply = $reflect->getParameters();
+                                $num = 0;
+                                if (!empty($apply)) {
+                                    $apply = $apply[0];
+                                    foreach ($apply as $key => $value) {
+                                        $num++;
+                                    }
+                                }
+                                if (count7(Winged::$oparams) >= $num) {
+                                    $the_params = Winged::$oparams;
+                                    if (array_key_exists("extra_params", $extra) && is_array($extra["extra_params"])) {
+                                        array_push($the_params, $extra["extra_params"]);
+                                    }
+                                    $ret = $reflect->invokeArgs($obj, $the_params);
+                                    if (gettype($ret) != null && gettype($ret) == "array") {
+                                        echo json_encode($ret);
+                                    }
+                                } else {
+                                    Error::_die(Error::$FRAMEWORK_RULE, "the number of arguments to the method (" . $function . ") '" . $num . "'  is greater than that found in the url '" . count7(Winged::$oparams) . "'", __LINE__, __FILE__, __LINE__);
+                                }
+                            } else {
+                                Error::_die(Error::$FRAMEWORK_RULE, "method '" . $function . "' no exists on class '" . $class_name . "'", __LINE__, __FILE__, __LINE__);
                             }
                         } else {
-                            Winged::error("the value found during the looping is not a type 'Rest' object.");
-                        }
-                    }
-                }
-            }
-
-            Winged::$oparams = Winged::$params;
-            Winged::$params = $array;
-
-            if (count7($array) > 0) {
-                if ($vect[count7($array) - 1]->method) {
-                    $function = $vect[count7($array) - 1]->method;
-                }
-                if ($vect[count7($array) - 1]->class_path) {
-                    $path = $vect[count7($array) - 1]->class_path;
-                }
-                if ($vect[count7($array) - 1]->class_name) {
-                    $class_name = $vect[count7($array) - 1]->class_name;
-                }
-                if ($vect[count7($array) - 1]->construct) {
-                    $construct = $vect[count7($array) - 1]->construct;
-                }
-                if ($vect[count7($array) - 1]->extra) {
-                    $extra = $vect[count7($array) - 1]->extra;
-                }
-            }
-
-            Winged::$geted_file = false;
-
-            if (file_exists($path) && !is_directory($path)) {
-                include_once($path);
-                if (class_exists($class_name)) {
-                    if (array_key_exists("loads", $extra)) {
-                        foreach ($extra["loads"] as $key => $load) {
-                            if (file_exists($load) && !is_directory($load)) {
-                                include_once $load;
-                            } else {
-                                CoreError::_die(__CLASS__, "include_once fails for expression {$load}", __FILE__, __LINE__);
-                            }
-                        }
-                    }
-                    if (array_key_exists("vars", $extra)) {
-                        foreach ($extra["vars"] as $key => $var) {
-                            ${$key} = $var;
-                        }
-                    }
-                    if ($construct && is_array($construct)) {
-                        $reflection = new ReflectionClass($class_name);
-                        $obj = $reflection->newInstanceArgs($construct);
-                    } else {
-                        $obj = new $class_name();
-                    }
-                    if (method_exists($obj, $function)) {
-                        self::$rest = $vect;
-                        $reflect = new ReflectionMethod($class_name, $function);
-                        $apply = $reflect->getParameters();
-                        $num = 0;
-                        if (!empty($apply)) {
-                            $apply = $apply[0];
-                            foreach ($apply as $key => $value) {
-                                $num++;
-                            }
-                        }
-                        if (count7(Winged::$oparams) >= $num) {
-                            $the_params = Winged::$oparams;
-                            if (array_key_exists("extra_params", $extra) && is_array($extra["extra_params"])) {
-                                array_push($the_params, $extra["extra_params"]);
-                            }
-                            $ret = $reflect->invokeArgs($obj, $the_params);
-                            if (gettype($ret) != null && gettype($ret) == "array") {
-                                echo json_encode($ret);
-                            }
-                        } else {
-                            Winged::error("the number of arguments to the method (" . $function . ") '" . $num . "'  is greater than that found in the url '" . count7(Winged::$oparams) . "'");
+                            Error::_die(Error::$FRAMEWORK_RULE, "class '" . $class_name . "' no exists on path '" . $path . "'", __LINE__, __FILE__, __LINE__);
                         }
                     } else {
-                        Winged::error("method '" . $function . "' no exists on class '" . $class_name . "'");
+                        Error::_die(Error::$FRAMEWORK_RULE, "path '" . $path . "' no exists", __LINE__, __FILE__, __LINE__);
                     }
                 } else {
-                    Winged::error("class '" . $class_name . "' no exists on path '" . $path . "'");
+                    Error::_die(Error::$FRAMEWORK_RULE, "no rest was found in the file " . $routed_file, __LINE__, __FILE__, __LINE__);
                 }
             } else {
-                Winged::error("path '" . $path . "' no exists");
+                Error::_die("file '" . $page . ".php' not fount in '" . $route_dir . "'", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
             }
         } else {
-            Winged::error("no rest was found in the file " . $routed_file);
+            Error::_die("folder 'routes' not fount in '" . $parent . "'", __CLASS__ . ' : ' . __LINE__, __FILE__, __LINE__);
         }
-
     }
 
 
-    private function find_key($okey)
+    private function findKey($okey)
     {
+        pre_clear_buffer_die($okey);
         $okey = trim($okey);
         $found = false;
         $f_num = 0;
-        $stack = array();
+        $stack = [];
         foreach ($this->rests as $key => $value) {
             $key = trim($key);
             $exp = explode("/", $key);
-            $index = wl::dotslash(wl::dotslash($exp[1]), true);
+            $index = WingedLib::dotslash(WingedLib::dotslash($exp[1]), true);
             $pos = stripos($key, $okey);
             if (is_int($pos) && !$found) {
                 $replace = str_replace($okey, "", $key);
-                $found = array("key" => $key, "value" => $value, "uri_comp" => wl::dotslash($replace));
-                $value["uri_comp"] = wl::dotslash($replace);
+                $found = ["key" => $key, "value" => $value, "uri_comp" => WingedLib::dotslash($replace)];
+                $value["uri_comp"] = WingedLib::dotslash($replace);
                 $stack[$key] = $value;
                 $f_num++;
             } else if (is_int($pos)) {
                 $replace = str_replace($okey, "", $key);
-                $value["uri_comp"] = wl::dotslash($replace);
+                $value["uri_comp"] = WingedLib::dotslash($replace);
                 $stack[$key] = $value;
                 $f_num++;
             }
         }
         if ($f_num > 1) {
-            return $this->corrert_route($stack);
+            return $this->corrertRoute($stack);
         } else if ($f_num == 0) {
             return false;
         } else {
-            $this->actions = array();
-            $newparams = array();
-            $exp = array();
+            $this->actions = [];
+            $newparams = [];
+            $exp = [];
             if ($found["uri_comp"] != "") {
                 $exp = explode("/", $found["uri_comp"]);
             }
             $params = Winged::$params;
             if (count7($params) == count7($exp) || Winged::$is_standard) {
-
                 $init = true;
                 for ($x = 0; $x < count7($exp); $x++) {
                     $math = explode(":", $exp[$x]);
@@ -224,17 +231,22 @@ class Restful
                     return $found["value"];
                 }
             }
-            Winged::error("the URL passed as reference for restful call was recognized by a route, but the comparison of the parameters count found in the URL and the parameters count configured for the route are different. Make a new call using the correct number of parameters in the URL.");
+            Error::_die(Error::$FRAMEWORK_RULE, "the URL passed as reference for restful call was recognized by a route, but the comparison of the parameters count found in the URL and the parameters count configured for the route are different. Make a new call using the correct number of parameters in the URL.", __LINE__, __FILE__, __LINE__);
             return false;
         }
 
     }
 
-    private function corrert_route($probable_routes)
+    /**
+     * find corret route for the call
+     * @param $probable_routes
+     * @return bool
+     */
+    private function corrertRoute($probable_routes)
     {
         foreach ($probable_routes as $key => $value) {
-            $this->actions = array();
-            $exp = array();
+            $this->actions = [];
+            $exp = [];
             if ($value["uri_comp"] != "") {
                 $exp = explode("/", $value["uri_comp"]);
             }
@@ -242,7 +254,7 @@ class Restful
             $params = Winged::$params;
 
             if (!$params) {
-                $params = array();
+                $params = [];
             }
 
             $init = true;
@@ -274,8 +286,8 @@ class Restful
             }
 
             if ($init) {
-                $newparams = array();
-                foreach ($params as $key => $now) {
+                $newparams = [];
+                foreach ($params as $now) {
                     $newparams[] = $now;
                 }
                 Winged::$params = $newparams;
@@ -286,13 +298,18 @@ class Restful
         return false;
     }
 
-    public function addrest($index, $rest)
+    /**
+     * add a route for restful calls
+     * @param $index
+     * @param $rest
+     */
+    public function addRest($index, $rest)
     {
-        $index = wl::dotslash(wl::dotslash($index), true);
+        $index = WingedLib::dotslash(WingedLib::dotslash($index), true);
         if (!array_key_exists($index, $this->rests)) {
             $this->rests[$index] = $rest;
         } else {
-            Winged::error("Rest '" . $index . "' in file path '" . Winged::$routed_file . "' was doubled.");
+            Error::_die(Error::$FRAMEWORK_RULE, "Rest '" . $index . "' in file path '" . Winged::$routed_file . "' was doubled.", __LINE__, __FILE__, __LINE__);
         }
     }
 

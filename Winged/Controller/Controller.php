@@ -867,7 +867,7 @@ class Controller
             if (array_key_exists($identifier, $this->js)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->js[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
-            $this->js[$identifier] = array();
+            $this->js[$identifier] = [];
             $this->js[$identifier]['string'] = $string;
             $this->js[$identifier]['type'] = 'script';
             $this->js[$identifier]['options'] = $options;
@@ -875,7 +875,7 @@ class Controller
             if (array_key_exists($identifier, $this->js)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->js[$identifier] = array();
+            $this->js[$identifier] = [];
             $this->js[$identifier]['string'] = $string;
             $this->js[$identifier]['type'] = 'url';
             $this->js[$identifier]['options'] = $options;
@@ -883,13 +883,19 @@ class Controller
         return;
     }
 
+    /**
+     * @param $identifier
+     * @param $string
+     * @param array $options
+     * @param bool $url
+     */
     public function addCss($identifier, $string, $options = [], $url = false)
     {
         if (file_exists($string) && !is_directory($string) && !$url) {
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script file '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = array();
+            $this->css[$identifier] = [];
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'file';
             $this->css[$identifier]['options'] = $options;
@@ -897,7 +903,7 @@ class Controller
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css '" . htmlspecialchars($this->css[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = array();
+            $this->css[$identifier] = [];
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'script';
             $this->css[$identifier]['options'] = $options;
@@ -905,7 +911,7 @@ class Controller
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css url '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = array();
+            $this->css[$identifier] = [];
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'url';
             $this->css[$identifier]['options'] = $options;
