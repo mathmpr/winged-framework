@@ -1,11 +1,14 @@
 <?php
-use Winged\Winged;
+use Winged\Route\Route;
 
-Winged::addRoute("./home/", [
-	"index" => "./views/home.php",
+Route::post('./create/token/', [
+    'expires' => 3600
 ]);
 
-Winged::addRest('./home/', [
+Route::post('./create/token/credentials/', [
+    'expires' => 7200
+])->credentials('matheusprador@gmail.com', 'pokemon');
 
-]);
-
+Route::get('./users/{user_id}/comments/{limit?}/', "Usuarios@letsTry")->where([
+    'user_id' => '\d'
+])->credentials('matheusprador@gmail.com', 'pokemon')->session();

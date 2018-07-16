@@ -5,6 +5,8 @@ namespace Winged;
 use Winged\Controller\Controller;
 use Winged\Restful\Restful;
 use Winged\Rewrite\Rewrite;
+use Winged\Route\Route;
+use Winged\Route\RouteExec;
 use Winged\Utils\WingedLib;
 use Winged\Buffer\Buffer;
 use Winged\Error\Error;
@@ -44,14 +46,7 @@ class Winged
     public static $routes = [];
     public static $restful = false;
     public static $route_dir;
-    /**
-     * @var $rewrite_obj Rewrite
-     */
-    public static $rewrite_obj = false;
-    /**
-     * @var $restful_obj Restful
-     */
-    public static $restful_obj;
+
     /**
      * @var $controller Controller
      */
@@ -69,9 +64,7 @@ class Winged
      */
     public static function start()
     {
-        if (!self::$rewrite_obj) {
-            self::$rewrite_obj = new Rewrite();
-            self::$restful_obj = new Restful();
+        if (!self::$controller) {
             self::$controller = new Controller();
         }
         if (is_null(WingedConfig::$NOTFOUND) || !WingedConfig::$NOTFOUND) {
@@ -93,31 +86,8 @@ class Winged
     public static function nosplit()
     {
         self::normalize();
-
-        $arr_ext = ['.php', '.html', '.htm', '.xml', '.json'];
-
-        if (WingedConfig::$NOT_WINGED) {
-
-
-
-            $dirs = self::getdir(WingedLib::dotslash(self::$uri), 'pure-html');
-            self::$parent = $dirs['parent'];
-            self::$page_surname = $dirs['page'];
-            foreach ($arr_ext as $ext) {
-                if (file_exists(self::$parent . self::$page_surname . $ext)) {
-                    include_once self::$parent . self::$page_surname . $ext;
-                    if (WingedConfig::$DEBUG && Error::warnings()) {
-                        Buffer::flush();
-                    }
-                    exit;
-                }
-            }
-        }
-
         $dirs = self::getdir(WingedLib::dotslash(self::$uri));
-
         $page = trim($dirs["page"]);
-
         $parent = WingedLib::dotslash(WingedLib::dotslash(trim($dirs["parent"])), true);
         $params = $dirs["params"];
 
@@ -140,26 +110,30 @@ class Winged
         self::$controller_page = $controller_info['controller'];
         self::$controller_action = $controller_info['action'];
 
-        if(server('php_auth_user') && server('php_auth_pw')){
-            self::$restful_obj->restful_page();
-        }else{
-            $before = false;
-            if (Container::$self->methodExists('beforeSearchController')) {
-                $before = Container::$self->beforeSearchController();
+        if (file_exists(self::$route_dir) && is_directory(self::$route_dir)) {
+            if (file_exists(self::$routed_file)) {
+                include_once self::$routed_file;
+                RouteExec::execute();
             }
-            if ($before === false || $before === null) {
-                $before = false;
-                $found = self::$controller->find();
-                if (!$found) {
-                    if (Container::$self->methodExists('whenControllerNotFound')) {
-                        $before = Container::$self->whenControllerNotFound();
-                    }
-                    if ($before === false || $before === null) {
-                        self::$rewrite_obj->rewrite_page();
-                    }
+        }
+
+        $before = false;
+        if (Container::$self->methodExists('beforeSearchController')) {
+            $before = Container::$self->beforeSearchController();
+        }
+        if ($before === false || $before === null) {
+            $before = false;
+            $found = self::$controller->find();
+            if (!$found) {
+                if (Container::$self->methodExists('whenControllerNotFound')) {
+                    $before = Container::$self->whenControllerNotFound();
+                }
+                if ($before === false || $before === null) {
+                    RouteExec::sendErrorResponse();
                 }
             }
         }
+
     }
 
     private static function controller_info()
@@ -376,35 +350,6 @@ class Winged
                 ];
                 break;
         }
-    }
-
-    /**
-     * Example:
-     * <code>
-     * Winged::addRoute('./init/', array(
-     *      "index" => "real_path_to_my_view.php"
-     * ));
-     *
-     * or...
-     *
-     * Winged::addRoute('./init/pattern_rule_for_this_parameter', array(
-     *      "index" => "real_path_to_my_view.php"
-     *       new Parameter("my_parameter", "./other_file_include.php"),
-     * ));
-     * </code>
-     * @access public
-     * @param string $index path or math to search in url.
-     * @param array $route is an array with all parameters.
-     * @return void
-     */
-    public static function addRoute($index, $route)
-    {
-        self::$rewrite_obj->addRoute($index, $route);
-    }
-
-    public static function addRest($index, $rest)
-    {
-        self::$restful_obj->addRest($index, $rest);
     }
 
     public static function post()

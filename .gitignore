@@ -4,3 +4,9 @@ uploads/
 assets/
 admin/
 vendor/
+views/
+controllers/
+models/
+languages/
+Modules/
+notifications/

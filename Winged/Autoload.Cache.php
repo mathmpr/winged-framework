@@ -82,10 +82,8 @@
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Http/Response.php",
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Http/Session.php",
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Model/Model.php",
-    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Restful/Rest.php",
-    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Restful/Restful.php",
-    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Rewrite/Parameter.php",
-    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Rewrite/Rewrite.php",
+    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Route/Route.php",
+    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Route/RouteExec.php",
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Translate/Translate.php",
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Utils/Container.php",
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Utils/FileTree.php",
@@ -94,5 +92,6 @@
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Utils/RandomName.php",
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Utils/WingedLib.php",
     "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Validator/Validator.php",
-    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Winged.php"
+    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Winged.php",
+    "C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/WingedHead.php"
 ];

@@ -23,40 +23,6 @@ class HomeController extends Controller
         parent::__construct();
     }
 
-    public function actionOrdemBolao()
-    {
-        $peoples = [
-            'Rodrigo',
-            'Luci Guerra',
-            'Luci',
-            'Gabs',
-            'Are',
-            'Val',
-            'Ale',
-            'João',
-            'Matheus'
-        ];
-
-        $count = 1;
-
-        ?>
-        <h1>ORDEM DE PALPITES DO BOLÃO</h1>
-        <?php
-
-        while (count7($peoples) > 0) {
-            $index = rand(0, count7($peoples) - 1);
-            echo '#' . $count . ' - ' . $peoples[$index] . '<br>';
-            $count++;
-            $n = [];
-            foreach ($peoples as $key => $people) {
-                if ($key != $index) {
-                    $n[] = $people;
-                }
-            }
-            $peoples = $n;
-        }
-    }
-
     /**
      * @return array
      */
@@ -238,7 +204,6 @@ class HomeController extends Controller
         ]);
 
         $form->end();
-
 
         //$ftp = new Ftp('pradoit-com-br.umbler.net', 'pradoit-com-br', 'QWEqwe123');
 

@@ -15,7 +15,8 @@ class Usuarios extends Model
     /**
      * Usuarios constructor.
      */
-    public function __construct(){
+    public function __construct()
+    {
         parent::__construct();
         return $this;
     }
@@ -217,6 +218,17 @@ class Usuarios extends Model
                 'required' => 'Esse campo é obrigatório',
                 'equals' => 'Esse campo deve ser igual ao campo repita a senha.',
                 'length' => 'Esse campo deve ter no minimo 6 caracteres',
+            ]
+        ];
+    }
+
+    public function letsTry($id, $limite)
+    {
+        return [
+            'status' => true,
+            'content' => [
+                'id' => $id,
+                'limit' => $limite
             ]
         ];
     }

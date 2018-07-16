@@ -155,6 +155,9 @@ class WingedConfig extends \stdClass
     /**
      * @property $NOTFOUND string
      * defines the path to the page file not found
+     * if is a string, try to get file and show where response is a 404 not found whit text/html
+     * else is false, Route class provides a default response for 404 with mine type present em client headers
+     * if file not exist Route provides same response
      */
     public static $NOTFOUND = "./404.php";
 
@@ -163,14 +166,6 @@ class WingedConfig extends \stdClass
      * on | off display errors
      */
     public static $DEBUG = true;
-
-    /**
-     * @property $NOT_WINGED bool
-     * warning: this option able a not winged view mode.
-     * this option read first dir pure-html in root of your project if they exists and if file exists inside it
-     * ignores read for controller, restful and rewrite class if file in this dir found
-     */
-    public static $NOT_WINGED = true;
 
     /**
      * @property $INTERNAL_ENCODING array
