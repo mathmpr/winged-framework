@@ -138,6 +138,9 @@ class WingedHead
             if (file_exists("./models/" . $className . ".php")) {
                 include_once "./models/" . $className . ".php";
             }
+            if (file_exists(Winged::$parent . "models/" . $className . ".php")) {
+                include_once Winged::$parent . "models/" . $className . ".php";
+            }
         });
 
         Microtime::init();

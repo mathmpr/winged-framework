@@ -3,13 +3,8 @@
 namespace Winged;
 
 use Winged\Controller\Controller;
-use Winged\Restful\Restful;
-use Winged\Rewrite\Rewrite;
-use Winged\Route\Route;
 use Winged\Route\RouteExec;
 use Winged\Utils\WingedLib;
-use Winged\Buffer\Buffer;
-use Winged\Error\Error;
 use Winged\Utils\Container;
 
 WingedHead::init();
