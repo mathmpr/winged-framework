@@ -16,3 +16,5 @@
 /composer.json
 /projects/
 /cache/
+/.htaccess
+/minify.cache.json
