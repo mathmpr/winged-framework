@@ -3,6 +3,7 @@
 namespace Winged\Form\Components;
 
 use Winged\Components\ComponentParser;
+use Winged\Model\Model;
 
 /**
  * Class ButtonComponent
@@ -30,7 +31,8 @@ class ButtonComponent extends ComponentParser{
                 $this->DOM->query('button')[0]->text($text);
             }
         }
-        $this->addOptions($this->DOM->query('html *')[0], $inputOptions);
+        $this->addOptions($this->DOM->query('button')[0], $inputOptions);
+        $this->addOptions($this->DOM, $elementOptions);
     }
 
     public function reset(){

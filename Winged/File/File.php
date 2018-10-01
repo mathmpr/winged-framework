@@ -19,7 +19,7 @@ class File
     public $folder = null;
 
     /**
-     * CoreFile constructor.
+     * File constructor.
      * @param $file
      * @param bool $forceCreate
      */
@@ -117,7 +117,7 @@ class File
      */
     public function rename($name)
     {
-        if ($this->file_path != null) {
+        if ($this->file_path != null && $name != $this->getName()) {
             $expf = explode('/', $this->file_path);
             $end = array_pop($expf);
             $exp = explode('.', $end);
@@ -146,7 +146,7 @@ class File
     /**
      * Cut the file to the specified location, if the location does not exist, the location will be created dynamically.
      * @param string $to
-     * @return $this|CoreFile
+     * @return $this|File
      */
     public function crop($to = '')
     {
@@ -161,10 +161,10 @@ class File
     }
 
     /**
-     * Copies the file to the specified location and returns a new CoreFile object with the path of that copied file.
+     * Copies the file to the specified location and returns a new File object with the path of that copied file.
      * If it fails in this process, the return of the method is the very object that made the call.
      * @param string $to
-     * @return CoreFile
+     * @return File
      */
     public function copy($to = '')
     {
@@ -176,7 +176,7 @@ class File
             if ($folder->exists()) {
                 $to = $folder->folder . $file;
                 copy($this->file_path, $to);
-                return new CoreFile($to);
+                return new File($to);
             }
         }
         return $this;
@@ -327,6 +327,20 @@ class File
     {
         if ($this->folder != null) {
             return $this;
+        }
+        return false;
+    }
+
+    public function filesize(){
+        if ($this->folder != null) {
+            return filesize($this->file_path);
+        }
+        return false;
+    }
+
+    public function modifyTime(){
+        if ($this->folder != null) {
+            return filemtime($this->file_path);
         }
         return false;
     }

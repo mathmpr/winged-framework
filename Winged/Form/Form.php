@@ -27,6 +27,8 @@ class Form
     /** @var $obj Model */
     public $obj = null;
 
+    public $printable = false;
+
     /**
      * Form constructor.
      * @param $class
@@ -63,16 +65,20 @@ class Form
      */
     public function addInput($property, $type, $inputOptions = [], $elementOptions = [], $isArray = false, $forceReturn = false)
     {
-        if (property_exists($this->class, $property) && array_key_exists(mb_ucfirst($type), $this->components->components)) {
+        if(!$property){
+            $property = '___null___';
+        }
+        if ((property_exists($this->class, $property) || $property === '___null___') && array_key_exists(mb_ucfirst($type), $this->components->components)) {
             $this->components->get(mb_ucfirst($type))->parser([
                 'property' => $property,
                 'class' => $this->class,
                 'obj' => &$this->obj,
                 'inputOptions' => $inputOptions,
-                'elementOpctions' => $elementOptions,
+                'elementOptions' => $elementOptions,
                 'isArray' => $isArray
             ]);
-            if ($forceReturn) {
+            if ($forceReturn || $this->printable) {
+                $this->applyErrorDistinct($property, $this->components->get(mb_ucfirst($type))->DOM->query('label.error'));
                 return $this->components->get(mb_ucfirst($type))->DOM->html();
             } else {
                 $this->appendHtml($this->components->get(mb_ucfirst($type))->DOM->html());
@@ -82,17 +88,40 @@ class Form
     }
 
     /**
+     * @param $property
+     * @param $component \pQuery
+     */
+    private function applyErrorDistinct($property, $component){
+        if(property_exists($this->class, $property)){
+            if($this->obj->hasErrors()){
+                $errors = $this->obj->getErrors();
+                if(array_key_exists($property, $errors)){
+                    $classEnd = explode('\\', $this->class);
+                    $classEnd = end($classEnd);
+                    $component->attr('style', 'display: block;');
+                    $component->attr('for', $classEnd . '_' . $property);
+                    $component->attr('id', $classEnd . '_' . $property . '_error');
+                    $keys = array_keys($errors[$property]);
+                    $component->text($errors[$property][$keys[0]]);
+                }
+            }
+        }
+    }
+
+    /**
      * @param bool $action
      * @param string $method
      * @param array $options
      * @param string $enctype
+     * @param bool $printable
      */
-    public function begin($action = false, $method = 'get', $options = [], $enctype = 'multipart/form-data')
+    public function begin($action = false, $method = 'get', $options = [], $enctype = 'multipart/form-data', $printable = false)
     {
+        $this->printable = $printable;
         if (!$action) {
             $action = Winged::$page_surname;
         }
-        $this->components->get('Form')->parser($action, $method, $options, $enctype);
+        return $this->components->get('Form')->parser($action, $method, $options, $enctype, $printable);
     }
 
     /**
@@ -110,6 +139,10 @@ class Form
      */
     public function end()
     {
+        if($this->printable){
+            echo '<form>';
+            return;
+        }
         $this->applyError();
         echo $this->components->get('Form')->DOM->html();
     }
@@ -117,11 +150,13 @@ class Form
     private function applyError()
     {
         if ($this->obj->hasErrors()) {
-            foreach ($this->obj->getErros() as $property => $error) {
-                $this->components->get('Form')->DOM->query('#' . $this->class . '_' . $property)->query('label.error')->attr('style', 'display: block;');
-                $this->components->get('Form')->DOM->query('#' . $this->class . '_' . $property)->query('label.error')->attr('for', $this->class . '_' . $property);
-                $this->components->get('Form')->DOM->query('#' . $this->class . '_' . $property)->query('label.error')->attr('id', $this->class . '_' . $property . '_error');
-                $this->components->get('Form')->DOM->query('#' . $this->class . '_' . $property)->query('label.error')->text($error);
+            foreach ($this->obj->getErrors() as $property => $error) {
+                $classEnd = explode('\\', $this->class);
+                $classEnd = end($classEnd);
+                $this->components->get('Form')->DOM->query('#' . $classEnd . '_' . $property)->query('label.error')->attr('style', 'display: block;');
+                $this->components->get('Form')->DOM->query('#' . $classEnd . '_' . $property)->query('label.error')->attr('for', $classEnd . '_' . $property);
+                $this->components->get('Form')->DOM->query('#' . $classEnd . '_' . $property)->query('label.error')->attr('id', $classEnd . '_' . $property . '_error');
+                $this->components->get('Form')->DOM->query('#' . $classEnd . '_' . $property)->query('label.error')->text($error);
             }
         }
     }

@@ -24,22 +24,22 @@ class TextareaComponent extends ComponentParser{
          * @var $elementOptions array
          * @var $isArray bool
          */
+        $classEnd = explode('\\', $class);
+        $classEnd = end($classEnd);
         $this->reset();
         if ($isArray) {
-            $this->DOM->query('input')->attr('name', $class . '[' . $property . '][]');
+            $this->DOM->query('textarea')->attr('name', $class . '[' . $property . '][]');
         } else {
-            $this->DOM->query('input')->attr('name', $class . '[' . $property . ']');
+            $this->DOM->query('textarea')->attr('name', $class . '[' . $property . ']');
         }
-        $this->DOM->query('input')->attr('id', $class . '_' . $property);
-        $this->DOM->query('input')[0]->parent->parent->query('label')->attr('for', $class . '_' . $property);
 
-        $this->DOM->query('input')->attr('id', $class . '_' . $property);
+        $this->DOM->query('textarea')->attr('id', $classEnd . '_' . $property);
         if (($value = array_key_exists('value', $inputOptions))) {
-            $this->DOM->query('textarea')->html($value);
+            $this->DOM->query('textarea')->text($value);
         } else {
-            $this->DOM->query('textarea')->html($obj->requestKey($property));
+            $this->DOM->query('textarea')->text($obj->requestKey($property));
         }
-        $this->DOM->query('label:first-child')->attr('for', $class . '_' . $property);
+        $this->DOM->query('label:first-child')->attr('for', $classEnd . '_' . $property);
 
         if (method_exists($class, 'labels')) {
             $labels = $obj->labels();
@@ -49,7 +49,7 @@ class TextareaComponent extends ComponentParser{
         }
 
         $this->addOptions($this->DOM->query('textarea'), $inputOptions);
-        $this->addOptions($this->DOM->query('html *')[0], $inputOptions);
+        $this->addOptions($this->DOM->query('html *')[0], $elementOptions);
     }
 
     public function reset(){

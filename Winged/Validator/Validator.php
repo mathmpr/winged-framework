@@ -1,7 +1,10 @@
 <?php
+
 namespace Winged\Validator;
+
 use Winged\Date\Date;
 use Winged\Formater\Formater;
+use Winged\Validator\Email\Email;
 
 /**
  * Class validation for forms, combine this class with the rules method of the models
@@ -10,6 +13,11 @@ use Winged\Formater\Formater;
  */
 class Validator
 {
+
+    /**
+     * @var null | Email
+     */
+    public static $emailHandle = null;
 
     /**
      * Tests whether the input is a valid CPF
@@ -391,11 +399,20 @@ class Validator
      * @param $url string
      * @return bool
      */
-    public static function isUrl($url){
+    public static function isUrl($url)
+    {
         if (filter_var($url, FILTER_VALIDATE_URL) === true) {
             return true;
         }
         return false;
     }
 
+    /**
+     * @param string $email
+     * @return bool
+     */
+    public static function validEmail($email = '')
+    {
+        return (boolean)filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
 }

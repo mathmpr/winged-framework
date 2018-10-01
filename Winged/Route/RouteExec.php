@@ -89,7 +89,7 @@ class RouteExec extends Route
      */
     public static function execute()
     {
-        $headers = getallheaders();
+        $headers = \getallheaders();
         $accept = isset($headers['Accept']) ? $headers['Accept'] : 'application/json';
         switch ($accept) {
             case 'text/plain':
@@ -242,10 +242,12 @@ class RouteExec extends Route
                             header('Content-Type: application/json; charset=UTF-8');
                             print json_encode($return);
                         }
+                        exit;
                     }
-                    exit;
+                    return true;
                 }
             }
+            return false;
         }
 
         if ($times === 0) {

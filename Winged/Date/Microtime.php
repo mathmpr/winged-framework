@@ -9,26 +9,24 @@ namespace Winged\Date;
 class Microtime
 {
 
-    private static $microtime;
-    private static $partials = [];
+    public static $microtime;
+    public static $partials = [];
+    public static $begin = null;
+    private static $part = false;
 
     /**
      * Returns the execution time until the call of this method if the $ return parameter is true. Adds the time in a partial as well.
-     * @param bool $return
      * @return bool|null
      */
-    public static function init($return = false)
+    public static function init()
     {
-        $micro = microtime();
-        list($mili, $time) = explode(' ', $micro);
-        if (isset($mili) && isset($time)) {
-            $mili = str_replace(',', '.', number_format($mili, 3));
-            if ($return) return $mili;
-            self::$microtime = $mili;
-            self::$partials[] = $mili;
-            return true;
+        if (self::$begin === null) {
+            self::$begin = (int)server('request_time');
         }
-        return null;
+        $micro = numeric_is(number_format(microtime(true) - ((int)self::$begin), 3));
+        self::$microtime = $micro;
+        self::$partials[] = $micro;
+        return $micro;
     }
 
     /**
@@ -46,6 +44,7 @@ class Microtime
      */
     public static function partial()
     {
+        self::$part = true;
         self::init();
         return self::last();
     }
@@ -57,9 +56,15 @@ class Microtime
      */
     public static function diff()
     {
-        $end = end(self::$partials);
-        $now = self::partial();
-        $mili = (double)$now - (double)$end;
-        return number_format($mili . '000', 3);
+        if (!self::$part) {
+            $end = end(self::$partials);
+            $now = self::partial();
+        } else {
+            self::$part = false;
+            $end = self::$partials[count7(self::$partials) - 2];
+            $now = end(self::$partials);
+        }
+        $mili = (float)$now - (float)$end;
+        return number_format($mili, 3);
     }
 }

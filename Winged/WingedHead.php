@@ -32,7 +32,7 @@ class WingedHead
         define("ROOT_ROUTES_PAGE_NAME", 2);
         define("PARENT_ROUTES_ROUTE_PHP", 3);
         define("ROOT_ROUTES_ROUTE_PHP", 4);
-
+ 
         define("USE_PREPARED_STMT", true);
         define("NO_USE_PREPARED_STMT", false);
         define("IS_PDO", "PDO");
@@ -40,10 +40,9 @@ class WingedHead
 
         define("DB_DRIVER_CUBRID", "cubrid:host=%s;port=%s;dbname=%s"); //host, port, dbname, user pass
         define("DB_DRIVER_FIREBIRD", "firebird:dbname=%s/%s:%s"); //host(dmname), port(dbname), file_path, user, pass
-        define("DB_DRIVER_MYSQL", "mysql:host=%s;port=%s;dbname=%s"); //host || unix_socket, port, dbname, user, pass
-        define("DB_DRIVER_MYSQL_UNIX", "mysql_unix:unix_socket=%s;port=%s;dbname=%s"); //host || unix_socket, port, dbname, user, pass
+        define("DB_DRIVER_MYSQL", "mysql:host=%s;port=%s;dbname=%s"); //host, port, dbname, user, pass
         define("DB_DRIVER_SQLSRV", "sqlsrv:Server=%s,%s;Database=%s"); //host, port, dbname, user, pass
-        define("DB_DRIVER_PGSQL", "pgsql:dbname=%s;host=%s"); //dbname, host, user, pass
+        define("DB_DRIVER_PGSQL", "pgsql:host=%s;port=%s;dbname=%s;"); //host, port, dbname, user, pass
         define("DB_DRIVER_SQLITE", "sqlite:%s"); //dbname
 
         define("PATH_CONFIG", DOCUMENT_ROOT . "config.php");
@@ -68,10 +67,12 @@ class WingedHead
         global $__autoload__cache;
         $__autoload__cache = false;
 
+        include_once CLASS_PATH . 'External/MatthiasMullie/Autoload.php';
         include_once CLASS_PATH . 'Utils/Functions.php';
         include_once CLASS_PATH . 'Utils/FileTree.php';
         include_once CLASS_PATH . 'Autoload.Cache.php';
 
+        date_default_timezone_set('GMT');
 
         /**
          * @param $className

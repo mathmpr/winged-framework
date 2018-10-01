@@ -25,17 +25,19 @@ class BoolUiComponent extends ComponentParser{
          * @var $isArray bool
          */
         $this->reset();
+        $classEnd = explode('\\', $class);
+        $classEnd = end($classEnd);
         if ($isArray) {
             $this->DOM->query('input')->attr('name', $class . '[' . $property . '][]');
         } else {
             $this->DOM->query('input')->attr('name', $class . '[' . $property . ']');
         }
-        $this->DOM->query('input')->attr('id', $class . '_' . $property);
-        $this->DOM->query('input')[0]->parent->parent->query('label')->attr('for', $class . '_' . $property);
+        $this->DOM->query('input')->attr('id', $classEnd . '_' . $property);
+        $this->DOM->query('input')[0]->parent->parent->query('label')->attr('for', $classEnd . '_' . $property);
 
-        $this->DOM->query('input')->attr('id', $class . '_' . $property);
+        $this->DOM->query('input')->attr('id', $classEnd . '_' . $property);
         $this->DOM->query('input')->attr('value', $obj->requestKey($property));
-        $this->DOM->query('label:first-child')->attr('for', $class . '_' . $property);
+        $this->DOM->query('label:first-child')->attr('for', $classEnd . '_' . $property);
 
         if (method_exists($class, 'labels')) {
             $labels = $obj->labels();
@@ -45,7 +47,7 @@ class BoolUiComponent extends ComponentParser{
         }
 
         $this->addOptions($this->DOM->query('input'), $inputOptions);
-        $this->addOptions($this->DOM->query('html *')[0], $inputOptions);
+        $this->addOptions($this->DOM->query('html *')[0], $elementOptions);
     }
 
     public function reset(){

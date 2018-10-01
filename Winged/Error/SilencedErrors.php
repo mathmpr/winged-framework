@@ -41,7 +41,23 @@ class SilencedErrors
             'is_dir' => [
                 'warning' => false,
                 'fatal' => false
-            ]
+            ],
+            'date' => [
+                'warning' => false,
+                'fatal' => false
+            ],
+            'strtotime' => [
+                'warning' => false,
+                'fatal' => false
+            ],
+            //'stream_socket_client' => [
+            //    'warning' => false,
+            //    'fatal' => false
+            //],
+            //'fsockopen' => [
+            //    'warning' => false,
+            //    'fatal' => false
+            //],
         ];
     }
 }

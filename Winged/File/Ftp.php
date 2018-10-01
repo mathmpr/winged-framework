@@ -1,6 +1,6 @@
 <?php
 
-namespace Winged\Ftp;
+namespace Winged\File;
 
 use Masterminds\HTML5\Exception;
 use Winged\Error\Error;

@@ -224,6 +224,10 @@ class ComponentParser
             $html->attr('id', $id);
         }
 
+        if (($text = array_key_exists_check('text', $options)) !== false) {
+            $html->text($text);
+        }
+
         if (($attrs = array_key_exists_check('attrs', $options)) !== false) {
             if (is_array($attrs) && !empty($attrs)) {
                 foreach ($attrs as $attr => $value) {

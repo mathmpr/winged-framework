@@ -7,6 +7,7 @@ use Winged\Database\DbDict;
 use Winged\Database\Database;
 use Winged\Database\CurrentDB;
 use Winged\Error\Error;
+use Winged\Utils\RandomName;
 
 class Model extends DelegateQuery
 {
@@ -75,13 +76,16 @@ class Model extends DelegateQuery
     {
         if (is_string($class_name) && is_array($link)) {
             if (array_key_exists('id', $link) && property_exists($this, $link['id'])) {
-                if (class_exists($class_name) && property_exists($class_name, $link['id'])) {
+                if ((class_exists($class_name) && property_exists($class_name, $link['id'])) ||
+                    (class_exists('\Winged\Model\\' . $class_name) && property_exists('\Winged\Model\\' . $class_name, $link['id']))
+                ) {
+                    $existent = class_exists($class_name) ? $class_name : '\Winged\Model\\' . $class_name;
                     /**
                      * @var $obj Model
                      */
-                    $obj = (new $class_name())
+                    $obj = (new $existent())
                         ->select()
-                        ->from(['LINK' => $class_name::tableName()])
+                        ->from(['LINK' => $existent::tableName()])
                         ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->getProperty($link['id'])]);
 
                     $result = $obj->one();
@@ -96,13 +100,16 @@ class Model extends DelegateQuery
     {
         if (is_string($class_name) && is_array($link)) {
             if (array_key_exists('id', $link) && property_exists($this, $link['id'])) {
-                if (class_exists($class_name) && property_exists($class_name, $link['id'])) {
+                if ((class_exists($class_name) && property_exists($class_name, $link['id'])) ||
+                    (class_exists('\Winged\Model\\' . $class_name) && property_exists('\Winged\Model\\' . $class_name, $link['id']))
+                ) {
+                    $existent = class_exists($class_name) ? $class_name : '\Winged\Model\\' . $class_name;
                     /**
                      * @var $obj Model
                      */
-                    $obj = (new $class_name())
+                    $obj = (new $existent())
                         ->select()
-                        ->from(['LINK' => $class_name::tableName()])
+                        ->from(['LINK' => $existent::tableName()])
                         ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->getProperty($link['id'])]);
 
                     $result = $obj->find();
@@ -171,7 +178,7 @@ class Model extends DelegateQuery
         $to_load = [];
 
         foreach ($args as $key => $value) {
-            if (is_array($value) && ucfirst($key) == $class_name) {
+            if (is_array($value) && is_int(stripos($class_name, ucfirst($key)))) {
                 if (array_key_exists(0, $value)) {
                     $to_load = $value[0];
                 } else {
@@ -360,12 +367,12 @@ class Model extends DelegateQuery
     }
 
 
-    public function pushValidateError($key, $error = '')
+    public function pushValidateError($key, $error = '', $pn)
     {
         if (array_key_exists($key, $this->errors)) {
-            $this->errors[$key][] = $error;
+            $this->errors[$key][$pn] = $error;
         } else {
-            $this->errors[$key] = [$error];
+            $this->errors[$key] = [$pn => $error];
         }
         return true;
     }
@@ -392,17 +399,17 @@ class Model extends DelegateQuery
                     if (property_exists($class_name, $property_rule)) {
                         $erros = [
                             'required' =>
-                                ['text' => 'Field ' . $property_rule . ' is required.', 'filter' => function($arg){
-                                    if($arg === null){
+                                ['text' => 'Field ' . $property_rule . ' is required.', 'filter' => function ($arg) {
+                                    if ($arg === null) {
                                         return false;
                                     }
-                                    if($arg === ''){
+                                    if ($arg === '') {
                                         return null;
                                     }
-                                    if(numeric_is($arg) === 0){
+                                    if (numeric_is($arg) === 0) {
                                         return false;
                                     }
-                                    if($arg === false){
+                                    if ($arg === false) {
                                         return false;
                                     }
                                     return true;
@@ -437,7 +444,7 @@ class Model extends DelegateQuery
                                                 $message = $messages[$property_rule][$pn];
                                             }
                                         }
-                                        $this->pushValidateError($property_rule, $message);
+                                        $this->pushValidateError($property_rule, $message, $pn);
                                     }
                                 } else {
                                     if ($test) {
@@ -448,15 +455,15 @@ class Model extends DelegateQuery
                                             }
                                         }
                                         if ($erros[$pn]['filter']) {
-                                            if(is_callable($erros[$pn]['filter'])){
-                                                if(!$erros[$pn]['filter']($this->{$property_rule})){
+                                            if (is_callable($erros[$pn]['filter'])) {
+                                                if (!$erros[$pn]['filter']($this->{$property_rule})) {
                                                     $continue = false;
-                                                    $this->pushValidateError($property_rule, $message);
+                                                    $this->pushValidateError($property_rule, $message, $pn);
                                                 }
-                                            }else{
+                                            } else {
                                                 if (!filter_var($this->{$property_rule}, $erros[$pn]['filter'])) {
                                                     $continue = false;
-                                                    $this->pushValidateError($property_rule, $message);
+                                                    $this->pushValidateError($property_rule, $message, $pn);
                                                 }
                                             }
                                         }
@@ -508,7 +515,7 @@ class Model extends DelegateQuery
                                                 $message = $messages[$property_rule][$pn];
                                             }
                                         }
-                                        $this->pushValidateError($property_rule, $message);
+                                        $this->pushValidateError($property_rule, $message, $pn);
                                     }
                                 }
                             }
@@ -520,31 +527,31 @@ class Model extends DelegateQuery
                                 }
                             }
                             if ($rule == 'required' && ($this->{$property_rule} === null && $this->{$property_rule} === false && $this->{$property_rule} === '')) {
-                                $this->pushValidateError($property_rule, $message);
+                                $this->pushValidateError($property_rule, $message, $rule);
                                 $continue = false;
                             }
                             if ($rule == 'email' && !filter_var($this->{$property_rule}, FILTER_VALIDATE_EMAIL)) {
-                                $this->pushValidateError($property_rule, $message);
+                                $this->pushValidateError($property_rule, $message, $rule);
                                 $continue = false;
                             }
                             if ($rule == 'float' && !filter_var($this->{$property_rule}, FILTER_VALIDATE_FLOAT)) {
-                                $this->pushValidateError($property_rule, $message);
+                                $this->pushValidateError($property_rule, $message, $rule);
                                 $continue = false;
                             }
                             if ($rule == 'int' && !filter_var($this->{$property_rule}, FILTER_VALIDATE_INT)) {
-                                $this->pushValidateError($property_rule, $message);
+                                $this->pushValidateError($property_rule, $message, $rule);
                                 $continue = false;
                             }
                             if ($rule == 'ip' && !filter_var($this->{$property_rule}, FILTER_VALIDATE_IP)) {
-                                $this->pushValidateError($property_rule, $message);
+                                $this->pushValidateError($property_rule, $message, $rule);
                                 $continue = false;
                             }
                             if ($rule == 'url' && !filter_var($this->{$property_rule}, FILTER_VALIDATE_URL)) {
-                                $this->pushValidateError($property_rule, $message);
+                                $this->pushValidateError($property_rule, $message, $rule);
                                 $continue = false;
                             }
                             if ($rule == 'bool' && !filter_var($this->{$property_rule}, FILTER_VALIDATE_BOOLEAN)) {
-                                $this->pushValidateError($property_rule, $message);
+                                $this->pushValidateError($property_rule, $message, $rule);
                                 $continue = false;
                             }
                         }
@@ -555,11 +562,12 @@ class Model extends DelegateQuery
 
         if ($continue) {
             foreach ($this->on_validate_success as $index => $arr) {
-                call_user_func_array($arr['function'], $arr['args']);
+                call_user_func_array($this->on_validate_success[$index]['function'], $arr['args']);
             }
         } else {
+            $this->_reverse();
             foreach ($this->on_validate_error as $index => $arr) {
-                call_user_func_array($arr['function'], $arr['args']);
+                call_user_func_array($this->on_validate_error[$index]['function'], $arr['args']);
             }
         }
 
@@ -577,11 +585,12 @@ class Model extends DelegateQuery
             $save = $this->createSaveStatement();
             if ($save) {
                 foreach ($this->on_save_success as $index => $arr) {
-                    call_user_func_array($arr['function'], $arr['args']);
+                    call_user_func_array($this->on_save_success[$index]['function'], $arr['args']);
                 }
             } else {
+                $this->_reverse();
                 foreach ($this->on_save_error as $index => $arr) {
-                    call_user_func_array($arr['function'], $arr['args']);
+                    call_user_func_array($this->on_save_error[$index]['function'], $arr['args']);
                 }
             }
             return $save;
@@ -652,11 +661,11 @@ class Model extends DelegateQuery
         }
     }
 
-    public function registerOnSaveSuccess($index = '', $function = '', $args = [])
+    public function onSaveSuccess($index = '', $function = '', $args = [])
     {
         if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
             $this->on_save_success[$index] = [
-                'function' => $function,
+                'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
             return true;
@@ -664,11 +673,11 @@ class Model extends DelegateQuery
         return false;
     }
 
-    public function registerOnSaveError($index = '', $function = '', $args = [])
+    public function onSaveError($index = '', $function = '', $args = [])
     {
         if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
             $this->on_save_error[$index] = [
-                'function' => $function,
+                'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
             return true;
@@ -694,11 +703,11 @@ class Model extends DelegateQuery
         }
     }
 
-    public function registerOnValidateSuccess($index = '', $function = '', $args = [])
+    public function onValidateSuccess($index = '', $function = '', $args = [])
     {
         if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
             $this->on_validate_success[$index] = [
-                'function' => $function,
+                'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
             return true;
@@ -706,11 +715,11 @@ class Model extends DelegateQuery
         return false;
     }
 
-    public function registerOnValidateError($index = '', $function = '', $args = [])
+    public function onValidateError($index = '', $function = '', $args = [])
     {
         if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
             $this->on_validate_error[$index] = [
-                'function' => $function,
+                'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
             return true;
@@ -738,9 +747,10 @@ class Model extends DelegateQuery
 
     public function postKey($name = '')
     {
+        $reverse = $this->reverseBehaviors();
         if (array_key_exists(get_class($this), $_POST)) {
             $arr = $_POST[get_class($this)];
-            if (array_key_exists($name, $arr)) {
+            if (array_key_exists($name, $arr) && !array_key_exists($name, $reverse)) {
                 return $arr[$name];
             }
         }
@@ -752,9 +762,10 @@ class Model extends DelegateQuery
 
     public function getKey($name = '')
     {
+        $reverse = $this->reverseBehaviors();
         if (array_key_exists(get_class($this), $_GET)) {
             $arr = $_GET[get_class($this)];
-            if (array_key_exists($name, $arr)) {
+            if (array_key_exists($name, $arr) && !array_key_exists($name, $reverse)) {
                 return $arr[$name];
             }
         }
@@ -775,7 +786,7 @@ class Model extends DelegateQuery
         return $enter;
     }
 
-    public function getErros()
+    public function getErrors()
     {
         return $this->errors;
     }

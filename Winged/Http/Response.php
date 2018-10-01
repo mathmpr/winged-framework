@@ -46,9 +46,17 @@ class Response
     public function output()
     {
         if ($this->output) {
-            return $this->output;
+            if ($this->request->ioptions['accept'] === Request::$ACCEPT_JSON) {
+                return json_decode($this->output, true);
+            } else if ($this->request->ioptions['accept'] === Request::$ACCEPT_XML) {
+                $xml = simplexml_load_string($this->output, "SimpleXMLElement", LIBXML_NOCDATA);
+                $json = json_encode($xml);
+                return json_decode($json, true);
+            } else {
+                return $this->output;
+            }
         }
-        return $this->cURL_resorce;
+        return null;
     }
 
     public function status()

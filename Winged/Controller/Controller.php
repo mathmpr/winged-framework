@@ -2,7 +2,12 @@
 
 namespace Winged\Controller;
 
+use MatthiasMullie\Minify\CSS;
+use MatthiasMullie\Minify\JS;
 use Winged\Assets\Assets;
+use Winged\Date\Date;
+use Winged\File\File;
+use Winged\Utils\RandomName;
 use Winged\Utils\WingedLib;
 use Winged\Winged;
 use Winged\WingedConfig;
@@ -34,6 +39,10 @@ class Controller
     public $vect = [];
     public $assets = null;
     public $appended_abstract_head_content = [];
+    /**
+     * @var $minify_cache null | File
+     */
+    public $minify_cache = null;
 
     public function __construct()
     {
@@ -108,9 +117,9 @@ class Controller
                             Winged::$controller_params = array_values(Winged::$controller_params);
                         }
                         $obj = new $this->controller_name();
-                        $to_call = [];
-                        $this->getGetArgs();
                         if (method_exists($obj, 'beforeAction')) {
+                            $to_call = [];
+                            $this->getGetArgs();
                             $reflect = new \ReflectionMethod($this->controller_name, 'beforeAction');
                             $apply = $reflect->getParameters();
                             if (!empty($apply)) {
@@ -120,6 +129,7 @@ class Controller
                                     }
                                 }
                             }
+
                             $return = $reflect->invokeArgs($obj, [Winged::$controller_action]);
                             if ($return !== null) {
                                 if (is_array($return)) {
@@ -403,12 +413,19 @@ class Controller
         exit;
     }
 
-    public function setNicknamesToUri($nicks = array())
+    public function setNicknamesToUri($nicks = [])
     {
-        $narr = array();
+        $narr = [];
+        if (Winged::$controller_params == false) {
+            Winged::$controller_params = [];
+        }
         if (count7($nicks) > count7(Winged::$controller_params)) {
-            for ($x = 0; $x < count7(Winged::$controller_params); $x++) {
-                $narr[$nicks[$x]] = Winged::$controller_params[$x];
+            for ($x = 0; $x < count7($nicks); $x++) {
+                if (array_key_exists($x, Winged::$controller_params)) {
+                    $narr[$nicks[$x]] = Winged::$controller_params[$x];
+                } else {
+                    $narr[$nicks[$x]] = null;
+                }
             }
         } else {
             for ($x = 0; $x < count7($nicks); $x++) {
@@ -465,7 +482,7 @@ class Controller
         $this->head_path = null;
     }
 
-    public function renderHtml($path, $vars = array(), $loads = array())
+    public function renderHtml($path, $vars = [], $loads = [])
     {
         $path = $this->getViewFile($path);
         if (file_exists($path) && !is_directory($path)) {
@@ -483,23 +500,63 @@ class Controller
                 $this->first_render = false;
                 Buffer::reset();
                 include_once $path;
-                if(Error::exists()){
-                    Error::display(__LINE__, __FILE__);
-                }
                 $content = Buffer::get();
-                Buffer::reset();
-                echo '<!DOCTYPE html>';
-                echo '<html>';
+                Buffer::kill();
+                Buffer::start();
+                ?>
+                <!doctype html>
+                <html>
+                <?php
                 $this->pureHtml($content);
-                echo '</html>';
+                ?>
+                </html>
+                <?php
+                $content = Buffer::getKill();
+                $rep = [];
+                $match = false;
+                $matchs = null;
+                if (is_int(stripos($content, '<textarea'))) {
+                    $match = preg_match_all('#<textarea(.*?)>(.*?)</textarea>#is', $content, $matchs);
+                    if ($match) {
+                        foreach ($matchs[0] as $match) {
+                            $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                        }
+                        $content = str_replace($matchs[0], $rep, $content);
+                    }
+                }
+                $content = preg_replace('#> <#', '><', preg_replace('# {2,}#', ' ', preg_replace('/[\n\r]|/', '', $content)));
+                if ($match) {
+                    $content = str_replace($rep, $matchs[0], $content);
+                }
+                if (WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS) {
+                    if (is_array(WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
+                        if (in_array('img', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
+                            $content = preg_replace_callback('#<img.+?src="([^"]*)".*?/?>#i', function ($found) {
+                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
+                            }, $content);
+                        }
+                        if (in_array('script', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
+                            $content = preg_replace_callback('#<script.+?src="([^"]*)".*?/?>#i', function ($found) {
+                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
+                            }, $content);
+                        }
+                        if (in_array('source', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
+                            $content = preg_replace_callback('#<source.+?src="([^"]*)".*?/?>#i', function ($found) {
+                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
+                            }, $content);
+                        }
+                        if (in_array('link', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
+                            $content = preg_replace_callback('#<link.+?href="([^"]*)".*?/?>#i', function ($found) {
+                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
+                            }, $content);
+                        }
+                    }
+                }
+                ?>
+                <?= $content; ?>
+                <?php
             } else {
                 include_once $path;
-                if(Error::exists()){
-                    Error::display(__LINE__, __FILE__);
-                }
-            }
-            if ($this->callable !== null) {
-                call_user_func($this->callable);
             }
         } else {
             Error::push(__CLASS__, "file " . $path . " can't rendred because file not found.", __FILE__, __LINE__);
@@ -514,9 +571,16 @@ class Controller
 
     private function pureHtml($html_page)
     {
-        if($this->html_class != null){
+
+        $this->createCssMinify();
+        $this->createJsMinify();
+
+        if ($this->html_class != null) {
             Buffer::reset();
-            echo '<html class="'. $this->html_class .'">';
+            ?>
+            <!doctype html>
+            <html class="<?= $this->html_class ?>">
+            <?php
         }
         ?>
         <head>
@@ -527,24 +591,19 @@ class Controller
             }
             if ($head_content_path !== null) {
                 if (file_exists($head_content_path) && !is_directory($head_content_path)) {
-                    $buffer = Buffer::get();
-                    Buffer::reset();
-                    ob_start();
                     include_once $head_content_path;
-                    $head_content_path = ob_get_clean();
-                    ob_end_clean();
-                    echo $buffer;
                 }
-                foreach ($this->appended_abstract_head_content as $head){
-                    $head_content_path .= "
-" . $head;
+                foreach ($this->appended_abstract_head_content as $head) {
+                    ?>
+                    <?= $head ?>
+                    <?php
                 }
-                echo $head_content_path;
             } else {
                 ?>
                 <meta charset="utf-8"/>
                 <?php
             }
+
             foreach ($this->css as $identifier => $content) {
                 if (!in_array($identifier, $this->remove_css)) {
                     if ($content['type'] === 'file') {
@@ -553,7 +612,9 @@ class Controller
                               charset="utf-8"/>
                         <?php
                     } else if ($content['type'] === 'script') {
-                        echo $content['string'];
+                        ?>
+                        <?= $content['string'] ?>
+                        <?php
                     } else if ($content['type'] === 'url') {
                         ?>
                         <link href="<?= $content['string'] ?>" type="text/css" rel="stylesheet"
@@ -575,11 +636,13 @@ class Controller
                     ?>
                     <script src="<?= $this->makeAssetsSrc($content['string']) ?>" type="text/javascript"
                             charset="utf-8"></script>
-                    <?php
+                <?php
                 } else if ($content['type'] === 'script') {
-                    echo $content['string'];
-                } else if ($content['type'] === 'url') {
                     ?>
+                    <?= $content['string'] ?>
+                    <?php
+                } else if ($content['type'] === 'url') {
+                ?>
                     <script src="<?= $content['string'] ?>" type="text/javascript"
                             charset="utf-8"></script>
                     <?php
@@ -588,11 +651,215 @@ class Controller
         }
     }
 
+    private function createJsMinifyNew($path, $read)
+    {
+        $read[$path] = [
+            'create_at' => Date::now()->timestamp(),
+            'formed_with' => [],
+            'cache_file' => './cache/js/' . RandomName::generate('sisisisi', true, false) . '.js'
+        ];
+        $cache_file = new File($read[$path]['cache_file']);
+        $minify = new JS();
+        foreach ($this->js as $identifier => $content) {
+            if (!in_array($identifier, $this->remove_js)) {
+                if ($content['type'] === 'file') {
+                    $file = new File($content['string'], false);
+                    if ($file->exists()) {
+                        $minify->add($file->read());
+                        $this->removeJs($identifier);
+                        $read[$path]['formed_with'][$content['string']] = [
+                            'time' => $file->modifyTime(),
+                            'path' => $file->file_path,
+                            'name' => $file->file,
+                            'identifier' => $identifier,
+                        ];
+                    }
+                }
+            }
+        }
+        $cache_file->write($minify->minify());
+        $this->js = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->js);
+        $this->persistsMinifiedCacheFileInformation($read);
+    }
+
+    private function createJsMinify()
+    {
+        $this->createMinifiedCacheFileInformation();
+        $read = $this->readMinifiedCacheFileInformation();
+        $path = '';
+        foreach ($this->js as $identifier => $content) {
+            if (!in_array($identifier, $this->remove_js)) {
+                if ($content['type'] === 'file') {
+                    $path .= $content['string'];
+                }
+            }
+            $path = md5($path);
+        }
+        if (WingedConfig::$AUTO_MINIFY) {
+            if (!array_key_exists($path, $read) && $path !== '') {
+                $this->createJsMinifyNew($path, $read);
+            } else {
+                if (array_key_exists($path, $read)) {
+                    $check = $read[$path];
+                    $renew = false;
+                    foreach ($check['formed_with'] as $key => $former) {
+                        $file = new File($key, false);
+                        if (!$file->exists()) {
+                            $renew = true;
+                        } else {
+                            if ($former['time'] != $file->modifyTime()) {
+                                $renew = true;
+                            }
+                        }
+                        if (!array_key_exists($former['identifier'], $this->js)) {
+                            $renew = true;
+                        }
+                    }
+                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$AUTO_MINIFY) {
+                        $renew = true;
+                    }
+                    if ($renew) {
+                        $old_cache_file = new File($read[$path]['cache_file']);
+                        if ($old_cache_file->exists()) {
+                            $old_cache_file->delete();
+                        }
+                        $this->createJsMinifyNew($path, $read);
+                    } else {
+                        foreach ($check['formed_with'] as $key => $former) {
+                            $this->removeJs($former['identifier']);
+                        }
+                        $this->js = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->js);
+                    }
+                }
+            }
+        } else {
+            if (array_key_exists($path, $read)) {
+                $check = $read[$path];
+                foreach ($check['formed_with'] as $key => $former) {
+                    $this->removeJs($former['identifier']);
+                }
+                $this->js = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->js);
+            }
+        }
+    }
+
+    private function createCssMinifyNew($path, $read)
+    {
+        $read[$path] = [
+            'create_at' => Date::now()->timestamp(),
+            'formed_with' => [],
+            'cache_file' => './cache/css/' . RandomName::generate('sisisisi', true, false) . '.css'
+        ];
+        $cache_file = new File($read[$path]['cache_file']);
+        $minify = new CSS();
+        foreach ($this->css as $identifier => $content) {
+            if (!in_array($identifier, $this->remove_css)) {
+                if ($content['type'] === 'file') {
+                    $file = new File($content['string'], false);
+                    if ($file->exists()) {
+                        $minify->add($file->read());
+                        $this->removeCss($identifier);
+                        $read[$path]['formed_with'][$content['string']] = [
+                            'time' => $file->modifyTime(),
+                            'path' => $file->file_path,
+                            'name' => $file->file,
+                            'identifier' => $identifier,
+                        ];
+                    }
+                }
+            }
+        }
+        $cache_file->write($minify->minify());
+        $this->css = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->css);
+        $this->persistsMinifiedCacheFileInformation($read);
+    }
+
+    private function createCssMinify()
+    {
+        $this->createMinifiedCacheFileInformation();
+        $read = $this->readMinifiedCacheFileInformation();
+        $path = '';
+        foreach ($this->css as $identifier => $content) {
+            if (!in_array($identifier, $this->remove_css)) {
+                if ($content['type'] === 'file') {
+                    $path .= $content['string'];
+                }
+            }
+            $path = md5($path);
+        }
+        if (WingedConfig::$AUTO_MINIFY) {
+            if (!array_key_exists($path, $read) && $path !== '') {
+                $this->createCssMinifyNew($path, $read);
+            } else {
+                //check and update if need
+                if (array_key_exists($path, $read)) {
+                    $check = $read[$path];
+                    $renew = false;
+                    foreach ($check['formed_with'] as $key => $former) {
+                        $file = new File($key, false);
+                        if (!$file->exists()) {
+                            $renew = true;
+                        } else {
+                            if ($former['time'] != $file->modifyTime()) {
+                                $renew = true;
+                            }
+                        }
+                        if (!array_key_exists($former['identifier'], $this->css)) {
+                            $renew = true;
+                        }
+                    }
+                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$AUTO_MINIFY) {
+                        $renew = true;
+                    }
+                    if ($renew) {
+                        $old_cache_file = new File($read[$path]['cache_file']);
+                        if ($old_cache_file->exists()) {
+                            $old_cache_file->delete();
+                        }
+                        $this->createCssMinifyNew($path, $read);
+                    } else {
+                        foreach ($check['formed_with'] as $key => $former) {
+                            $this->removeCss($former['identifier']);
+                        }
+                        $this->css = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->css);
+                    }
+                }
+            }
+        } else {
+            if (array_key_exists($path, $read)) {
+                $check = $read[$path];
+                foreach ($check['formed_with'] as $key => $former) {
+                    $this->removeCss($former['identifier']);
+                }
+                $this->css = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->css);
+            }
+        }
+    }
+
+    private function createMinifiedCacheFileInformation()
+    {
+        $file = new File('./minify.cache.json', false);
+        if (!$file->exists()) {
+            $file = new File('./minify.cache.json');
+            $file->write(json_encode([]));
+        } else {
+            $file = new File('./minify.cache.json');
+        }
+        $this->minify_cache = $file;
+    }
+
+    private function persistsMinifiedCacheFileInformation($content)
+    {
+        return ($this->minify_cache->write(json_encode($content)));
+    }
+
+    private function readMinifiedCacheFileInformation()
+    {
+        return json_decode($this->minify_cache->read(), true);
+    }
+
     private function makeAssetsSrc($src = '')
     {
-        if (WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS) {
-            return Winged::$protocol . $src . '?nocache=' . randid();
-        }
         return Winged::$protocol . $src;
     }
 
@@ -630,7 +897,7 @@ class Controller
                     $this->first_render = false;
                     Buffer::reset();
                     include_once $path;
-                    if(Error::exists()){
+                    if (Error::exists()) {
                         Error::display(__LINE__, __FILE__);
                     }
                     $content = Buffer::get();
@@ -682,7 +949,7 @@ class Controller
                     $this->first_render = false;
                     Buffer::reset();
                     include_once $path;
-                    if(Error::exists()){
+                    if (Error::exists()) {
                         Error::display(__LINE__, __FILE__);
                     }
                     $content = Buffer::get();
@@ -735,12 +1002,12 @@ class Controller
                     $this->first_render = false;
                     Buffer::reset();
                     include_once $path;
-                    if(Error::exists()){
+                    if (Error::exists()) {
                         Error::display(__LINE__, __FILE__);
                     }
                     $content = Buffer::get();
                     Buffer::kill();
-                    if($return){
+                    if ($return) {
                         return $content;
                     }
                     echo $content;
@@ -754,7 +1021,7 @@ class Controller
                     include_once $path;
                     $content = Buffer::get();
                     Buffer::kill();
-                    if($return){
+                    if ($return) {
                         return $content;
                     }
                     echo $content;
@@ -795,7 +1062,7 @@ class Controller
                     $this->first_render = false;
                     Buffer::reset();
                     include_once $path;
-                    if(Error::exists()){
+                    if (Error::exists()) {
                         Error::display(__LINE__, __FILE__);
                     }
                     Buffer::kill();
@@ -867,7 +1134,7 @@ class Controller
             if (array_key_exists($identifier, $this->js)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->js[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
-            $this->js[$identifier] = [];
+            $this->js[$identifier] = array();
             $this->js[$identifier]['string'] = $string;
             $this->js[$identifier]['type'] = 'script';
             $this->js[$identifier]['options'] = $options;
@@ -875,7 +1142,7 @@ class Controller
             if (array_key_exists($identifier, $this->js)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->js[$identifier] = [];
+            $this->js[$identifier] = array();
             $this->js[$identifier]['string'] = $string;
             $this->js[$identifier]['type'] = 'url';
             $this->js[$identifier]['options'] = $options;
@@ -883,19 +1150,13 @@ class Controller
         return;
     }
 
-    /**
-     * @param $identifier
-     * @param $string
-     * @param array $options
-     * @param bool $url
-     */
     public function addCss($identifier, $string, $options = [], $url = false)
     {
         if (file_exists($string) && !is_directory($string) && !$url) {
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script file '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = [];
+            $this->css[$identifier] = array();
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'file';
             $this->css[$identifier]['options'] = $options;
@@ -903,7 +1164,7 @@ class Controller
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css '" . htmlspecialchars($this->css[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = [];
+            $this->css[$identifier] = array();
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'script';
             $this->css[$identifier]['options'] = $options;
@@ -911,7 +1172,7 @@ class Controller
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css url '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = [];
+            $this->css[$identifier] = array();
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'url';
             $this->css[$identifier]['options'] = $options;

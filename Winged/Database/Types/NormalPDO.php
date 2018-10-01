@@ -8,13 +8,13 @@ use Winged\Database\Database;
 class NormalPDO
 {
 
-    /** @var $refer PDO */
+    /** @var $refer \PDO */
     private $refer = null;
 
-    /** @var $last_stmt PDOStatement */
+    /** @var $last_stmt \PDOStatement */
     public $last_stmt = null;
 
-    /** @var $last_result PDOStatement */
+    /** @var $last_result \PDOStatement */
     public $last_result = null;
 
     public function __construct(\PDO $db)

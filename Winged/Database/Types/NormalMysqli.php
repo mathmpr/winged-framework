@@ -6,13 +6,13 @@ use Winged\Database\Database;
 
 class NormalMysqli
 {
-    /** @var $refer mysqli */
+    /** @var $refer \mysqli */
     private $refer = null;
 
-    /** @var $last_stmt mysqli_stmt */
+    /** @var $last_stmt \mysqli_stmt */
     public $last_stmt = null;
 
-    /** @var $last_result mysqli_result */
+    /** @var $last_result \mysqli_result */
     public $last_result = null;
 
     public function __construct(\mysqli $db)

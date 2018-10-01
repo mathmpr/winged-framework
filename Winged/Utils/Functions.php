@@ -30,16 +30,19 @@ function get_memory_peak_usage()
  */
 function numeric_is($value)
 {
+    if (is_array($value)) {
+        return false;
+    }
     $cp_int = intval($value);
     $cp_flo = floatval($value);
     $str_val = strval($value);
     $cp_int_str = strval($cp_int);
     $cp_flo_str = strval($cp_flo);
     if ($str_val == $cp_flo_str) {
-        return $cp_flo;
+        return (float)$cp_flo;
     }
     if ($str_val == $cp_int_str) {
-        return $cp_int;
+        return (int)$cp_int;
     }
     return false;
 }
@@ -129,6 +132,9 @@ function postset($key)
 function post($key)
 {
     if (array_key_exists($key, $_POST)) {
+        if (numeric_is($_POST[$key])) {
+            return numeric_is($_POST[$key]);
+        }
         return $_POST[$key];
     }
     return false;
@@ -143,6 +149,9 @@ function unpost($key)
 {
     global $_OPOST;
     if (array_key_exists($key, $_OPOST)) {
+        if (numeric_is($_OPOST[$key])) {
+            return numeric_is($_OPOST[$key]);
+        }
         return $_OPOST[$key];
     }
     return false;
@@ -169,6 +178,9 @@ function getset($key)
 function get($key)
 {
     if (array_key_exists($key, $_GET)) {
+        if (numeric_is($_GET[$key])) {
+            return numeric_is($_GET[$key]);
+        }
         return $_GET[$key];
     }
     return false;
@@ -183,6 +195,9 @@ function unget($key)
 {
     global $_OGET;
     if (array_key_exists($key, $_OGET)) {
+        if (numeric_is($_OGET[$key])) {
+            return numeric_is($_OGET[$key]);
+        }
         return $_OGET[$key];
     }
     return false;
@@ -336,6 +351,19 @@ function get_value_by_key($needle = null, $array = [])
     return null;
 }
 
+if (!function_exists('getallheaders')) {
+    function getallheaders()
+    {
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
+}
+
 if (!function_exists('array_column')) {
     function array_column(array $input, $columnKey, $indexKey = null)
     {
@@ -414,6 +442,12 @@ function is_update()
  */
 function uri($index)
 {
+    if (Winged::$params == false) {
+        Winged::$params = [];
+    }
+    if (Winged::$controller_params == false) {
+        Winged::$controller_params = [];
+    }
     if (array_key_exists($index, Winged::$params)) {
         return no_injection(Winged::$params[$index]);
     }
@@ -522,7 +556,7 @@ function trade_slash_right($str)
  */
 function nltobr($str)
 {
-    return str_replace(["\r\n", "\n", "\r", '\r\n', '\n', '\r'], "<br>", $str);
+    return str_replace(["\r\n", "\n", "\r", '\r\n', '\n', '\r'], "<br />", $str);
 }
 
 /**
@@ -532,7 +566,7 @@ function nltobr($str)
  */
 function brtonl($str)
 {
-    return str_ireplace("<br>", "\r\n", $str);
+    return str_ireplace(["<br />", "<br>", "<br/>"], "\r\n", $str);
 }
 
 /**
@@ -681,7 +715,7 @@ function delegate_pre_clear_buffer_die()
     </head>
 <body>
     <?php
-    if (count($printed_pre) > 0) {
+    if (count7($printed_pre) > 0) {
         foreach ($printed_pre as $array) {
             if (is_array($array) && empty($array)) {
                 $array = 'Empty array';
@@ -815,7 +849,7 @@ function what_is_my_system()
  */
 function begstr($str)
 {
-    if(is_string($str)){
+    if (is_string($str)) {
         if (strlen($str) > 0) {
             return $str[0];
         }
@@ -830,7 +864,7 @@ function begstr($str)
  */
 function begstr_replace(&$str, $replace_with = '')
 {
-    if(is_string($str)){
+    if (is_string($str)) {
         $str = substr($str, 1, strlen($str) - 1);
         $str = $replace_with . $str;
         $str = trim($str);
@@ -845,7 +879,7 @@ function begstr_replace(&$str, $replace_with = '')
  */
 function endstr($str, $length = 1)
 {
-    if(is_string($str)){
+    if (is_string($str)) {
         if (strlen($str) - $length > 0) {
             return $str[strlen($str) - $length];
         }
@@ -860,7 +894,7 @@ function endstr($str, $length = 1)
  */
 function endstr_replace(&$str, $length = -1, $replace_with = '')
 {
-    if(is_string($str)){
+    if (is_string($str)) {
         if (strlen($str) - $length > 0) {
             $str = substr_replace($str, $replace_with, strlen($str) - 1, $length);
             $str = trim($str);
@@ -910,6 +944,7 @@ function array2htmlselect($array = [], $field = '', $id_field = '')
  * @param $arg
  * @return bool|int
  */
-function count7($arg){
+function count7($arg)
+{
     return is_array($arg) ? count($arg) : false;
 }

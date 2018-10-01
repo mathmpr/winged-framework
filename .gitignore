@@ -12,3 +12,5 @@
 /uploads/
 /vendor/
 /views/
+/vendor/
+/composer.json

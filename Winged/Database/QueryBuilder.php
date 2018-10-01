@@ -3,6 +3,7 @@
 namespace Winged\Database;
 
 use Winged\Error\Error;
+use Winged\Model\Model;
 use Winged\WingedConfig;
 
 class QueryBuilder
@@ -124,7 +125,7 @@ class QueryBuilder
     /**
      * Example: ['alias' => 'table_name']
      * @param array $from
-     * @return $this
+     * @return $this | Model
      */
     public function from($from = [])
     {

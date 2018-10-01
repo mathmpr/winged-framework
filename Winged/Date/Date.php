@@ -5,22 +5,22 @@ namespace Winged\Date;
 /**
  * Example:
  * <code>
- * $date = CoreDate('31/12/2016');
- * $date = CoreDate('12/31/2016');
- * $date = CoreDate('2016/12/31');
- * $date = CoreDate('2016-12-31');
- * $date = CoreDate('31/12/2016 12:32:12');
- * $date = CoreDate('12/31/2016 12:32:12');
- * $date = CoreDate('2016/12/31 12:32:12');
- * $date = CoreDate('2016-12-31 12:32:12');
- * $date = CoreDate('2016-12-31 12:32:12');
- * $date = CoreDate(1483183932);
- * $date = CoreDate(time());
- * $date = CoreDate(strtotime($date));
+ * $date = Date('31/12/2016');
+ * $date = Date('12/31/2016');
+ * $date = Date('2016/12/31');
+ * $date = Date('2016-12-31');
+ * $date = Date('31/12/2016 12:32:12');
+ * $date = Date('12/31/2016 12:32:12');
+ * $date = Date('2016/12/31 12:32:12');
+ * $date = Date('2016-12-31 12:32:12');
+ * $date = Date('2016-12-31 12:32:12');
+ * $date = Date(1483183932);
+ * $date = Date(time());
+ * $date = Date(strtotime($date));
  * </code>
  * @param string | bool $date
  * @param bool $hours
- * @return CoreDate
+ * @return Date
  */
 class Date
 {
@@ -29,6 +29,10 @@ class Date
     private $format = '%H:%M:%S';
     private $gregorian;
     private $infos = false;
+
+    public static function now($hours = true){
+        return new Date(time(), $hours);
+    }
 
     public static function valid($date = '')
     {
@@ -61,7 +65,7 @@ class Date
     /**
      * @param string | bool $date
      * @param bool $hours
-     * @return CoreDate
+     * @return Date
      */
     public function __construct($date = false, $hours = true)
     {
@@ -71,7 +75,7 @@ class Date
     /**
      * @param string | bool $date
      * @param bool $hours
-     * @return CoreDate
+     * @return Date
      */
     public function rebuild($date = false, $hours = true)
     {
@@ -187,7 +191,7 @@ class Date
                 return ucwords(strftime($format, $this->timestamp()));
             }
             return strftime($format, $this->timestamp());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }
@@ -195,7 +199,7 @@ class Date
     /**
      * Example:
      * <code>
-     * CoreDate(2016-04-02 12:03:42)->add(['y' => 1, 'd' => 3, 'h' => 6]);
+     * Date(2016-04-02 12:03:42)->add(['y' => 1, 'd' => 3, 'h' => 6]);
      * ----- Returns -------
      * 2017-04-07 18:03:42
      * ---------------------
@@ -237,7 +241,7 @@ class Date
     /**
      * Example:
      * <code>
-     * CoreDate('18/11/2016')->diff('16/10/2016', ['m', 'w', 'd']);
+     * Date('18/11/2016')->diff('16/10/2016', ['m', 'w', 'd']);
      * ----- Returns -------
      * [months] => 1
      * [weeks] => 0
@@ -299,7 +303,7 @@ class Date
 
             if ($type == 'w') {
                 $differences[$valids[$type]['name']] = (int)floor($time / (7 * 24 * 60 * 60));
-                $time = $time % (30 * 24 * 60 * 60);
+                $time = $time % (7 * 24 * 60 * 60);
             }
 
             if ($type == 'd') {
@@ -325,12 +329,12 @@ class Date
         $differences['extra'] = [];
         $differences['extra']['total_difference_in_seconds'] = $tt;
         $differences['extra']['end_higher_start'] = $invert;
-        $differences['extra']['startCoreDate'] = [
+        $differences['extra']['startDate'] = [
             'date' => $this->entry,
             'timestamp' => $start,
             'date_info' => $this->getInfo(),
         ];
-        $differences['extra']['endCoreDate'] = [
+        $differences['extra']['endDate'] = [
             'date' => $infos['date'],
             'timestamp' => $end,
             'date_info' => $infos,
@@ -466,7 +470,7 @@ class Date
      * @param bool $date
      * @param bool $hours
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     private function normalize($date = false, $hours = true)
     {
@@ -480,9 +484,6 @@ class Date
         }
         if (is_int($date)) {
             $date = date('Y/m/d H:i:s', $date);
-        }
-        if(gettype($date) == 'object'){
-            pre_clear_buffer_die($date);
         }
         $date = trim($date);
         if (!$date) {
@@ -524,7 +525,7 @@ class Date
         $c = str_replace(['-', '/'], ';', $nd[0]);
         $exp = explode(';', $c);
         if (count7($exp) != 3) {
-            throw new Exception('Invalid date string.');
+            throw new \Exception('Invalid date string.');
         }
 
         $gregorian = $this->isGregorian($exp);

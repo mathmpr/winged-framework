@@ -2,6 +2,12 @@
 
 namespace Winged\Database;
 
+use Winged\Database\Drivers\Cubrid;
+use Winged\Database\Drivers\Firebird;
+use Winged\Database\Drivers\MySQL;
+use Winged\Database\Drivers\PostgreSQL;
+use Winged\Database\Drivers\Sqlite;
+use Winged\Database\Drivers\SQLServer;
 use Winged\Error\Error;
 use Winged\WingedConfig;
 use Winged\Database\Types\PreparedMysqli;
@@ -12,7 +18,7 @@ use Winged\Database\Types\NormalPDO;
 class Database
 {
     /**
-     * @var $db mysqli | PDO
+     * @var $db \mysqli | \PDO
      */
     public $db = null;
     public $db_tables = [];
@@ -24,6 +30,10 @@ class Database
     public $driver = null;
     public $cleared = null;
     public $classes = null;
+    /**
+     * @var $queryStringHandler null | Cubrid | Firebird | MySQL | PostgreSQL | Sqlite | SQLServer
+     */
+    public $queryStringHandler = null;
 
     const SP_SHOW_TABLES = 'SHOW TABLES';
     const SP_DESC_TABLE = 'DESC TABLE';
@@ -46,14 +56,15 @@ class Database
 
         $this->classes = [
             "responsible_class" => [
-                USE_PREPARED_STMT => 'PreparedPDO',
-                NO_USE_PREPARED_STMT => 'NormalPDO',
+                USE_PREPARED_STMT => 'Winged\Database\Types\PreparedPDO',
+                NO_USE_PREPARED_STMT => 'Winged\Database\Types\NormalPDO',
             ],
         ];
 
         $this->cleared_drivers = [
             "cubrid" =>
                 [
+                    "handler" => "Winged\Database\Drivers\Cubrid",
                     "real_name" => "cubrid",
                     "object" => function () {
 
@@ -61,6 +72,7 @@ class Database
                 ],
             "firebird" =>
                 [
+                    "handler" => "Winged\Database\Drivers\Firebird",
                     "real_name" => "firebird",
                     "object" => function () {
 
@@ -68,6 +80,7 @@ class Database
                 ],
             "mysql" =>
                 [
+                    "handler" => "Winged\Database\Drivers\MySQL",
                     "real_name" => "mysql",
                     "object" => function ($args) {
                         /**
@@ -84,7 +97,9 @@ class Database
                         $dbname = $this->getRealDbname($dbname);
                         $port = $this->getRealPort($port);
                         try {
-                            return new \PDO(sprintf($this->drivers['mysql'], $host, $port, $dbname), $user, $password);
+                            $pdo = new \PDO(sprintf($this->drivers['mysql'], $host, $port, $dbname), $user, $password);
+                            $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, FALSE);
+                            return $pdo;
                         } catch (\PDOException $error) {
                             return $error->getMessage();
                         }
@@ -92,6 +107,7 @@ class Database
                 ],
             "sqlsrv" =>
                 [
+                    "handler" => "Winged\Database\Drivers\SQLServer",
                     "real_name" => "sqlsrv",
                     "object" => function () {
 
@@ -99,6 +115,7 @@ class Database
                 ],
             "pgsql" =>
                 [
+                    "handler" => "Winged\Database\Drivers\PostgreSQL",
                     "real_name" => "pgsql",
                     "object" => function () {
 
@@ -106,37 +123,12 @@ class Database
                 ],
             "sqlite" =>
                 [
+                    "handler" => "Winged\Database\Drivers\Sqlite",
                     "real_name" => "sqlite",
                     "object" => function ($dbname = false) {
                         $dbname = $this->getRealDbname($dbname);
                         try {
                             return new \PDO(sprintf($this->drivers['sqlite'], $dbname), null, null, [\PDO::ATTR_PERSISTENT => true]);
-                        } catch (\PDOException $error) {
-                            return $error->getMessage();
-                        }
-                    }
-                ],
-            "mysql_unix" =>
-                [
-                    "real_name" => "mysql",
-                    "object" => function ($args) {
-                        /**
-                         * @var $host string
-                         * @var $user string
-                         * @var $password string
-                         * @var $dbname string
-                         * @var $port string
-                         */
-                        extract($args);
-                        $exp = $this->drivers['mysql_unix'];
-                        $dns = 'mysql' . end($exp);
-                        $host = $this->getRealHost($host);
-                        $user = $this->getRealUser($user);
-                        $password = $this->getRealPassword($password);
-                        $dbname = $this->getRealDbname($dbname);
-                        $port = $this->getRealPort($port);
-                        try {
-                            return new \PDO(sprintf($dns, $host, $port, $dbname), $user, $password);
                         } catch (\PDOException $error) {
                             return $error->getMessage();
                         }
@@ -173,8 +165,24 @@ class Database
         $this->driver = $WCdriver;
         $exp = explode(':', $WCdriver);
         $this->cleared = array_shift($exp);
+        $handlerName = $this->cleared_drivers[$this->cleared]['handler'];
+        $this->queryStringHandler = new $handlerName();
 
         return $this;
+    }
+
+    public function isPdo(){
+        if($this->class === IS_MYSQLI){
+            return false;
+        }
+        return true;
+    }
+
+    public function isMysqli(){
+        if($this->class === IS_MYSQLI){
+            return true;
+        }
+        return false;
     }
 
     public function connect($args = [])
@@ -212,7 +220,6 @@ class Database
         if ($this->class === IS_MYSQLI) {
             try {
                 $this->db = new \mysqli($host, $user, $password, $dbname, $port);
-                $this->db->query('set names ' . WingedConfig::$DATABASE_CHARSET);
             } catch (\mysqli_sql_exception $error) {
                 $this->db = $error->getMessage();
             }
@@ -226,7 +233,6 @@ class Database
         } else if ($this->class === IS_PDO) {
             $this->db = call_user_func_array($this->cleared_drivers[$this->cleared]['object'], ['args' => $vars]);
             if ($this->analyze_error()) {
-                $this->db->exec('set names ' . WingedConfig::$DATABASE_CHARSET);
                 $reflection = new \ReflectionClass($this->classes['responsible_class'][WingedConfig::$USE_PREPARED_STMT]);
                 $this->abstract = $reflection->newInstanceArgs([$this->db]);
             }
@@ -240,14 +246,16 @@ class Database
             Error::display(__LINE__, __FILE__);
         }
 
+        if ($this->nickname !== false) {
+            Connections::newDb($this, $this->nickname, true);
+        }
+
+        $this->queryStringHandler->setNames();
+
         if (WingedConfig::$USE_PREPARED_STMT) {
             $this->db_tables = $this->sp(Database::SP_SHOW_TABLES, []);
         } else {
             $this->db_tables = $this->sp(Database::SP_SHOW_TABLES);
-        }
-
-        if ($this->nickname !== false) {
-            Connections::newDb($this, $this->nickname);
         }
 
         return $this;

@@ -9,13 +9,13 @@ use Winged\WingedConfig;
 class PreparedMysqli
 {
 
-    /** @var $refer mysqli */
+    /** @var $refer \mysqli */
     private $refer = null;
 
-    /** @var $last_stmt mysqli_stmt */
+    /** @var $last_stmt \mysqli_stmt */
     public $last_stmt = null;
 
-    /** @var $last_result mysqli_result */
+    /** @var $last_result \mysqli_result */
     public $last_result = null;
 
     public function __construct(\mysqli $db)
@@ -29,7 +29,7 @@ class PreparedMysqli
         if ($stmt === false) {
             return $this->refer->error;
         }
-        if ($this->bind_param($stmt, $args)) {
+        if (empty($args)) {
             $ret = false;
             try {
                 $ret = $stmt->execute();
@@ -38,6 +38,17 @@ class PreparedMysqli
             }
             $this->last_stmt = $ret !== false && $ret !== null ? $stmt : false;
             return $ret !== false && $ret !== null ? true : false;
+        } else {
+            if ($this->bind_param($stmt, $args)) {
+                $ret = false;
+                try {
+                    $ret = $stmt->execute();
+                } catch (\mysqli_sql_exception $error) {
+                    Error::push(__CLASS__, "DB error: " . $error->getMessage(), __FILE__, __LINE__);
+                }
+                $this->last_stmt = $ret !== false && $ret !== null ? $stmt : false;
+                return $ret !== false && $ret !== null ? true : false;
+            }
         }
         return false;
     }
@@ -177,7 +188,7 @@ class PreparedMysqli
     }
 
     /**
-     * @param $stmt mysqli_stmt
+     * @param $stmt \mysqli_stmt
      * @param $args array
      * @return bool
      */

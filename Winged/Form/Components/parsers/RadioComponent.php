@@ -23,6 +23,8 @@ class RadioComponent extends ComponentParser{
          * @var $elementOptions array
          * @var $isArray bool
          */
+        $classEnd = explode('\\', $class);
+        $classEnd = end($classEnd);
         $this->reset();
         if (($data = array_key_exists_check('values', $inputOptions))) {
             $count = 0;
@@ -45,8 +47,8 @@ class RadioComponent extends ComponentParser{
                     $this->DOM
                         ->query('.radio')
                         ->append('<div>
-                                              <input name="' . $class . '[' . $property . ']' . $isArray . '" id="' . $class . '_' . $property . '_' . $count . '" value="' . $key . '" type="radio" ' . $selected . '>
-                                              <label for="' . $class . '_' . $property . '_' . $count . '">
+                                              <input name="' . $class . '[' . $property . ']' . $isArray . '" id="' . $classEnd . '_' . $property . '_' . $count . '" value="' . $key . '" type="radio" ' . $selected . '>
+                                              <label for="' . $classEnd . '_' . $property . '_' . $count . '">
                                                   <span></span>' . $cla . '
                                               </label>
                                           </div>');
@@ -62,7 +64,7 @@ class RadioComponent extends ComponentParser{
             }
         }
 
-        $this->addOptions($this->DOM->query('html *')[0], $inputOptions);
+        $this->addOptions($this->DOM->query('html *')[0], $elementOptions);
     }
 
     public function reset(){

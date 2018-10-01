@@ -2,6 +2,7 @@
 
 namespace Winged\Image;
 
+use Winged\Directory\Directory;
 use Winged\File\File;
 use Winged\Buffer\Buffer;
 
@@ -115,7 +116,7 @@ class Image extends File
     public function save($quality = 100)
     {
         if ($this->original && !$this->exists()) {
-            return $this;
+            parent::__construct($this->file_path, true);
         }
         if ($this->original) {
             switch ($this->getExtension()) {
@@ -356,7 +357,7 @@ class Image extends File
     public function merge(Image $image, $appendX = 0, $appendY = 0, $return = false)
     {
         if (is_object($image)) {
-            if (get_class($image) === 'Image') {
+            if (get_class($image) === get_class($this)) {
                 if ($image->original && $this->original) {
                     if ($appendX >= $this->width()) {
                         $appendX = $this->width();
@@ -513,7 +514,7 @@ class Image extends File
         if ($this->file_path != null && is_string($to)) {
             $file = explode('/', $this->file_path);
             $file = end($file);
-            $folder = new CoreDirectory($to);
+            $folder = new Directory($to);
             if ($folder->exists()) {
                 $to = $folder->folder . $file;
                 copy($this->file_path, $to);

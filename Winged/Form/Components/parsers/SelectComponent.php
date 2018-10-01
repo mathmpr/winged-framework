@@ -25,13 +25,15 @@ class SelectComponent extends ComponentParser{
          * @var $isArray bool
          */
         $this->reset();
+        $classEnd = explode('\\', $class);
+        $classEnd = end($classEnd);
         if ($isArray) {
             $this->DOM->query('select')->attr('name', $class . '[' . $property . '][]');
         } else {
             $this->DOM->query('select')->attr('name', $class . '[' . $property . ']');
         }
-        $this->DOM->query('select')->attr('id', $class . '_' . $property);
-        $this->DOM->query('select')[0]->parent->parent->query('label')->attr('for', $class . '_' . $property);
+        $this->DOM->query('select')->attr('id', $classEnd . '_' . $property);
+        $this->DOM->query('select')[0]->parent->parent->query('label')->attr('for', $classEnd . '_' . $property);
 
         if (method_exists($class, 'labels')) {
             $labels = $obj->labels();
@@ -53,7 +55,7 @@ class SelectComponent extends ComponentParser{
         }
 
         $this->addOptions($this->DOM->query('select'), $inputOptions);
-        $this->addOptions($this->DOM->query('html *')[0], $inputOptions);
+        $this->addOptions($this->DOM->query('html *')[0], $elementOptions);
 
     }
 

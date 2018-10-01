@@ -13,20 +13,19 @@ class Connections
      */
     public static function init($nickname = 'winged')
     {
-        self::$connections[$nickname] = (new Database())->connect();
-        self::$connections[$nickname]->nickname = $nickname;
-        CurrentDB::$current = self::$connections[$nickname];
+        (new Database(false, false, $nickname))->connect();
     }
 
     /**
      * @param string $key
-     * @return Database
+     * @return Database | bool
      */
     public static function getDb($key = '')
     {
         if (array_key_exists($key, self::$connections)) {
             return self::$connections[$key];
         }
+        return false;
     }
 
     /**
@@ -37,7 +36,7 @@ class Connections
     public static function setCurrent($key = '')
     {
         if (array_key_exists($key, self::$connections)) {
-            if (get_class(self::$connections[$key]) == 'Database') {
+            if (get_class(self::$connections[$key]) == 'Winged\Database\Database') {
                 if (isset(self::$connections[$key])) {
                     self::$default = $key;
                     CurrentDB::$current = self::$connections[$key];

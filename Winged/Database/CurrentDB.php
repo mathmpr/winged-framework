@@ -2,6 +2,8 @@
 
 namespace Winged\Database;
 
+use Winged\WingedConfig;
+
 class CurrentDB
 {
     /**
@@ -40,6 +42,21 @@ class CurrentDB
             return true;
         }
         return false;
+    }
+
+    public static function lastError()
+    {
+        if (self::$current->isMysqli()) {
+            if (self::$current->abstract->last_stmt->error) {
+                return self::$current->abstract->last_stmt->error;
+            }
+            return false;
+        } else {
+            if (self::$current->abstract->last_stmt->errorInfo()) {
+                return self::$current->abstract->last_stmt->errorInfo();
+            }
+            return false;
+        }
     }
 
 }

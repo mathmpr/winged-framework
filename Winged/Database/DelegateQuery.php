@@ -123,10 +123,6 @@ class DelegateQuery extends QueryBuilder
 
     private function realValueOf($array)
     {
-        $reverse = [];
-        if (method_exists($this, 'reverseBehaviors')) {
-            $reverse = $this->reverseBehaviors();
-        }
         if (is_array($array)) {
             if (array_key_exists(0, $array)) {
                 foreach ($array as $key => $uni) {
@@ -134,13 +130,22 @@ class DelegateQuery extends QueryBuilder
                         $type = $this->returnMysqlType($_key);
                         if ($type['type'] == 'i') {
                             $array[$key][$_key] = (int)($u);
+                            $this->{$_key} = $array[$key][$_key];
                         } else if ($type['type'] == 'd') {
                             $array[$key][$_key] = (float)($u);
+                            $this->{$_key} = $array[$key][$_key];
                         } else {
                             if (WingedConfig::$USE_PREPARED_STMT !== USE_PREPARED_STMT) {
                                 $array[$key][$_key] = stripslashes((string)$u);
                             }
                             $array[$key][$_key] = $this->getRealValue($array[$key][$_key], $type['key']);
+                            $this->{$_key} = $array[$key][$_key];
+                        }
+
+                        $reverse = [];
+
+                        if (method_exists($this, 'reverseBehaviors')) {
+                            $reverse = $this->reverseBehaviors();
                         }
 
                         if (array_key_exists($_key, $reverse)) {
@@ -170,13 +175,22 @@ class DelegateQuery extends QueryBuilder
                     $type = $this->returnMysqlType($_key);
                     if ($type['type'] === 'i') {
                         $array[$_key] = (int)($u);
+                        $this->{$_key} = $array[$_key];
                     } else if ($type['type'] === 'd') {
                         $array[$_key] = (float)($u);
+                        $this->{$_key} = $array[$_key];
                     } else {
                         if (WingedConfig::$USE_PREPARED_STMT !== USE_PREPARED_STMT) {
                             $array[$_key] = stripslashes((string)$u);
                         }
                         $array[$_key] = $this->getRealValue($array[$_key], $type['key']);
+                        $this->{$_key} = $array[$_key];
+                    }
+
+                    $reverse = [];
+
+                    if (method_exists($this, 'reverseBehaviors')) {
+                        $reverse = $this->reverseBehaviors();
                     }
 
                     if (array_key_exists($_key, $reverse)) {
@@ -207,21 +221,21 @@ class DelegateQuery extends QueryBuilder
 
     private function realInsert()
     {
-        $args = $this->delegate()->getQueryInfo();
-        if (!empty($args['args']) && $args['args'] != null && $args['args'] != false) {
+        if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+            $args = $this->delegate()->getQueryInfo();
             return CurrentDB::insert($args['query'], $args['args']);
-        } else {
-            return CurrentDB::insert($args['query']);
+        }else{
+            return CurrentDB::insert($this->delegate()->query());
         }
     }
 
     private function realExecute()
     {
-        $args = $this->delegate()->getQueryInfo();
-        if (!empty($args['args']) && $args['args'] != null && $args['args'] != false) {
+        if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+            $args = $this->delegate()->getQueryInfo();
             return CurrentDB::execute($args['query'], $args['args']);
-        } else {
-            return CurrentDB::execute($args['query']);
+        }else{
+            return CurrentDB::execute($this->delegate()->query());
         }
     }
 

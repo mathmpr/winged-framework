@@ -58,8 +58,10 @@ class WingedLib
             if ($str[0] == "/") {
                 $str = substr_replace($str, '', 0, 1);
             }
-            if ($str[strlen($str) - 1] == "/") {
-                $str = substr_replace($str, '', strlen($str) - 1, 1);
+            if(strlen($str) > 0){
+                if ($str[strlen($str) - 1] == "/") {
+                    $str = substr_replace($str, '', strlen($str) - 1, 1);
+                }
             }
             if (trim($str) != "") {
                 return explode("/", trim($str));

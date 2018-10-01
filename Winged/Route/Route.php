@@ -216,6 +216,7 @@ class Route
             '_401' => false,
             '_502' => false,
             'valid' => false,
+            'rules' => [],
             'createSessionOptions' => [],
             'errors' => [
                 'rule' => []

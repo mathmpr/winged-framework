@@ -1484,9 +1484,15 @@ class DomNode implements IQuery
         $f = $this->findAttribute($attr, $compare, $case_sensitive);
         if (is_array($f) && $f) {
             foreach ($f as $a) {
+                if(is_array($val)){
+                    $val = '';
+                }
                 $this->attributes[$a[2]] = (string)$val;
             }
         } else {
+            if(is_array($val)){
+                $val = '';
+            }
             $this->attributes[$attr] = (string)$val;
         }
     }

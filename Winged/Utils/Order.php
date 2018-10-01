@@ -2,6 +2,8 @@
 
 namespace Winged\Utils;
 
+use Winged\Date\Date;
+
 class Order
 {
 
@@ -21,7 +23,7 @@ class Order
                     return new Order($all);
                 }
                 if (is_object($all[0])) {
-                    if (is_subclass_of($all[0], 'Model')) {
+                    if (is_subclass_of($all[0], 'Winged\Model\Model')) {
                         return new Order($all);
                     }
                 }
@@ -38,14 +40,16 @@ class Order
     public function __construct($results)
     {
         $this->results = $results;
-        if (is_array($this->results[0])) {
-            $this->type = 'array';
-            foreach ($this->results[0] as $key => $value) {
-                $this->fields[] = $key;
+        if (!is_null($this->results)) {
+            if (is_array($this->results[0])) {
+                $this->type = 'array';
+                foreach ($this->results[0] as $key => $value) {
+                    $this->fields[] = $key;
+                }
+            } else {
+                $this->type = 'object';
+                $this->fields = $this->results[0]->getTableFields();
             }
-        } else {
-            $this->type = 'object';
-            $this->fields = $this->results[0]->getTableFields();
         }
     }
 
@@ -86,11 +90,12 @@ class Order
 
     private function executeArray()
     {
+
         $results = $this->results;
         $orders = $this->orders;
         $ordersCount = is_array($orders) ? count7($orders) : 0;
         $groups = [];
-        if($ordersCount === 0){
+        if ($ordersCount === 0 || count7($results) === 1) {
             $this->results = $results;
             return;
         }
@@ -159,6 +164,7 @@ class Order
                     $groups[$grouped][] = $remake_result;
                 }
             }
+            $ordersCount = is_array($orders) ? count7($orders) : 0;
         }
         $merged = [];
         foreach ($groups as $group) {
@@ -173,7 +179,7 @@ class Order
         $orders = $this->orders;
         $ordersCount = is_array($orders) ? count7($orders) : 0;
         $groups = [];
-        if($ordersCount === 0){
+        if ($ordersCount === 0 || count7($results) === 1) {
             $this->results = $results;
             return;
         }
@@ -190,7 +196,20 @@ class Order
                     $new_group = [];
                     $grouped = 0;
                     foreach ($group as $key_z => $result) {
-                        $filter[$key_z] = $result->{$field};
+                        $value = $result->{$field};
+                        if(is_object($value)){
+                            switch (get_class($value)){
+                                case 'Winged\Date\Date':
+                                    /**
+                                     * @var $value Date
+                                     */
+                                    $value = $value->timestamp();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        $filter[$key_z] = $value;
                     }
                     if ($direction === 'asc') {
                         asort($filter);
@@ -218,7 +237,20 @@ class Order
             } else {
                 $filter = [];
                 foreach ($results as $key => $result) {
-                    $filter[$key] = $result->{$field};
+                    $value = $result->{$field};
+                    if(is_object($value)){
+                        switch (get_class($value)){
+                            case 'Winged\Date\Date':
+                                /**
+                                 * @var $value Date
+                                 */
+                                $value = $value->timestamp();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    $filter[$key] = $value;
                 }
                 if ($direction === 'asc') {
                     asort($filter);
@@ -242,6 +274,7 @@ class Order
                     $groups[$grouped][] = $remake_result;
                 }
             }
+            $ordersCount = is_array($orders) ? count7($orders) : 0;
         }
         $merged = [];
         foreach ($groups as $group) {

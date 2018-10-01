@@ -105,23 +105,23 @@ class Winged
         self::$controller_page = $controller_info['controller'];
         self::$controller_action = $controller_info['action'];
 
-        if (file_exists(self::$route_dir) && is_directory(self::$route_dir)) {
-            if (file_exists(self::$routed_file)) {
-                include_once self::$routed_file;
-                RouteExec::execute();
-            }
-        }
-
         $before = false;
         if (Container::$self->methodExists('beforeSearchController')) {
             $before = Container::$self->beforeSearchController();
         }
+
         if ($before === false || $before === null) {
             $before = false;
             $found = self::$controller->find();
             if (!$found) {
                 if (Container::$self->methodExists('whenControllerNotFound')) {
                     $before = Container::$self->whenControllerNotFound();
+                }
+                if (file_exists(self::$route_dir) && is_directory(self::$route_dir)) {
+                    if (file_exists(self::$routed_file)) {
+                        include_once self::$routed_file;
+                        RouteExec::execute();
+                    }
                 }
                 if ($before === false || $before === null) {
                     RouteExec::sendErrorResponse();
@@ -349,12 +349,18 @@ class Winged
 
     public static function post()
     {
-        return $_POST;
+        if ($_POST) {
+            return $_POST;
+        }
+        return [];
     }
 
     public static function get()
     {
-        return $_GET;
+        if ($_GET) {
+            return $_GET;
+        }
+        return [];
     }
 
     public static function initialJs()
