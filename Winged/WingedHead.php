@@ -17,7 +17,6 @@ class WingedHead
 {
     public static function init()
     {
-
         if (file_exists('./winged.globals.php')) {
             include_once './winged.globals.php';
         }
@@ -32,7 +31,7 @@ class WingedHead
         define("ROOT_ROUTES_PAGE_NAME", 2);
         define("PARENT_ROUTES_ROUTE_PHP", 3);
         define("ROOT_ROUTES_ROUTE_PHP", 4);
- 
+
         define("USE_PREPARED_STMT", true);
         define("NO_USE_PREPARED_STMT", false);
         define("IS_PDO", "PDO");
@@ -142,6 +141,19 @@ class WingedHead
             if (file_exists(Winged::$parent . "models/" . $className . ".php")) {
                 include_once Winged::$parent . "models/" . $className . ".php";
             }
+            if (!is_null(WingedConfig::$INCLUDES)) {
+                if (gettype(WingedConfig::$INCLUDES) == "array") {
+                    for ($x = 0; $x < count7(WingedConfig::$INCLUDES); $x++) {
+                        if (file_exists(WingedConfig::$INCLUDES[$x] . "models/" . $className . ".php")) {
+                            include_once WingedConfig::$INCLUDES[$x] . "models/" . $className . ".php";
+                        }
+                    }
+                } else {
+                    if (file_exists(WingedConfig::$INCLUDES . "models/" . $className . ".php")) {
+                        include_once WingedConfig::$INCLUDES . "models/" . $className . ".php";
+                    }
+                }
+            }
         });
 
         Microtime::init();
@@ -173,16 +185,6 @@ class WingedHead
                 date_default_timezone_set(WingedConfig::$TIMEZONE);
             } else {
                 date_default_timezone_set("Brazil/West");
-            }
-
-            if (!is_null(WingedConfig::$INCLUDES)) {
-                if (gettype(WingedConfig::$INCLUDES) == "array") {
-                    for ($x = 0; $x < count7(WingedConfig::$INCLUDES); $x++) {
-                        include_once WingedConfig::$INCLUDES[$x];
-                    }
-                } else {
-                    include_once WingedConfig::$INCLUDES;
-                }
             }
         }
 
