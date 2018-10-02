@@ -7,5 +7,3 @@
 \Winged\Utils\Container::$self->attach('beforeSearchController', function(){
     return null;
 });
-
-//Teste
