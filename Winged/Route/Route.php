@@ -58,7 +58,7 @@ class Route
 
     /**
      * if use this method, basci auth is required in request for this route
-     * @param string $user
+     * @param string | callable $user
      * @param string $password
      * @return $this
      */
@@ -66,7 +66,13 @@ class Route
     {
         $current = false;
         if (server('php_auth_user') && server('php_auth_pw')) {
-            if (!server('php_auth_user') === $user || !server('php_auth_pw') === $password) {
+            if (is_string($user)) {
+                if (!server('php_auth_user') === $user || !server('php_auth_pw') === $password) {
+                    $current = true;
+                }
+            } else if (is_callable($user)) {
+                $current = call_user_func_array($user, [server('php_auth_user'), server('php_auth_pw')]);
+            } else {
                 $current = true;
             }
         } else {

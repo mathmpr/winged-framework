@@ -20,7 +20,7 @@ class RouteExec extends Route
 {
     public static function sendErrorResponse()
     {
-        if (!empty(self::$response)) {
+        if (!empty(self::$response) && !empty($routes)) {
             Error::clear();
             Buffer::kill();
             header_remove();
@@ -82,6 +82,7 @@ class RouteExec extends Route
             }
             exit;
         }
+        return false;
     }
 
     /**

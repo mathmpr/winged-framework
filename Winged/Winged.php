@@ -2,7 +2,10 @@
 
 namespace Winged;
 
+use Winged\Buffer\Buffer;
 use Winged\Controller\Controller;
+use Winged\Error\Error;
+use Winged\File\File;
 use Winged\Route\RouteExec;
 use Winged\Utils\WingedLib;
 use Winged\Utils\Container;
@@ -125,6 +128,16 @@ class Winged
                 }
                 if ($before === false || $before === null) {
                     RouteExec::sendErrorResponse();
+                }
+                $file = new File(WingedConfig::$NOTFOUND, false);
+                if ($file->exists()) {
+                    Buffer::reset();
+                    include_once WingedConfig::$NOTFOUND;
+                    Buffer::flushKill();
+                    exit;
+                } else {
+                    Error::_die('END_OF_EXECUTION', 'Nothing exists. Controller no exists, action no exists, routes not found and [Not found] file not exists.', __LINE__, __FILE__, __LINE__);
+
                 }
             }
         }
@@ -367,6 +380,7 @@ class Winged
     {
         return '<script>
                     window.protocol = "' . Winged::$protocol . '"; 
+                    window.parent = "' . Winged::$parent . '"; 
                     window.page_surname = "' . Winged::$page_surname . '"; 
                     window.uri = "' . Winged::$uri . '"; 
                     window.controller_params = JSON.parse(\'' . json_encode(Winged::$controller_params) . '\'); 
