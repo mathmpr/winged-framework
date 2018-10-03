@@ -156,6 +156,14 @@ class WingedHead
             }
         });
 
+        spl_autoload_register(function ($className) {
+            $className = explode('\\', $className);
+            $className = end($className);
+            if (file_exists("./autoload/" . $className . ".php")) {
+                include_once "./autoload/" . $className . ".php";
+            }
+        });
+
         Microtime::init();
 
         Buffer::start();
