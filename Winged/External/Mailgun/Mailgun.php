@@ -42,7 +42,7 @@ class Mailgun
             'mailbox_verification' => true,
         ], [
             'type' => 'get',
-            'accept' => Request::$ACCEPT_JSON
+            'accept' => Request::ACCEPT_JSON
         ], false);
         return $this->resquest->send()->output();
     }
@@ -56,7 +56,7 @@ class Mailgun
         $this->clear();
         $this->resquest = new Request($this->buildBase() . 'messages', $params, [
             'type' => 'post',
-            'accept' => Request::$ACCEPT_JSON
+            'accept' => Request::ACCEPT_JSON
         ], false);
         return $this->resquest->send()->output();
     }
@@ -70,7 +70,7 @@ class Mailgun
         $this->clear();
         $this->resquest = new Request($this->buildStdBase() . 'domains/' . $this->domain . '/webhooks', [], [
             'type' => 'get',
-            'accept' => Request::$ACCEPT_JSON
+            'accept' => Request::ACCEPT_JSON
         ], false);
         $response = $this->resquest->send();
         if ($webhook_name && $response->ok()) {

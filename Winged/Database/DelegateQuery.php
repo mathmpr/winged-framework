@@ -2,8 +2,8 @@
 
 namespace Winged\Database;
 
+use Winged\Error\Error;
 use Winged\WingedConfig;
-use Winged\Winged;
 use Winged\Date\Date;
 use Winged\Model\Model;
 
@@ -20,12 +20,12 @@ class DelegateQuery extends QueryBuilder
     protected $table_fields = [];
     protected $loaded_fields = [];
     protected $safe_fields = [];
-    protected $old_values = [];
+    protected $before_values = [];
     protected $change_in_last_update = false;
     protected $reverse = false;
     protected $from_db = false;
     protected $is_new = true;
-    protected $old_value_loaded = false;
+    protected $before_values_loaded = false;
 
     public function execute()
     {
@@ -135,7 +135,7 @@ class DelegateQuery extends QueryBuilder
                             $array[$key][$_key] = (float)($u);
                             $this->{$_key} = $array[$key][$_key];
                         } else {
-                            if (WingedConfig::$USE_PREPARED_STMT !== USE_PREPARED_STMT) {
+                            if (WingedConfig::$config->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
                                 $array[$key][$_key] = stripslashes((string)$u);
                             }
                             $array[$key][$_key] = $this->getRealValue($array[$key][$_key], $type['key']);
@@ -180,7 +180,7 @@ class DelegateQuery extends QueryBuilder
                         $array[$_key] = (float)($u);
                         $this->{$_key} = $array[$_key];
                     } else {
-                        if (WingedConfig::$USE_PREPARED_STMT !== USE_PREPARED_STMT) {
+                        if (WingedConfig::$config->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
                             $array[$_key] = stripslashes((string)$u);
                         }
                         $array[$_key] = $this->getRealValue($array[$_key], $type['key']);
@@ -221,7 +221,7 @@ class DelegateQuery extends QueryBuilder
 
     private function realInsert()
     {
-        if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $args = $this->delegate()->getQueryInfo();
             return CurrentDB::insert($args['query'], $args['args']);
         }else{
@@ -231,7 +231,7 @@ class DelegateQuery extends QueryBuilder
 
     private function realExecute()
     {
-        if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $args = $this->delegate()->getQueryInfo();
             return CurrentDB::execute($args['query'], $args['args']);
         }else{
@@ -241,7 +241,7 @@ class DelegateQuery extends QueryBuilder
 
     private function fetch()
     {
-        if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $args = $this->delegate()->getQueryInfo();
             return CurrentDB::fetch($args['query'], $args['args']);
         } else {
@@ -256,7 +256,7 @@ class DelegateQuery extends QueryBuilder
             if ($as_array) {
                 return $this->realValueOf($unic);
             }
-            $models = array();
+            $models = [];
             $unic = $this->realValueOf($unic);
             foreach ($unic as $key => $value) {
                 $models[] = $this->populateModel($this->getNewObjectType(), $value);
@@ -269,7 +269,7 @@ class DelegateQuery extends QueryBuilder
     public function count()
     {
         $cloned = clone $this;
-        if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $query = $cloned->delegate()->getQueryInfo();
             $count = CurrentDB::count($query['query'], $query['args']);
         } else {
@@ -297,113 +297,6 @@ class DelegateQuery extends QueryBuilder
                 return $this->realValueOf($unic);
             }
             return $this->populateModel($this->getNewObjectType(), $this->realValueOf($unic));
-        }
-        return null;
-    }
-
-    public function orSimpleFindOne($where_arr = [], $as_array = false)
-    {
-        return $this->simpleFindOne($where_arr, 'or', $as_array);
-    }
-
-    public function orSimpleFindAll($where_arr = [], $as_array = false)
-    {
-        return $this->simpleFindAll($where_arr, 'or', $as_array);
-    }
-
-    public function andSimpleFindOne($where_arr = [], $as_array = false)
-    {
-        return $this->simpleFindOne($where_arr, 'and', $as_array);
-    }
-
-    public function andSimpleFindAll($where_arr = [], $as_array = false)
-    {
-        return $this->simpleFindAll($where_arr, 'and', $as_array);
-    }
-
-    private function simpleFindAll($where_arr = [], $type, $as_array = false)
-    {
-        /**
-         * @var $obj Model
-         * @var $this Model
-         */
-        $obj = $this->getNewObjectType();
-        $alias = randid();
-
-        $obj->select()
-            ->from(array($alias => $obj->tN($obj)));
-
-        $first = true;
-
-        foreach ($where_arr as $key => $value) {
-            if ($first) {
-                $obj->where(DbDict::EQUAL, [$alias . '.' . $key => $value]);
-            } else {
-                if ($type == 'and') {
-                    $obj->andWhere(DbDict::EQUAL, [$alias . '.' . $key => $value]);
-                } else {
-                    $obj->orWhere(DbDict::EQUAL, [$alias . '.' . $key => $value]);
-                }
-            }
-        }
-
-        $unic = $obj->fetch();
-
-        if ($as_array) {
-            if (count7($unic) > 0 && is_array($unic)) {
-                return $this->realValueOf($unic);
-            }
-            return null;
-        }
-
-        if (count7($unic) > 0 && is_array($unic)) {
-            $unic = $this->realValueOf($unic);
-            $models = array();
-            foreach ($unic as $key => $value) {
-                $models[] = $this->populateModel($this->getNewObjectType(), $value);
-            }
-            return $models;
-        }
-        return null;
-    }
-
-    private function simpleFindOne($where_arr = [], $type, $as_array = false)
-    {
-        /**
-         * @var $obj Model
-         * @var $this Model
-         */
-        $obj = $this->getNewObjectType();
-        $alias = randid();
-        $obj->select()
-            ->from(array($alias => $obj->tN($obj)));
-
-        $first = true;
-
-        foreach ($where_arr as $key => $value) {
-            if ($first) {
-                $obj->where(DbDict::EQUAL, [$alias . '.' . $key => $value]);
-            } else {
-                if ($type == 'and') {
-                    $obj->andWhere(DbDict::EQUAL, [$alias . '.' . $key => $value]);
-                } else {
-                    $obj->orWhere(DbDict::EQUAL, [$alias . '.' . $key => $value]);
-                }
-            }
-        }
-
-        if ($as_array) {
-            $unic = $obj->fetch();
-            if (count7($unic) > 0 && is_array($unic)) {
-                $unic = $unic[0];
-                return $this->realValueOf($unic);
-            }
-            return null;
-        }
-        $unic = $obj->fetch();
-        if (count7($unic) > 0 && is_array($unic)) {
-            $unic = $this->realValueOf($unic[0]);
-            return $this->populateModel($obj, $unic);
         }
         return null;
     }
@@ -445,7 +338,7 @@ class DelegateQuery extends QueryBuilder
         $obj = $this->getNewObjectType();
         $alias = randid();
         $obj->select()
-            ->from(array($alias => $obj->tN($obj)));
+            ->from([$alias => $obj->tN($obj)]);
         $unic = $obj->fetch();
         if ($as_array) {
             if (count7($unic) > 0 && is_array($unic)) {
@@ -454,7 +347,7 @@ class DelegateQuery extends QueryBuilder
             return null;
         }
         if (count7($unic) > 0 && is_array($unic)) {
-            $models = array();
+            $models = [];
             $unic = $this->realValueOf($unic);
             foreach ($unic as $key => $value) {
                 $models[] = $this->populateModel($this->getNewObjectType(), $value);
@@ -478,8 +371,8 @@ class DelegateQuery extends QueryBuilder
         $obj = $this->getNewObjectType();
         $alias = randid();
         $obj->select()
-            ->from(array($alias => $obj->tN($obj)))
-            ->where(DbDict::EQUAL, array($alias . '.' . $obj->fK($obj) => $id));
+            ->from([$alias => $obj->tN($obj)])
+            ->where(DbDict::EQUAL, [$alias . '.' . $obj->fK($obj) => $id]);
         if ($as_array) {
             $unic = $obj->fetch();
             if (count7($unic) > 0 && is_array($unic)) {
@@ -503,15 +396,15 @@ class DelegateQuery extends QueryBuilder
             $type = $this->returnMysqlType($key);
             if (property_exists($class_name, $lkey)) {
                 //$obj->{$lkey} = $this->getRealValue($value, $type['key']);
-                //$obj->old_values[$lkey] = $this->getRealValue($value, $type['key']);
+                //$obj->before_values[$lkey] = $this->getRealValue($value, $type['key']);
                 $obj->{$lkey} = $value;
-                $obj->old_values[$lkey] = $value;
+                $obj->before_values[$lkey] = $value;
             } else {
                 //$obj->extras->{$lkey} = $this->getRealValue($value, $type['key']);
                 $obj->extras->{$lkey} = $value;
             }
         }
-        $obj->old_values['extras'] = $obj->extras;
+        $obj->before_values['extras'] = $obj->extras;
         return $obj;
     }
 
@@ -594,18 +487,18 @@ class DelegateQuery extends QueryBuilder
 
     private function destroyQuery()
     {
-        $this->select_arr = array();
+        $this->select_arr = [];
         $this->from_arr = '';
-        $this->inner_arr = array();
-        $this->left_arr = array();
-        $this->right_arr = array();
-        $this->having_arr = array();
-        $this->group_arr = array();
-        $this->where_order = array();
+        $this->inner_arr = [];
+        $this->left_arr = [];
+        $this->right_arr = [];
+        $this->having_arr = [];
+        $this->group_arr = [];
+        $this->where_order = [];
         $this->distinct_var = false;
-        $this->order_bys = array();
-        $this->limit_arr = array();
-        $this->main_alias = array();
+        $this->order_bys = [];
+        $this->limit_arr = [];
+        $this->main_alias = [];
         $this->query = '';
         $this->command = false;
         $this->into_arr = false;
@@ -627,7 +520,7 @@ class DelegateQuery extends QueryBuilder
             $this->last_query_key = randid();
         }
 
-        $this->queries[$this->last_query_key] = array(
+        $this->queries[$this->last_query_key] = [
             'select_arr' => $this->select_arr,
             'from_arr' => $this->from_arr,
             'inner_arr' => $this->inner_arr,
@@ -649,7 +542,7 @@ class DelegateQuery extends QueryBuilder
             'set_arr' => $this->set_arr,
             'values_arr' => $this->values_arr,
             'prepared_args' => $this->prepared_args,
-        );
+        ];
 
         $this->destroyQuery();
 
@@ -878,7 +771,7 @@ class DelegateQuery extends QueryBuilder
 
     private function addPrepared($type, $value)
     {
-        if (WingedConfig::$STD_DB_CLASS === IS_MYSQLI) {
+        if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
             if (!array_key_exists(0, $this->prepared_args)) {
                 $this->prepared_args[0] = '';
             }
@@ -903,11 +796,11 @@ class DelegateQuery extends QueryBuilder
         $field = explode('.', $field);
         $field = trim(array_pop($field));
 
-        if (!is_object($value) && WingedConfig::$USE_PREPARED_STMT !== USE_PREPARED_STMT) {
+        if (!is_object($value) && WingedConfig::$config->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
             $value = rtrim(addslashes($value), '/');
         }
 
-        if (WingedConfig::$STD_DB_CLASS === IS_MYSQLI) {
+        if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
             if (!array_key_exists_check($field, $this->table_info)) {
                 $type = ['type' => 's', 'key' => 's_s'];
             } else {
@@ -969,7 +862,7 @@ class DelegateQuery extends QueryBuilder
                 $first = true;
                 foreach ($this->update_arr as $key => $value) {
                     if (!CurrentDB::tableExists($value)) {
-                        Winged::fatalError(__CLASS__, "Table " . $key . " no exists in database " . WingedConfig::$DBNAME, true);
+                        Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->DBNAME, __LINE__, __FILE__, __LINE__);
                     }
                     if ($first) {
                         if (is_int($key)) {
@@ -994,7 +887,7 @@ class DelegateQuery extends QueryBuilder
                 $first = true;
                 foreach ($this->delete_arr as $key => $value) {
                     if (!CurrentDB::tableExists($value)) {
-                        Winged::fatalError(__CLASS__, "Table " . $key . " no exists in database " . WingedConfig::$DBNAME, true);
+                        Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->DBNAME, __LINE__, __FILE__, __LINE__);
                     }
                     if ($first) {
                         if (is_int($key)) {
@@ -1123,8 +1016,8 @@ class DelegateQuery extends QueryBuilder
     {
         $prepared = [];
         if ($this->fkValue($this) != null) {
-            if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                if (WingedConfig::$STD_DB_CLASS === IS_MYSQLI) {
+            if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
                     $prepared[] = 's';
                 }
                 $prepared[] = $this->fkValue($this);
@@ -1152,7 +1045,7 @@ class DelegateQuery extends QueryBuilder
             foreach ($this->loaded_fields as $key => $field) {
                 if (!in_array($field, $this->safe_fields) && $this->{$field} !== null) {
                     if ($field != $this->fK($this)) {
-                        if ($this->{$field} !== $this->getOldValue($field)) {
+                        if ($this->{$field} !== $this->getBeforeValue($field)) {
                             if(is_object($this->{$field})){
                                 if(get_class($this->{$field}) === 'Winged\Date\Date'){
                                     $real_load[$field] = $this->{$field}->sql();
@@ -1166,7 +1059,7 @@ class DelegateQuery extends QueryBuilder
             }
             foreach ($props as $field => $value) {
                 if (!in_array($field, $this->loaded_fields) && in_array($field, $this->table_fields)) {
-                    if ($this->{$field} !== $this->getOldValue($field)) {
+                    if ($this->{$field} !== $this->getBeforeValue($field)) {
                         if ($this->{$field} !== null) {
                             if(is_object($this->{$field})){
                                 if(get_class($this->{$field}) === 'Winged\Date\Date'){
@@ -1181,7 +1074,7 @@ class DelegateQuery extends QueryBuilder
             }
             $this->set($real_load);
             $prepared = false;
-            if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+            if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                 $query = $this->delegate()->getQueryInfo();
                 $prepared = $query['args'];
                 $query = $query['query'];
@@ -1218,7 +1111,7 @@ class DelegateQuery extends QueryBuilder
             }
             $this->values($real_load);
             $prepared = false;
-            if (WingedConfig::$USE_PREPARED_STMT === USE_PREPARED_STMT) {
+            if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                 $query = $this->delegate()->getQueryInfo();
                 $prepared = $query['args'];
                 $query = $query['query'];
@@ -1235,12 +1128,14 @@ class DelegateQuery extends QueryBuilder
             }
         }
         $this->_reverse();
-        $this->unloadAll();
         return $last;
     }
 
     private function typeOfValue($key, $value)
     {
+        if(is_object($value)){
+            $value = $value->{$key};
+        }
         if (numeric_is($value) || ($this->returnMysqlType($key)['type'] == 'i' || $this->returnMysqlType($key)['type'] == 'd')) {
             return $value;
         } else {

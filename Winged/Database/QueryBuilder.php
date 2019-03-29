@@ -69,7 +69,7 @@ class QueryBuilder
     public function into($table_name)
     {
         if (!CurrentDB::tableExists($table_name)) {
-            Error::_die(__CLASS__, "Table " . $table_name . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
+            Error::_die(__CLASS__, "Table " . $table_name . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
         }
         if (is_string($table_name)) {
             $this->into_arr = $table_name;
@@ -133,7 +133,7 @@ class QueryBuilder
             $key = array_keys($from);
             if (is_string($key[0]) && is_string($from[$key[0]]) && $this->from_arr == '') {
                 if (!CurrentDB::tableExists(trim($from[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($from[$key[0]]) . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($from[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->from_arr = 'FROM ' . trim($from[$key[0]]) . ' AS ' . trim($key[0]) . '';
                 $this->main_alias = array('alias' => trim($key[0]), 'table_name' => trim($from[$key[0]]));
@@ -154,7 +154,7 @@ class QueryBuilder
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
                 if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->inner_arr[] = 'INNER JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
             }
@@ -174,7 +174,7 @@ class QueryBuilder
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
                 if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->left_arr[] = 'LEFT JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
             }
@@ -194,7 +194,7 @@ class QueryBuilder
             $key = array_keys($inner);
             if (is_string($key[0])) {
                 if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->right_arr[] = 'RIGHT JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
             }
@@ -301,6 +301,9 @@ class QueryBuilder
      */
     public function where($condition = '', $args = [], $extra = null)
     {
+        if(count($this->where_order) > 0){
+            return $this->andWhere($condition, $args, $extra);
+        }
         $condition = trim($condition);
         if ($condition != '' && count7($args) > 0) {
             if ($condition == DbDict::BETWEEN) {
@@ -542,6 +545,9 @@ class QueryBuilder
      */
     public function orderBy($direction = '', $field = '')
     {
+        if(count($this->order_bys) > 0){
+            return $this->andWhere($direction, $field);
+        }
         if (is_array($direction) && count7($direction) == 2) {
             $field = trim($direction[1]);
             $direction = $direction[0];

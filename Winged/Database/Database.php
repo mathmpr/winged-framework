@@ -30,6 +30,7 @@ class Database
     public $driver = null;
     public $cleared = null;
     public $classes = null;
+    public $nickname = null;
     /**
      * @var $queryStringHandler null | Cubrid | Firebird | MySQL | PostgreSQL | Sqlite | SQLServer
      */
@@ -136,8 +137,8 @@ class Database
                 ],
         ];
 
-        $WCclass = WingedConfig::$STD_DB_CLASS;
-        $WCdriver = WingedConfig::$DB_DRIVER;
+        $WCclass = WingedConfig::$config->STD_DB_CLASS;
+        $WCdriver = WingedConfig::$config->DB_DRIVER;
         if ($class !== false && $class === IS_PDO || $class === IS_MYSQLI) {
             $WCclass = $class;
         }
@@ -157,7 +158,7 @@ class Database
         }
 
         if ($WCdriver !== DB_DRIVER_MYSQL && $WCclass === IS_MYSQLI) {
-            Error::push(__CLASS__, "mysqli class don't suports driver " . WingedConfig::$DB_DRIVER . ". Please change the driver in ./config.php to DB_DRIVER_MYSQL ou change STD_DB_CLASS in ./config.php to IS_PDO", __FILE__, __LINE__);
+            Error::push(__CLASS__, "mysqli class don't suports driver " . WingedConfig::$config->DB_DRIVER . ". Please change the driver in ./config.php to DB_DRIVER_MYSQL ou change STD_DB_CLASS in ./config.php to IS_PDO", __FILE__, __LINE__);
             Error::display(__LINE__, __FILE__);
         }
 
@@ -224,7 +225,7 @@ class Database
                 $this->db = $error->getMessage();
             }
             if ($this->analyze_error()) {
-                if (WingedConfig::$USE_PREPARED_STMT == USE_PREPARED_STMT) {
+                if (WingedConfig::$config->USE_PREPARED_STMT == USE_PREPARED_STMT) {
                     $this->abstract = new PreparedMysqli($this->db);
                 } else {
                     $this->abstract = new NormalMysqli($this->db);
@@ -233,7 +234,7 @@ class Database
         } else if ($this->class === IS_PDO) {
             $this->db = call_user_func_array($this->cleared_drivers[$this->cleared]['object'], ['args' => $vars]);
             if ($this->analyze_error()) {
-                $reflection = new \ReflectionClass($this->classes['responsible_class'][WingedConfig::$USE_PREPARED_STMT]);
+                $reflection = new \ReflectionClass($this->classes['responsible_class'][WingedConfig::$config->USE_PREPARED_STMT]);
                 $this->abstract = $reflection->newInstanceArgs([$this->db]);
             }
         } else {
@@ -252,7 +253,7 @@ class Database
 
         $this->queryStringHandler->setNames();
 
-        if (WingedConfig::$USE_PREPARED_STMT) {
+        if (WingedConfig::$config->USE_PREPARED_STMT) {
             $this->db_tables = $this->sp(Database::SP_SHOW_TABLES, []);
         } else {
             $this->db_tables = $this->sp(Database::SP_SHOW_TABLES);
@@ -305,8 +306,8 @@ class Database
         if ($host !== false) {
             return $host;
         }
-        if (property_exists('Winged\WingedConfig', 'HOST')) {
-            return WingedConfig::$HOST;
+        if (is_string(WingedConfig::$config->HOST)) {
+            return WingedConfig::$config->HOST;
         }
         return false;
     }
@@ -316,8 +317,8 @@ class Database
         if ($user !== false) {
             return $user;
         }
-        if (property_exists('Winged\WingedConfig', 'USER')) {
-            return WingedConfig::$USER;
+        if (is_string(WingedConfig::$config->USER)) {
+            return WingedConfig::$config->USER;
         }
         return false;
     }
@@ -327,8 +328,8 @@ class Database
         if ($password !== false) {
             return $password;
         }
-        if (property_exists('Winged\WingedConfig', 'PASSWORD')) {
-            return WingedConfig::$PASSWORD;
+        if (is_string(WingedConfig::$config->PASSWORD)) {
+            return WingedConfig::$config->PASSWORD;
         }
         return false;
     }
@@ -338,8 +339,8 @@ class Database
         if ($dbname !== false) {
             return $dbname;
         }
-        if (property_exists('Winged\WingedConfig', 'DBNAME')) {
-            return WingedConfig::$DBNAME;
+        if (is_string(WingedConfig::$config->DBNAME)) {
+            return WingedConfig::$config->DBNAME;
         }
         return false;
     }
@@ -349,13 +350,13 @@ class Database
         if ($port !== false) {
             return $port;
         }
-        if (property_exists('Winged\WingedConfig', 'PORT')) {
-            return WingedConfig::$PORT;
+        if (is_string(WingedConfig::$config->PORT)) {
+            return WingedConfig::$config->PORT;
         }
         return false;
     }
 
-    public static function columnExists($columns = array(), $desc = array())
+    public static function columnExists($columns = [], $desc = [])
     {
         $columns_ok = true;
         if (is_array($columns) && is_array($desc)) {

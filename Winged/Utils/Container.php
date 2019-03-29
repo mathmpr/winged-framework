@@ -11,6 +11,7 @@ class Container
     protected $target;
     protected $className;
     protected $methods = [];
+    public $vars = [];
 
     /**
      * @var $self Container
@@ -29,6 +30,19 @@ class Container
         }
         $binded = \Closure::bind($method, $this->target, $this->className);
         $this->methods[$name] = $binded;
+    }
+
+    public function __set($name = '', $value = false){
+        if(is_string($name) && $name != ''){
+            $this->vars[$name] = $value;
+        }
+    }
+
+    public function __get($name){
+        if (array_key_exists($name, $this->vars)) {
+            return $this->vars[$name];
+        }
+        return null;
     }
 
     public function __call($name, $arguments)

@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2012, Matthias Mullie. All rights reserved
  * @license MIT License
  */
-namespace MatthiasMullie\Minify;
+namespace Winged\External\MatthiasMullie\Minify\Minify;
 
 /**
  * JavaScript Minifier Class
@@ -582,8 +582,8 @@ class JS extends Minify
             foreach ($whiles as $while) {
                 $offsetWhile = $while[0][1];
 
-                $open = substr_count7($content, '{', $offsetDo, $offsetWhile - $offsetDo);
-                $close = substr_count7($content, '}', $offsetDo, $offsetWhile - $offsetDo);
+                $open = substr_count($content, '{', $offsetDo, $offsetWhile - $offsetDo);
+                $close = substr_count($content, '}', $offsetDo, $offsetWhile - $offsetDo);
                 if ($open === $close) {
                     // only restore `while` if amount of `{` and `}` are the same;
                     // otherwise, that `for` isn't associated with this `do`

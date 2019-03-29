@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2012, Matthias Mullie. All rights reserved
  * @license MIT License
  */
-namespace MatthiasMullie\Minify\Exceptions;
+namespace Winged\External\MatthiasMullie\Minify\Minify\Exceptions;
 
 /**
  * File Import Exception Class

@@ -7,80 +7,69 @@ namespace Winged\Utils;
  */
 class WingedLib
 {
-    /**
-     * @param $str
-     * @return string
-     */
-    public static function convertslash($str)
+
+    public static function clearDocumentRoot()
     {
-        return trim(str_replace("\\", "/", $str));
+        $exp = explode(':/', DOCUMENT_ROOT);
+        if(count7($exp) === 2){
+            return $exp[1];
+        }
+        return $exp[0];
     }
 
     /**
-     * @param $str
-     * @param bool $give
-     * @return bool|string
+     * @param string $path
+     * @return string
      */
-    public static function dotslash($str, $give = false)
+    public static function normalizePath($path = '')
     {
-        $str = trim($str);
-        if ($str != "") {
-            if ($give) {
-                if ($str[strlen($str) - 1] != "/") {
-                    $str .= "/";
-                }
-                if ($str[0] != "." && $str[1] != "/") {
-                    $str = "./" . $str;
-                }
-                return trim($str);
-            } else {
-                if ($str[strlen($str) - 1] == "/") {
-                    $str = substr_replace($str, '', strlen($str) - 1, 1);
-                }
-                return trim(str_replace("./", "", $str));
+        if ($path === '') {
+            return './';
+        }
+        if (strlen($path) > 0) {
+            $path = trim(str_replace("\\", "/", $path));
+            $path = trim(str_replace("/./", "/", $path));
+            if ($path[0] === '/') {
+                $path = '.' . $path;
             }
+            if ($path[strlen($path) - 1] != '/') {
+                $path .= '/';
+            }
+            if ((!is_int(stripos($path, './'))) || (is_int(stripos($path, './')) && ((int)stripos($path, './')) > 0)) {
+                $path = './' . $path;
+            }
+            $path = trim(str_replace("/./", "/", $path));
+            return trim($path);
+        }
+        return './';
+    }
+
+    /**
+     * @param string $path
+     * @return array|bool
+     */
+    public static function explodePath($path = '')
+    {
+        $path = self::clearPath($path);
+        if ($path) {
+            $path = explode('/', $path);
+        }
+        return $path;
+    }
+
+    public static function clearPath($path)
+    {
+        $path = self::normalizePath($path);
+        $path = str_replace('./', '', $path);
+        if (strlen($path) > 0) {
+            $path = substr_replace($path, '', strlen($path) - 1, 1);
+            return trim($path);
         }
         return false;
     }
 
-    /**
-     * @param $str
-     * @return array
-     */
-    public static function slashexplode($str)
+    public static function convertslash($str)
     {
-        if (strlen($str) >= 2) {
-            if ($str[0] == "." && $str[1] == "/") {
-                $str = substr_replace($str, '', 0, 2);
-            }
-        }
-        if (strlen($str) > 0) {
-            if ($str[0] == "/") {
-                $str = substr_replace($str, '', 0, 1);
-            }
-            if(strlen($str) > 0){
-                if ($str[strlen($str) - 1] == "/") {
-                    $str = substr_replace($str, '', strlen($str) - 1, 1);
-                }
-            }
-            if (trim($str) != "") {
-                return explode("/", trim($str));
-            }
-        }
-        return [];
+        return trim(str_replace("\\", "/", $str));
     }
-
-    /**
-     * @param $arr
-     * @return array
-     */
-    public static function resetarray($arr)
-    {
-        $new = [];
-        foreach ($arr as $key => $value) {
-            array_push($new, $value);
-        }
-        return $new;
-    }
-
 }

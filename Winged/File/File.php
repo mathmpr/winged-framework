@@ -4,11 +4,11 @@ namespace Winged\File;
 
 use Winged\Directory\Directory;
 use Winged\Formater\Formater;
+use Winged\Http\HttpResponseHandler;
 use Winged\Utils\WingedLib;
 
 class File
 {
-
     public $file_path = null;
     public $file = null;
     public $handler = null;
@@ -19,12 +19,19 @@ class File
     public $folder = null;
 
     /**
+     * @var array|null
+     */
+    protected $mime_types = null;
+
+    /**
      * File constructor.
      * @param $file
      * @param bool $forceCreate
      */
     public function __construct($file, $forceCreate = true)
     {
+        $this->mime_types = HttpResponseHandler::$mime_types;
+
         $content = false;
 
         if (is_string($file)) {
@@ -105,7 +112,7 @@ class File
                 $this->file = $file;
             }
         }
-        if($content){
+        if ($content) {
             $this->write($content);
         }
     }
@@ -123,7 +130,7 @@ class File
             $exp = explode('.', $end);
             $new_name = $name . '.' . end($exp);
             $npath = implode('/', $expf);
-            $npath = WingedLib::dotslash(WingedLib::dotslash($npath), true);
+            $npath = WingedLib::normalizePath($npath);
             $npath = $npath . $new_name;
             if (rename($this->file_path, $npath)) {
                 $this->file = $new_name;
@@ -139,7 +146,8 @@ class File
     /**
      * @return bool|string
      */
-    public function getPerms(){
+    public function getPerms()
+    {
         return substr(sprintf('%o', fileperms($this->file_path)), -4);
     }
 
@@ -309,6 +317,16 @@ class File
         return false;
     }
 
+    public function getMimeType(){
+        if($this->getExtension()){
+            $ext = $this->getExtension();
+            if(array_key_exists($ext, $this->mime_types)){
+                return $this->mime_types[$ext];
+            }
+        }
+        return false;
+    }
+
     public function getName()
     {
         if ($this->file_path != null) {
@@ -331,14 +349,16 @@ class File
         return false;
     }
 
-    public function filesize(){
+    public function filesize()
+    {
         if ($this->folder != null) {
             return filesize($this->file_path);
         }
         return false;
     }
 
-    public function modifyTime(){
+    public function modifyTime()
+    {
         if ($this->folder != null) {
             return filemtime($this->file_path);
         }

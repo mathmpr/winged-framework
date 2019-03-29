@@ -7,7 +7,6 @@ use Winged\Database\DbDict;
 use Winged\Database\Database;
 use Winged\Database\CurrentDB;
 use Winged\Error\Error;
-use Winged\Utils\RandomName;
 
 class Model extends DelegateQuery
 {
@@ -23,6 +22,8 @@ class Model extends DelegateQuery
 
     private $on_validate_error = [];
 
+    private $parsed_properties = [];
+
     protected static $cached_info = [];
 
     public function __construct()
@@ -31,40 +32,6 @@ class Model extends DelegateQuery
         if (!$this->extras) {
             $this->extras = new \stdClass();
         }
-    }
-
-    public function dynamic($key, $value)
-    {
-        $this->{$key} = $value;
-        return $this;
-    }
-
-    public function setProperty(array $array, $dynamic = false)
-    {
-        $refl = new \ReflectionClass($this);
-        foreach ($array as $setp => $value) {
-            if (property_exists(get_class($this), $setp)) {
-                $property = $refl->getProperty($setp);
-                if ($property instanceof \ReflectionProperty) {
-                    $property->setValue($this, $value);
-                }
-            } else {
-                if ($dynamic) {
-                    $this->dynamic($setp, $value);
-                }
-            }
-        }
-        return $this;
-    }
-
-    public function getProperty($name)
-    {
-        if (property_exists($this, $name)) {
-            $refl = new \ReflectionClass($this);
-            $property = $refl->getProperty($name);
-            return $property->getValue($this);
-        }
-        return false;
     }
 
     public function className()
@@ -86,7 +53,7 @@ class Model extends DelegateQuery
                     $obj = (new $existent())
                         ->select()
                         ->from(['LINK' => $existent::tableName()])
-                        ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->getProperty($link['id'])]);
+                        ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->{$link['id']}]);
 
                     $result = $obj->one();
                     return $result;
@@ -110,7 +77,7 @@ class Model extends DelegateQuery
                     $obj = (new $existent())
                         ->select()
                         ->from(['LINK' => $existent::tableName()])
-                        ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->getProperty($link['id'])]);
+                        ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->{$link['id']}]);
 
                     $result = $obj->find();
                     return $result;
@@ -120,9 +87,16 @@ class Model extends DelegateQuery
         return false;
     }
 
+    public function old($property){
+        if(array_key_exists($property, $this->before_values)){
+            return $this->before_values[$property];
+        }
+        return false;
+    }
+
     public function oldValueExists()
     {
-        return $this->old_value_loaded;
+        return $this->before_values_loaded;
     }
 
     public function isNew()
@@ -167,134 +141,112 @@ class Model extends DelegateQuery
 
     public function load($args = [], $newobj = false)
     {
+        $fields_loaded_in_this_call = [];
         $class_name = get_class($this);
-
         $trade = false;
-
-        if (empty($this->old_values) || count7($this->old_values) == 0) {
+        if (empty($this->before_values) || count7($this->before_values) == 0) {
             $trade = true;
         }
-
-        $to_load = [];
-
+        $prepared_data_to_load = [];
         foreach ($args as $key => $value) {
             if (is_array($value) && is_int(stripos($class_name, ucfirst($key)))) {
                 if (array_key_exists(0, $value)) {
-                    $to_load = $value[0];
+                    $prepared_data_to_load = $value[0];
                 } else {
-                    $to_load = $value;
+                    $prepared_data_to_load = $value;
                 }
             }
         }
-
         $rules = [];
-
         if (method_exists($this, 'rules')) {
             $rules = $this->rules();
             if (!is_array($rules)) {
                 $rules = [];
             }
         }
-
-        foreach ($to_load as $key => $value) {
-
-            $old_value = $this->{$key};
-
+        foreach ($prepared_data_to_load as $key => $value) {
+            $value_of_property_before_parse = $this->{$key};
             $safe = false;
-
             if (array_key_exists($key, $rules)) {
                 foreach ($rules[$key] as $name => $rule) {
                     if ($name === 'safe' || $rule === 'safe') {
                         $safe = true;
                     }
                 }
+            }
+
+            if ($safe) {
+                $this->safe_fields[] = $key;
             }
 
             if ((in_array(strtolower($key), $this->table_fields) || $safe) && property_exists($class_name, strtolower($key))) {
                 $type = $this->returnMysqlType($key);
                 $this->{$key} = $this->getRealValue($value, $type['key']);
                 $this->loaded_fields[] = $key;
-                if ($safe) {
-                    $this->safe_fields[] = $key;
-                }
-                if ($trade && !array_key_exists($key, $this->old_values) && (!$this->is_new || $newobj)) {
-                    $this->old_values[strtolower($key)] = $old_value;
-                    $this->old_value_loaded = true;
+                $fields_loaded_in_this_call[] = $key;
+                if ($trade && !array_key_exists($key, $this->before_values) && (!$this->isNew() || $newobj)) {
+                    $this->before_values[strtolower($key)] = $value_of_property_before_parse;
+                    $this->before_values_loaded = true;
                 }
             }
         }
 
         $behaviors = $this->behaviors();
 
-        foreach ($behaviors as $key => $apply) {
-
-            $safe = false;
-
-            $old_value = $this->{$key};
-
-            if (array_key_exists($key, $rules)) {
-                foreach ($rules[$key] as $name => $rule) {
-                    if ($name === 'safe' || $rule === 'safe') {
-                        $safe = true;
-                    }
-                }
+        foreach ($behaviors as $key => $parsed_value) {
+            $value_of_property_before_parse = $this->{$key};
+            $continue_and_apply_behavior = false;
+            if ($this->isNew()) {
+                $continue_and_apply_behavior = true;
+            } else if (!$this->isNew() && in_array($key, $this->parsed_properties) && in_array($key, $fields_loaded_in_this_call)) {
+                $continue_and_apply_behavior = true;
             }
 
-            if (property_exists($class_name, $key)) {
-                if (is_callable($apply)) {
-                    $apply = call_user_func($apply);
-                    if (is_array($apply) && $apply['null'] === null) {
-                        $apply = null;
-                        $this->{$key} = $apply;
-                        $this->old_values[$key] = $old_value;
-                        $this->old_value_loaded = true;
-                    }
-                    if ($apply !== null) {
-                        if ($apply !== $this->{$key}) {
-                            if (!is_object($apply)) {
-                                $type = $this->returnMysqlType($key);
-                                $apply = $this->getRealValue($apply, $type['key']);
+            if ($continue_and_apply_behavior) {
+                if (property_exists($class_name, $key)) {
+                    if (is_callable($parsed_value)) {
+                        $parsed_value = call_user_func($parsed_value);
+                        if ($parsed_value !== null) {
+                            if ($parsed_value !== $this->{$key}) {
+                                if (!is_object($parsed_value)) {
+                                    $type = $this->returnMysqlType($key);
+                                    $parsed_value = $this->getRealValue($parsed_value, $type['key']);
+                                }
+                                $this->{$key} = $parsed_value;
+                                $this->before_values[$key] = $value_of_property_before_parse;
+                                $this->before_values_loaded = true;
+                                $this->parsed_properties[] = $key;
                             }
-                            $this->{$key} = $apply;
-                            $this->old_values[$key] = $old_value;
-                            $this->old_value_loaded = true;
                         }
+                    } else {
+                        if (!is_object($parsed_value)) {
+                            $type = $this->returnMysqlType($key);
+                            $parsed_value = $this->getRealValue($parsed_value, $type['key']);
+                        }
+                        $this->{$key} = $parsed_value;
+                        $this->before_values[$key] = $value_of_property_before_parse;
+                        $this->before_values_loaded = true;
+                        $this->parsed_properties[] = $key;
                     }
-                } else {
-                    if (!is_object($apply)) {
-                        $type = $this->returnMysqlType($key);
-                        $apply = $this->getRealValue($apply, $type['key']);
-                    }
-                    $this->{$key} = $apply;
-                    $this->old_values[$key] = $old_value;
-                    $this->old_value_loaded = true;
-                }
 
-                if (in_array($key, $this->table_fields)) {
-                    if (!in_array($key, $this->loaded_fields)) {
-                        $this->loaded_fields[] = $key;
-                        if ($safe) {
-                            $this->safe_fields[] = $key;
+                    if (in_array($key, $this->table_fields) && $value_of_property_before_parse != $this->{$key}) {
+                        if (!in_array($key, $this->loaded_fields)) {
+                            $this->loaded_fields[] = $key;
                         }
                     }
                 }
             }
         }
-
         $this->is_new = false;
-
         return $this;
     }
 
     public function createOldValuesIfExists()
     {
-        $class_name = get_class($this);
-        $reflection = new \ReflectionClass($class_name);
         foreach ($this->table_fields as $key) {
-            $value = $reflection->getProperty(strtolower($key))->getValue($this);
-            if ($value != null) {
-                $this->old_values[$key] = $value;
-                $this->old_value_loaded = true;
+            if ($this->{$key} != null) {
+                $this->before_values[$key] = $this->{$key};
+                $this->before_values_loaded = true;
             }
         }
 
@@ -303,19 +255,16 @@ class Model extends DelegateQuery
         return $this;
     }
 
-    public function autoLoadDb($id = 0, $old = false)
+    public function autoLoadDb($id = 0, $before_values = false)
     {
         $this->from_db = true;
         $this->is_new = false;
         $one = $this->findOne($id);
-        $class_name = get_class($this);
-        $reflection = new \ReflectionClass($class_name);
         if ($one) {
             foreach ($this->table_fields as $key) {
-                $value = $reflection->getProperty(strtolower($key))->getValue($one);
-                $reflection->getProperty(strtolower($key))->setValue($this, $value);
+                $this->{$key} = $one->{$key};
             }
-            if ($old) {
+            if ($before_values) {
                 $this->createOldValuesIfExists();
             }
             return true;
@@ -327,22 +276,22 @@ class Model extends DelegateQuery
     {
         $class_name = get_class($this);
         $models = [];
-        $to_load = [];
+        $prepared_data_to_load = [];
         foreach ($args as $key => $value) {
             if (is_array($value) && ucfirst($key) == $class_name) {
                 if (array_key_exists(0, $value)) {
-                    $to_load = $value;
+                    $prepared_data_to_load = $value;
                 } else {
-                    $to_load = array($value);
+                    $prepared_data_to_load = [$value];
                 }
             }
         }
 
-        if (is_array($to_load)) {
-            if (count7($to_load) === 1) {
-                $to_load = $to_load[0];
+        if (is_array($prepared_data_to_load)) {
+            if (count7($prepared_data_to_load) === 1) {
+                $prepared_data_to_load = $prepared_data_to_load[0];
                 $count = 0;
-                foreach ($to_load as $key => $value) {
+                foreach ($prepared_data_to_load as $key => $value) {
                     if (count7($value) > $count) {
                         $count = count7($value);
                     }
@@ -351,11 +300,14 @@ class Model extends DelegateQuery
                     $arr = [
                         $class_name => []
                     ];
-                    foreach ($to_load as $key => $value) {
-                        if (array_key_exists($x, $to_load[$key])) {
-                            $arr[$class_name][$key] = $to_load[$key][$x];
+                    foreach ($prepared_data_to_load as $key => $value) {
+                        if (array_key_exists($x, $prepared_data_to_load[$key])) {
+                            $arr[$class_name][$key] = $prepared_data_to_load[$key][$x];
                         }
                     }
+                    /**
+                     * @var $model Model
+                     */
                     $model = new $class_name();
                     $model->load($arr);
                     $models[] = $model;
@@ -367,7 +319,7 @@ class Model extends DelegateQuery
     }
 
 
-    public function pushValidateError($key, $error = '', $pn)
+    public function pushValidateError($key, $error, $pn)
     {
         if (array_key_exists($key, $this->errors)) {
             $this->errors[$key][$pn] = $error;
@@ -586,6 +538,7 @@ class Model extends DelegateQuery
             if ($save) {
                 foreach ($this->on_save_success as $index => $arr) {
                     call_user_func_array($this->on_save_success[$index]['function'], $arr['args']);
+                    $this->removeFromSaveSuccess($index);
                 }
             } else {
                 $this->_reverse();
@@ -598,10 +551,10 @@ class Model extends DelegateQuery
         return false;
     }
 
-    public function getOldValue($property_name)
+    public function getBeforeValue($property_name)
     {
-        if (array_key_exists($property_name, $this->old_values)) {
-            return $this->old_values[$property_name];
+        if (array_key_exists($property_name, $this->before_values)) {
+            return $this->before_values[$property_name];
         }
         return null;
     }

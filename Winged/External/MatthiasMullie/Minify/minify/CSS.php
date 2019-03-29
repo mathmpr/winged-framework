@@ -9,11 +9,11 @@
  * @license MIT License
  */
 
-namespace MatthiasMullie\Minify;
+namespace Winged\External\MatthiasMullie\Minify\Minify;
 
-use MatthiasMullie\Minify\Exceptions\FileImportException;
-use MatthiasMullie\PathConverter\ConverterInterface;
-use MatthiasMullie\PathConverter\Converter;
+use Winged\External\MatthiasMullie\Minify\Minify\Exceptions\FileImportException;
+use Winged\External\MatthiasMullie\Minify\Converter\ConverterInterface;
+use Winged\External\MatthiasMullie\Minify\Converter\Converter;
 
 /**
  * CSS minifier

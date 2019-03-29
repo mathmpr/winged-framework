@@ -30,6 +30,9 @@ function get_memory_peak_usage()
  */
 function numeric_is($value)
 {
+    if(is_object($value)){
+        return false;
+    }
     if (is_array($value)) {
         return false;
     }
@@ -472,13 +475,13 @@ function is_directory($path = './')
 }
 
 /**
- * return true if WingedConfig::$DEV is true
+ * return true if WingedConfig::$config->DEV is true
  * @return bool
  */
 function is_dev()
 {
-    if (WingedConfig::$DEV != null && is_bool(WingedConfig::$DEV)) {
-        return WingedConfig::$DEV;
+    if (WingedConfig::$config->DEV != null && is_bool(WingedConfig::$config->DEV)) {
+        return WingedConfig::$config->DEV;
     }
 }
 
@@ -523,7 +526,7 @@ function no_injection_array($array)
  */
 function no_injection($str)
 {
-    if (WingedConfig::$STD_DB_CLASS === IS_MYSQLI) {
+    if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
         return CurrentDB::$current->db->real_escape_string($str);
     }
     return $str;
@@ -550,7 +553,7 @@ function trade_slash_right($str)
 }
 
 /**
- * trade any new line for all systems to html tag <br>
+ * trade any new line for all systems to html5 tag <br>
  * @param $str
  * @return mixed
  */
@@ -803,43 +806,6 @@ function randid($length = 12)
         $id .= $dict[$r];
     }
     return $id;
-}
-
-/**
- * return system name from server
- * @return bool|string
- */
-function what_is_my_system()
-{
-    phpinfo(1);
-    $phpinfo = array("phpinfo" => array());
-    if (preg_match_all('#(?:<h2>(?:<a name=".*?">)?(.*?)(?:</a>)?</h2>)|(?:<tr(?: class=".*?")?><t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>)?)?</tr>)#s', ob_get_clean(), $matches, PREG_SET_ORDER)) {
-        foreach ($matches as $match) {
-            if (strlen($match[1])) {
-                $phpinfo[$match[1]] = array();
-            } elseif (isset($match[3])) {
-                $keys = array_keys($phpinfo);
-                $phpinfo[end($keys)][$match[2]] = isset($match[4]) ? array($match[3], $match[4]) : $match[3];
-            } else {
-                $keys = array_keys($phpinfo);
-                $phpinfo[end($keys)][] = $match[2];
-            }
-        }
-    }
-    $sys = $phpinfo["phpinfo"]["System"];
-    $pos = stripos($sys, "linux");
-    if (is_int($pos)) {
-        return "linux";
-    }
-    $pos = stripos($sys, "windows");
-    if (is_int($pos)) {
-        return "windows";
-    }
-    $pos = stripos($sys, "mac");
-    if (is_int($pos)) {
-        return "mac";
-    }
-    return false;
 }
 
 /**

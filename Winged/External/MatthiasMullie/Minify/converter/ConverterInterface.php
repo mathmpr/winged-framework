@@ -1,6 +1,6 @@
 <?php
 
-namespace MatthiasMullie\PathConverter;
+namespace Winged\External\MatthiasMullie\Minify\Converter;
 
 /**
  * Convert file paths.

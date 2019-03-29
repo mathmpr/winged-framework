@@ -7,53 +7,55 @@ use Winged\Error\Error;
 
 class Request
 {
-    public static $REQUEST_IS_JSON = 'application/json';
-    public static $REQUEST_IS_JSONP = 'application/javascript';
-    public static $REQUEST_IS_HTML = 'text/html';
-    public static $REQUEST_IS_PLAIN = 'text/plain';
-    public static $REQUEST_IS_XML = 'application/xml';
-    public static $REQUEST_IS_XHML = 'application/xhml';
-    public static $REQUEST_IS_SVG = 'application/xhml';
-    public static $REQUEST_IS_SVG_XML = 'image/svg+xml';
-    public static $REQUEST_IS_TIFF = 'image/tiff';
-    public static $REQUEST_IS_BMP = 'image/bmp';
-    public static $REQUEST_IS_JPG = 'image/jpg';
-    public static $REQUEST_IS_JPEG = 'image/jpeg';
-    public static $REQUEST_IS_PNG = 'image/png';
-    public static $REQUEST_IS_GIF = 'image/gif';
-    public static $REQUEST_IS_CSS = 'text/css';
-    public static $REQUEST_IS_JAVASCRIPT = 'application/javascript';
-    public static $REQUEST_IS_X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+    const REQUEST_IS_YAML = 'text/yaml';
+    const REQUEST_IS_JSON = 'application/json';
+    const REQUEST_IS_JSONP = 'application/javascript';
+    const REQUEST_IS_HTML = 'text/html';
+    const REQUEST_IS_PLAIN = 'text/plain';
+    const REQUEST_IS_XML = 'application/xml';
+    const REQUEST_IS_XHML = 'application/xhml';
+    const REQUEST_IS_SVG = 'application/xhml';
+    const REQUEST_IS_SVG_XML = 'image/svg+xml';
+    const REQUEST_IS_TIFF = 'image/tiff';
+    const REQUEST_IS_BMP = 'image/bmp';
+    const REQUEST_IS_JPG = 'image/jpg';
+    const REQUEST_IS_JPEG = 'image/jpeg';
+    const REQUEST_IS_PNG = 'image/png';
+    const REQUEST_IS_GIF = 'image/gif';
+    const REQUEST_IS_CSS = 'text/css';
+    const REQUEST_IS_JAVASCRIPT = 'application/javascript';
+    const REQUEST_IS_X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded';
 
-    public static $ACCEPT_JSON = 'application/json';
-    public static $ACCEPT_JSONP = 'application/javascript';
-    public static $ACCEPT_HTML = 'text/html';
-    public static $ACCEPT_PLAIN = 'text/plain';
-    public static $ACCEPT_XML = 'application/xml';
-    public static $ACCEPT_XHML = 'application/xhml';
-    public static $ACCEPT_SVG = 'application/xhml';
-    public static $ACCEPT_SVG_XML = 'image/svg+xml';
-    public static $ACCEPT_TIFF = 'image/tiff';
-    public static $ACCEPT_BMP = 'image/bmp';
-    public static $ACCEPT_JPG = 'image/jpg';
-    public static $ACCEPT_JPEG = 'image/jpeg';
-    public static $ACCEPT_PNG = 'image/png';
-    public static $ACCEPT_GIF = 'image/gif';
-    public static $ACCEPT_CSS = 'text/css';
-    public static $ACCEPT_JAVASCRIPT = 'application/javascript';
-    public static $ACCEPT_X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded';
-    public static $ACCEPT_ALL = '*/*';
+    const ACCEPT_YAML = 'text/yaml';
+    const ACCEPT_JSON = 'application/json';
+    const ACCEPT_JSONP = 'application/javascript';
+    const ACCEPT_HTML = 'text/html';
+    const ACCEPT_PLAIN = 'text/plain';
+    const ACCEPT_XML = 'application/xml';
+    const ACCEPT_XHML = 'application/xhml';
+    const ACCEPT_SVG = 'application/xhml';
+    const ACCEPT_SVG_XML = 'image/svg+xml';
+    const ACCEPT_TIFF = 'image/tiff';
+    const ACCEPT_BMP = 'image/bmp';
+    const ACCEPT_JPG = 'image/jpg';
+    const ACCEPT_JPEG = 'image/jpeg';
+    const ACCEPT_PNG = 'image/png';
+    const ACCEPT_GIF = 'image/gif';
+    const ACCEPT_CSS = 'text/css';
+    const ACCEPT_JAVASCRIPT = 'application/javascript';
+    const ACCEPT_X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+    const ACCEPT_ALL = '*/*';
 
-    public static $CHARSET_REQUEST = 'utf-8';
-    public static $CHARSET_ACCEPT = 'utf-8';
+    const CHARSET_REQUEST = 'utf-8';
+    const CHARSET_ACCEPT = 'utf-8';
 
-    public static $REQUEST_GET = 'get';
-    public static $REQUEST_POST = 'post';
-    public static $REQUEST_PUT = 'put';
-    public static $REQUEST_DELETE = 'delete';
+    const REQUEST_GET = 'get';
+    const REQUEST_POST = 'post';
+    const REQUEST_PUT = 'put';
+    const REQUEST_DELETE = 'delete';
 
-    public static $PARSE_RESPONSE_YES = true;
-    public static $PARSE_RESPONSE_NO = false;
+    const PARSE_RESPONSE_YES = true;
+    const PARSE_RESPONSE_NO = false;
 
     public $url = false;
     public $final_url = false;
@@ -118,13 +120,14 @@ class Request
                 'Connection: keep-alive',
                 'Cache-Control: max-age=0',
                 'Upgrade-Insecure-Requests: 1',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36'
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
+                'Accept-Encoding: gzip',
             ],
-            'parseResponse' => Request::$PARSE_RESPONSE_YES,
-            'contentType' => Request::$REQUEST_IS_X_WWW_FORM_URLENCODED,
-            'charsetRequest' => Request::$CHARSET_REQUEST,
-            'accept' => Request::$ACCEPT_ALL,
-            'type' => Request::$REQUEST_GET,
+            'parseResponse' => Request::PARSE_RESPONSE_YES,
+            'contentType' => Request::REQUEST_IS_X_WWW_FORM_URLENCODED,
+            'charsetRequest' => Request::CHARSET_REQUEST,
+            'accept' => Request::ACCEPT_ALL,
+            'type' => Request::REQUEST_GET,
             'ignoreHeaders' => false,
         ];
 
@@ -224,9 +227,9 @@ class Request
                 curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->ioptions['type']));
                 curl_setopt($this->ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
             }
-
             $ignoreHeaders = get_value_by_key('ignoreHeaders', $this->ioptions);
-
+            curl_setopt($this->ch, CURLOPT_HEADER, 1);
+            curl_setopt($this->ch, CURLOPT_VERBOSE, 1);
             if ($ignoreHeaders !== null && $ignoreHeaders === false) {
                 $content_type = 'Content-type: ' . $this->ioptions['contentType'] . '; charset=' . $this->ioptions['charsetRequest'] . '';
                 $add = [$content_type];
@@ -241,9 +244,6 @@ class Request
                 $add[] = 'Accept-Language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7';
                 $this->headers = array_merge($this->ioptions['headers'], $add);
                 curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-            } else {
-                $this->headers = ['cURL without Headers'];
-                curl_setopt($this->ch, CURLOPT_HEADER, 0);
             }
 
             if ($this->ssl_verifypeer === true) {

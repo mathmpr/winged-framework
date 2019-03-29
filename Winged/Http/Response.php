@@ -9,6 +9,7 @@ class Response
 
     public $request = false;
     private $output = null;
+    private $headers = null;
     private $response_code = false;
     private $cURL_resorce = null;
 
@@ -18,7 +19,42 @@ class Response
         $this->cURL_resorce = $cURL_resorce;
         $this->output = curl_exec($this->cURL_resorce);
 
-        if ($request->last_options_before_send['contentType'] == 'application/json') {
+        $header_size = curl_getinfo($this->cURL_resorce, CURLINFO_HEADER_SIZE);
+        $this->headers = trim(substr($this->output, 0, $header_size));
+        $this->output = trim(substr($this->output, $header_size));
+
+        $split_headers = explode("\n", str_replace("\n\r", "\n", $this->headers));
+        $headers = [];
+        foreach ($split_headers as $header) {
+            $split_line_header = explode(':', $header);
+            if (count7($split_line_header) >= 2) {
+                $headers[trim(array_shift($split_line_header))] = trim(join(':', $split_line_header));
+            }
+        }
+
+        $this->headers = $headers;
+        if (array_key_exists('Content-Encoding', $this->headers) && trim($this->output) != '' && $this->output != null) {
+            if ($this->headers['Content-Encoding'] === 'gzip') {
+                $this->output = @gzdecode($this->output);
+            } elseif ($this->headers['Content-Encoding'] === 'deflate') {
+                $this->output = @gzinflate($this->output);
+            }
+        }
+
+        unset($headers);
+
+        if ($request->last_options_before_send['accept'] == 'text/yaml') {
+            try {
+                $this->output = yaml_parse($this->output);
+                if (!is_array($this->output)) {
+                    Error::_die(__CLASS__, "Response expected string in YAML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+                }
+            } catch (\Exception $e) {
+                Error::_die(__CLASS__, "Response expected string in YAML format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
+            }
+        }
+
+        if ($request->last_options_before_send['accept'] == 'application/json') {
             try {
                 $this->output = json_decode($this->output);
                 if (!is_object($this->output)) {
@@ -28,7 +64,8 @@ class Response
                 Error::_die(__CLASS__, "Response expected string in JSON format. Conversion fail for request with URL = " . $request->final_url, __FILE__, __LINE__);
             }
         }
-        if ($request->last_options_before_send['contentType'] == 'application/xml') {
+
+        if ($request->last_options_before_send['accept'] == 'application/xml') {
             try {
                 $xml = simplexml_load_string($this->output, "SimpleXMLElement", LIBXML_NOCDATA);
                 $json = json_encode($xml);
@@ -46,15 +83,25 @@ class Response
     public function output()
     {
         if ($this->output) {
-            if ($this->request->ioptions['accept'] === Request::$ACCEPT_JSON) {
-                return json_decode($this->output, true);
-            } else if ($this->request->ioptions['accept'] === Request::$ACCEPT_XML) {
-                $xml = simplexml_load_string($this->output, "SimpleXMLElement", LIBXML_NOCDATA);
+            if ($this->request->ioptions['accept'] === Request::ACCEPT_JSON) {
+                return @json_decode($this->output, true);
+            } else if ($this->request->ioptions['accept'] === Request::ACCEPT_XML) {
+                $xml = @simplexml_load_string($this->output, "SimpleXMLElement", LIBXML_NOCDATA);
                 $json = json_encode($xml);
-                return json_decode($json, true);
+                return @json_decode($json, true);
+            } else if ($this->request->ioptions['accept'] === Request::ACCEPT_YAML) {
+                return @yaml_parse($this->output);
             } else {
                 return $this->output;
             }
+        }
+        return null;
+    }
+
+    public function headers()
+    {
+        if ($this->headers) {
+            return $this->headers;
         }
         return null;
     }

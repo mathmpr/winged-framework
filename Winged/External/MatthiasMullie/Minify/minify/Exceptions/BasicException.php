@@ -8,9 +8,7 @@
  * @copyright Copyright (c) 2012, Matthias Mullie. All rights reserved
  * @license MIT License
  */
-namespace MatthiasMullie\Minify\Exceptions;
-
-use MatthiasMullie\Minify\Exception;
+namespace Winged\External\MatthiasMullie\Minify\Minify\Exceptions;
 
 /**
  * Basic Exception Class
@@ -18,6 +16,6 @@ use MatthiasMullie\Minify\Exception;
  * @package Minify\Exception
  * @author Matthias Mullie <minify@mullie.eu>
  */
-abstract class BasicException extends Exception
+abstract class BasicException extends \Exception
 {
 }

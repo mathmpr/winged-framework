@@ -18,7 +18,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-namespace PHPMailer\PHPMailer;
+namespace Winged\External\PHPMailer\PHPMailer;
 
 /**
  * PHPMailer - PHP email creation and transport class.

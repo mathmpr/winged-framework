@@ -2,11 +2,14 @@
 
 namespace Winged\Controller;
 
-use MatthiasMullie\Minify\CSS;
-use MatthiasMullie\Minify\JS;
+use Winged\External\MatthiasMullie\Minify\Minify\CSS;
+use Winged\External\MatthiasMullie\Minify\Minify\JS;
 use Winged\Assets\Assets;
 use Winged\Date\Date;
+use Winged\Directory\Directory;
 use Winged\File\File;
+use Winged\Http\HttpResponseHandler;
+use Winged\Utils\Container;
 use Winged\Utils\RandomName;
 use Winged\Utils\WingedLib;
 use Winged\Winged;
@@ -27,8 +30,8 @@ class Controller
     public $controller_reset = false;
     public $body_class = null;
     public $html_class = null;
-    private $js = [];
-    private $css = [];
+    public $js = [];
+    public $css = [];
     private $first_render = true;
     private $remove_css = [];
     private $remove_js = [];
@@ -39,6 +42,7 @@ class Controller
     public $vect = [];
     public $assets = null;
     public $appended_abstract_head_content = [];
+    public $vitual_success = false;
     /**
      * @var $minify_cache null | File
      */
@@ -72,7 +76,12 @@ class Controller
         if (count7($exp) > 0) {
             Winged::$params = $exp;
         }
-        return $this->find();
+        $find = $this->find();
+        if ($find) {
+            $this->vitual_success = true;
+            Winged::$controller = $this;
+        }
+        return $find;
     }
 
     public function virtual($controller, $action = false, $uri = false)
@@ -86,140 +95,161 @@ class Controller
         if (is_array($uri)) {
             Winged::$params = $uri;
         }
-        return $this->find();
+        $find = $this->find();
+        if ($find) {
+            $this->vitual_success = true;
+            Winged::$controller = $this;
+        }
+        return $find;
+    }
+
+    public static function controllerObserver($controller_name = '', $action_name = '')
+    {
+        if (WingedConfig::$config->PARENT_FOLDER_MVC) {
+            self::$CONTROLLERS_PATH = Winged::$parent . WingedLib::clearPath(self::$CONTROLLERS_PATH) . '/';
+            self::$MODELS_PATH = Winged::$parent . WingedLib::clearPath(self::$MODELS_PATH) . '/';
+            self::$VIEWS_PATH = Winged::$parent . WingedLib::clearPath(self::$VIEWS_PATH) . '/';
+        } else {
+            self::$CONTROLLERS_PATH = WingedLib::clearPath(self::$CONTROLLERS_PATH) . '/';
+            self::$MODELS_PATH = WingedLib::clearPath(self::$MODELS_PATH) . '/';
+            self::$VIEWS_PATH = WingedLib::clearPath(self::$VIEWS_PATH) . '/';
+        }
+        $controller_name = self::getControllerName($controller_name);
+        $directory = new Directory(self::$CONTROLLERS_PATH, false);
+        $controller = new File(self::$CONTROLLERS_PATH . $controller_name . '.php', false);
+        if ($directory->exists()) {
+            if ($controller->exists()) {
+                $action_name = self::getActionName($action_name);
+                include_once $controller->file_path;
+                if (class_exists($controller_name)) {
+                    return [
+                        'action' => $action_name,
+                        'controller' => $controller_name,
+                        'path' => $controller->file_path
+                    ];
+                } else {
+                    if (WingedConfig::$config->CONTROLLER_DEBUG) {
+                        Error::push(__CLASS__, "Controller class '" . $controller_name . "' no exists in file '" . $controller->file_path . "'", __FILE__, __LINE__);
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public function find()
     {
         if (!$this->reset()) {
-            $this->controller_name = $this->getControllerName();
-            if (WingedConfig::$PARENT_FOLDER_MVC) {
-                self::$CONTROLLERS_PATH = Winged::$parent . WingedLib::dotslash(self::$CONTROLLERS_PATH) . '/';
-                self::$MODELS_PATH = Winged::$parent . WingedLib::dotslash(self::$MODELS_PATH) . '/';
-                self::$VIEWS_PATH = Winged::$parent . WingedLib::dotslash(self::$VIEWS_PATH) . '/';
-            }
-            if (file_exists(self::$CONTROLLERS_PATH) && is_directory(self::$CONTROLLERS_PATH)) {
-                if (file_exists(self::$CONTROLLERS_PATH . $this->controller_name . '.php') && !is_directory(self::$CONTROLLERS_PATH . $this->controller_name . '.php')) {
-                    $this->controller_path = self::$CONTROLLERS_PATH . $this->controller_name . '.php';
-                    include_once $this->controller_path;
-                    if (class_exists($this->controller_name)) {
-                        $method = $this->getActionName();
-                        $this->action_name = $method;
-                        if (is_array(Winged::$controller_params)) {
-                            if (in_array(Winged::$controller_action, Winged::$controller_params)) {
-                                $key = array_search(Winged::$controller_action, Winged::$controller_params);
-                                unset(Winged::$controller_params[$key]);
-                            }
-                            if (in_array(Winged::$controller_page, Winged::$controller_params)) {
-                                $key = array_search(Winged::$controller_page, Winged::$controller_params);
-                                unset(Winged::$controller_params[$key]);
-                            }
-                            Winged::$controller_params = array_values(Winged::$controller_params);
-                        }
-                        $obj = new $this->controller_name();
-                        if (method_exists($obj, 'beforeAction')) {
-                            $to_call = [];
-                            $this->getGetArgs();
-                            $reflect = new \ReflectionMethod($this->controller_name, 'beforeAction');
-                            $apply = $reflect->getParameters();
-                            if (!empty($apply)) {
-                                foreach ($apply as $key => $value) {
-                                    if (isset($this->method_args[$value->name])) {
-                                        $to_call[] = $this->method_args[$value->name];
-                                    }
-                                }
-                            }
+            $observer = self::controllerObserver();
+            if ($observer) {
+                $this->action_name = $observer['action'];
+                $this->controller_path = $observer['path'];
+                $this->controller_name = $observer['controller'];
+                if (is_array(Winged::$controller_params)) {
+                    if (in_array(Winged::$controller_action, Winged::$controller_params)) {
+                        $key = array_search(Winged::$controller_action, Winged::$controller_params);
+                        unset(Winged::$controller_params[$key]);
+                    }
+                    if (in_array(Winged::$controller_page, Winged::$controller_params)) {
+                        $key = array_search(Winged::$controller_page, Winged::$controller_params);
+                        unset(Winged::$controller_params[$key]);
+                    }
+                    Winged::$controller_params = array_values(Winged::$controller_params);
+                }
+                $obj = new $this->controller_name();
+                if (method_exists($obj, 'beforeAction')) {
+                    $to_call = [];
+                    $this->getGetArgs();
+                    $reflect = new \ReflectionMethod($this->controller_name, 'beforeAction');
+                    $apply = $reflect->getParameters();
 
-                            $return = $reflect->invokeArgs($obj, [Winged::$controller_action]);
-                            if ($return !== null) {
-                                if (is_array($return)) {
-                                    try {
-                                        $json = json_encode($return);
-                                        echo $json;
-                                    } catch (\Exception $error) {
-                                        return true;
-                                    }
-                                }
-                                if (Error::exists() && WingedConfig::$CONTROLLER_DEBUG) {
-                                    Error::display(__LINE__, __FILE__);
-                                }
+                    if (!empty($apply)) {
+                        foreach ($apply as $key => $value) {
+                            if (isset($this->method_args[$value->name])) {
+                                $to_call[] = $this->method_args[$value->name];
+                            }
+                        }
+                    }
+
+                    $return = $reflect->invokeArgs($obj, [Winged::$controller_action]);
+                    if ($return !== null) {
+                        if (is_array($return)) {
+                            try {
+                                $json = json_encode($return);
+                                echo $json;
+                            } catch (\Exception $error) {
                                 return true;
                             }
                         }
-                        $to_call = [];
-                        if (method_exists($obj, $method)) {
-                            $this->getGetArgs();
-                            $reflect = new \ReflectionMethod($this->controller_name, $method);
-                            $apply = $reflect->getParameters();
-                            $controller_warn = false;
-                            if (!empty($apply)) {
-                                foreach ($apply as $key => $value) {
-                                    if (!isset($this->method_args[$value->name])) {
-                                        $controller_warn = true;
-                                        Error::push(__CLASS__, "Action '" . $method . "' requires parameter'" . $value->name . "'", __FILE__, __LINE__);
-                                    } else {
-                                        $to_call[] = $this->method_args[$value->name];
-                                    }
-                                }
+                        if (Error::exists() && WingedConfig::$config->CONTROLLER_DEBUG) {
+                            Error::display(__LINE__, __FILE__);
+                        }
+                        return true;
+                    }
+                }
+                $to_call = [];
+                if (method_exists($obj, $this->action_name)) {
+                    $this->getGetArgs();
+                    $reflect = new \ReflectionMethod($this->controller_name, $this->action_name);
+                    $apply = $reflect->getParameters();
+                    $controller_warn = false;
+                    if (!empty($apply)) {
+                        foreach ($apply as $key => $value) {
+                            if (!isset($this->method_args[$value->name])) {
+                                $controller_warn = true;
+                                Error::push(__CLASS__, "Action '" . $this->action_name . "' requires parameter'" . $value->name . "'", __FILE__, __LINE__);
+                            } else {
+                                $to_call[] = $this->method_args[$value->name];
                             }
-                            if (!$controller_warn) {
-                                if ($this->error_level == 1) {
-                                    Error::clear();
-                                }
-                                $return = $reflect->invokeArgs($obj, $to_call);
-                                if (is_array($return)) {
-                                    try {
-                                        $json = json_encode($return);
-                                        echo $json;
-                                    } catch (\Exception $error) {
-                                        return true;
-                                    }
-                                }
-                                if (Error::exists() && WingedConfig::$CONTROLLER_DEBUG) {
-                                    Error::display(__LINE__, __FILE__);
-                                }
-                                return true;
-                            }
-                        } else {
-                            if (method_exists($obj, 'whenActionNotFound')) {
-                                $reflect = new \ReflectionMethod($this->controller_name, 'whenActionNotFound');
-                                $apply = $reflect->getParameters();
-                                if (!empty($apply)) {
-                                    foreach ($apply as $key => $value) {
-                                        if (isset($this->method_args[$value->name])) {
-                                            $to_call[] = $this->method_args[$value->name];
-                                        }
-                                    }
-                                }
-                                $return = $reflect->invokeArgs($obj, [Winged::$controller_action]);
-                                if (is_array($return)) {
-                                    try {
-                                        $json = json_encode($return);
-                                        echo $json;
-                                    } catch (\Exception $error) {
-                                        return true;
-                                    }
-                                }
-                                if (Error::exists() && WingedConfig::$CONTROLLER_DEBUG) {
-                                    Error::display(__LINE__, __FILE__);
-                                }
+                        }
+                    }
+                    if (!$controller_warn) {
+                        if ($this->error_level == 1) {
+                            Error::clear();
+                        }
+                        $return = $reflect->invokeArgs($obj, $to_call);
+                        if (is_array($return)) {
+                            try {
+                                $json = json_encode($return);
+                                echo $json;
+                            } catch (\Exception $error) {
                                 return true;
                             }
                         }
-                    } else {
-                        if (WingedConfig::$CONTROLLER_DEBUG) {
-                            Error::push(__CLASS__, "Controller class '" . $this->controller_name . "' no exists in file '" . $this->controller_path . "'", __FILE__, __LINE__);
+                    }
+                } else {
+                    if (method_exists($obj, 'whenActionNotFound')) {
+                        $reflect = new \ReflectionMethod($this->controller_name, 'whenActionNotFound');
+                        $apply = $reflect->getParameters();
+                        if (!empty($apply)) {
+                            foreach ($apply as $key => $value) {
+                                if (isset($this->method_args[$value->name])) {
+                                    $to_call[] = $this->method_args[$value->name];
+                                }
+                            }
+                        }
+                        $return = $reflect->invokeArgs($obj, [Winged::$controller_action]);
+                        if (is_array($return)) {
+                            try {
+                                $json = json_encode($return);
+                                echo $json;
+                            } catch (\Exception $error) {
+                                return true;
+                            }
                         }
                     }
                 }
-                return false;
+                if (Error::exists() && WingedConfig::$config->CONTROLLER_DEBUG) {
+                    Error::display(__LINE__, __FILE__);
+                }
+                return $observer;
             }
-            return false;
+            return $observer;
         }
-        return true;
+        return false;
     }
 
-    public function getQueryStringConcat($push = array())
+    public function getQueryStringConcat($push = [])
     {
         $param = '';
         $fisrt = true;
@@ -259,8 +289,8 @@ class Controller
         $outher_conf = $parent . "config/config.php";
         if (file_exists($outher_conf) && !is_directory($outher_conf) && !$this->controller_reset) {
             include_once $outher_conf;
-            mb_internal_encoding(WingedConfig::$INTERNAL_ENCODING);
-            mb_http_output(WingedConfig::$OUTPUT_ENCODING);
+            mb_internal_encoding(WingedConfig::$config->INTERNAL_ENCODING);
+            mb_http_output(WingedConfig::$config->OUTPUT_ENCODING);
             Error::clear();
             $this->controller_reset = true;
             Winged::start();
@@ -310,24 +340,24 @@ class Controller
         }
     }
 
-    private function getControllerName($name = '')
+    private static function getControllerName($name = '')
     {
         if ($name == '') {
             $name = Winged::$controller_page;
         }
-        $exp = explode("-", str_replace(array('.', '_'), '-', $name));
+        $exp = explode("-", str_replace(['.', '_'], '-', $name));
         foreach ($exp as $index => $names) {
             $exp[$index] = ucfirst($exp[$index]);
         }
         return trim(implode('', $exp) . 'Controller');
     }
 
-    private function getActionName($name = '')
+    private static function getActionName($name = '')
     {
         if ($name == '') {
             $name = Winged::$controller_action;
         }
-        $exp = explode("-", str_replace(array('.', '_'), '-', $name));
+        $exp = explode("-", str_replace(['.', '_'], '-', $name));
         foreach ($exp as $index => $names) {
             $exp[$index] = ucfirst($exp[$index]);
         }
@@ -353,7 +383,7 @@ class Controller
         header('Location: ' . $path);
     }
 
-    public function redirectTo($path = '', $keep_args = true)
+    public function redirectTo($path = '', $keep_args = true, $simulate_post = '')
     {
         $args_path = explode('?', $path);
         $path = $args_path[0];
@@ -400,8 +430,8 @@ class Controller
         if (trim($args) != '') {
             $args = '?' . $args;
         }
-        if (WingedConfig::$PARENT_FOLDER_MVC) {
-            $parent = WingedLib::dotslash(Winged::$parent);
+        if (WingedConfig::$config->PARENT_FOLDER_MVC) {
+            $parent = WingedLib::clearPath(Winged::$parent);
             if ($parent == '') {
                 header('Location: ' . Winged::$protocol . $path . $args);
             } else {
@@ -499,15 +529,27 @@ class Controller
             if ($this->first_render) {
                 $this->first_render = false;
                 Buffer::reset();
-                include_once $path;
-                $content = Buffer::get();
-                Buffer::kill();
-                Buffer::start();
+                $file = new File($path, false);
+                $read = $file->read();
+                $_pos = stripos($read, '?>');
+                if (is_int($_pos)) {
+                    if ($_pos > 0) {
+                        $read = "\n?>\n" . trim($read);
+                    }
+                } else {
+                    $read = "\n?>\n" . trim($read);
+                }
+                if($read[strlen($read) - 1] != ';'){
+                    $read = $read . "\n<?php\n";
+                }
+                eval($read);
+                $content = Buffer::getKill();
+                Buffer::reset();
                 ?>
                 <!doctype html>
                 <html>
                 <?php
-                $this->pureHtml($content);
+                $created = $this->pureHtml($content);
                 ?>
                 </html>
                 <?php
@@ -524,39 +566,182 @@ class Controller
                         $content = str_replace($matchs[0], $rep, $content);
                     }
                 }
+                $match_code = false;
+                $matchs_code = null;
+                if (is_int(stripos($content, '<code'))) {
+                    $match_code = preg_match_all('#<code(.*?)>(.*?)</code>#is', $content, $matchs_code);
+                    if ($match_code) {
+                        foreach ($matchs_code[0] as $match_code) {
+                            $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                        }
+                        $content = str_replace($matchs_code[0], $rep, $content);
+                    }
+                }
                 $content = preg_replace('#> <#', '><', preg_replace('# {2,}#', ' ', preg_replace('/[\n\r]|/', '', $content)));
                 if ($match) {
                     $content = str_replace($rep, $matchs[0], $content);
                 }
-                if (WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS) {
-                    if (is_array(WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
-                        if (in_array('img', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
-                            $content = preg_replace_callback('#<img.+?src="([^"]*)".*?/?>#i', function ($found) {
-                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
-                            }, $content);
-                        }
-                        if (in_array('script', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
-                            $content = preg_replace_callback('#<script.+?src="([^"]*)".*?/?>#i', function ($found) {
-                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
-                            }, $content);
-                        }
-                        if (in_array('source', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
-                            $content = preg_replace_callback('#<source.+?src="([^"]*)".*?/?>#i', function ($found) {
-                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
-                            }, $content);
-                        }
-                        if (in_array('link', WingedConfig::$USE_UNICID_ON_INCLUDE_ASSETS)) {
-                            $content = preg_replace_callback('#<link.+?href="([^"]*)".*?/?>#i', function ($found) {
-                                return str_replace($found[1], $found[1] . '?get=' . RandomName::generate('sisisi'), $found[0]);
-                            }, $content);
+                if ($match_code) {
+                    $content = str_replace($rep, $matchs_code[0], $content);
+                }
+
+                global $__base__;
+                $__base__ = false;
+
+                preg_replace_callback('#<base.+?href="([^"]*)".*?/?>#i', function ($found) {
+                    global $__base__;
+                    $__base__ = $found[1];
+                    if ($__base__ == "") {
+                        $__base__ = false;
+                    }
+                }, $content);
+
+                $perms_tags = [
+                    'script' => '#<script.+?src="([^"]*)".*?/?>#i',
+                    'img' => '#<img.+?src="([^"]*)".*?/?>#i',
+                    'source' => '#<source.+?src="([^"]*)".*?/?>#i',
+                    'link' => '#<link.+?href="([^"]*)".*?/?>#i',
+                ];
+
+                $unicid_assets = [];
+
+                Container::$self->attach('__resolve_pattern_parser___', function ($matches) {
+                    $full_string = $matches[0];
+                    $only_match = $matches[1];
+                    $base = false;
+
+                    if (is_string(Container::$self->__base__)) {
+                        $base = str_replace(
+                            [
+                                Winged::$protocol,
+                                Winged::$http,
+                                Winged::$https,
+                            ],
+                            '',
+                            Container::$self->__base__
+                        );
+                    }
+
+                    $copy_match = WingedLib::clearPath($only_match);
+                    $copy_match = str_replace(
+                        [
+                            Winged::$protocol,
+                            Winged::$http,
+                            Winged::$https,
+                        ],
+                        '',
+                        $copy_match
+                    );
+                    if (is_string($base)) {
+                        $file = new File(WingedLib::normalizePath($base) . $copy_match, false);
+                        $mime = explode('/', $file->getMimeType());
+                        $mime = $mime[0];
+                        if (($file->exists() && in_array($file->getExtension(), [
+                                    'json',
+                                    'html',
+                                    'xml',
+                                    'css',
+                                    'htm',
+                                    'js',
+                                    'svg'
+                                ])) || (($file->exists() && $mime == 'image'))) {
+                            if (
+                                (!is_int(stripos($copy_match, 'https://')) &&
+                                    !is_int(stripos($copy_match, 'http://')) &&
+                                    !is_int(stripos($copy_match, '//'))) ||
+                                (is_int(stripos($copy_match, Winged::$http)) ||
+                                    is_int(stripos($copy_match, Winged::$https))
+                                )
+                            ) {
+                                $copy_match = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode(WingedLib::normalizePath($base) . $copy_match);
+                                $full_string = str_replace($only_match, $copy_match, $full_string);
+                                $only_match = $copy_match;
+                            }
                         }
                     }
+
+
+                    if (in_array(Container::$self->__tag__, Container::$self->unicid_assets)) {
+                        if (is_int(stripos($only_match, '?'))) {
+                            $full_string = str_replace($only_match, $only_match . '&get=' . RandomName::generate('sisisi'), $full_string);
+                        } else {
+                            $full_string = str_replace($only_match, $only_match . '?get=' . RandomName::generate('sisisi'), $full_string);
+                        }
+                    }
+
+                    return $full_string;
+
+                });
+
+                if (is_array(WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS)) {
+                    $unicid_assets = WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS;
                 }
-                ?>
-                <?= $content; ?>
-                <?php
+
+                if (!empty($unicid_assets) || WingedConfig::$config->ADD_CACHE_CONTROL) {
+
+                    Container::$self->unicid_assets = $unicid_assets;
+                    Container::$self->__base__ = $__base__;
+
+                    foreach ($perms_tags as $tag => $pattern) {
+                        Container::$self->__tag__ = $tag;
+                        $content = preg_replace_callback($pattern, [Container::$self, '__resolve_pattern_parser___'], $content);
+                    }
+                }
+
+                if ($created) {
+                    $minified = array_shift($this->css);
+                    $file = new File($minified['string'], false);
+                    $file_content = $file->read();
+                    $originals = [];
+                    $replaces = [];
+                    $trades = [];
+                    if ($file->exists()) {
+                        if (Container::$self->__css_paths__) {
+                            foreach (Container::$self->__css_paths__ as $path => $paths) {
+                                $path = new File($path, false);
+                                if ($path->exists()) {
+                                    foreach ($paths as $files) {
+                                        if (!empty($files)) {
+                                            $target_original = str_replace(['"', "'"], '', $files['file']);
+                                            $target = new File($path->folder->folder . $target_original, false);
+                                            if ($target->exists()) {
+                                                $originals[] = $files['file'];
+                                                $replaces[] = RandomName::generate('sisis', false, false);
+                                                $trades[] = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($target->file_path);
+
+                                                if ($target_original != $files['file']) {
+                                                    $originals[] = $target_original;
+                                                    $replaces[] = RandomName::generate('sisis', false, false);
+                                                    $trades[] = end($trades);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $file_content = str_replace($originals, $replaces, $file_content);
+                    $file_content = str_replace($replaces, $trades, $file_content);
+                    $file->write($file_content);
+                }
+                $response = new HttpResponseHandler();
+                $response->dispatchHtml($content, true);
             } else {
-                include_once $path;
+                $file = new File($path, false);
+                $read = $file->read();
+                $_pos = stripos($read, '?>');
+                if (is_int($_pos)) {
+                    if ($_pos > 0) {
+                        $read = "\n?>\n" . trim($read);
+                    }
+                } else {
+                    $read = "\n?>\n" . trim($read);
+                }
+                if($read[strlen($read) - 1] != ';'){
+                    $read = $read . "\n<?php\n";
+                }
+                eval($read);
             }
         } else {
             Error::push(__CLASS__, "file " . $path . " can't rendred because file not found.", __FILE__, __LINE__);
@@ -572,8 +757,8 @@ class Controller
     private function pureHtml($html_page)
     {
 
-        $this->createCssMinify();
-        $this->createJsMinify();
+        $create_css = $this->createCssMinify();
+        $create_js = $this->createJsMinify();
 
         if ($this->html_class != null) {
             Buffer::reset();
@@ -585,7 +770,7 @@ class Controller
         ?>
         <head>
             <?php
-            $head_content_path = WingedConfig::$HEAD_CONTENT_PATH;
+            $head_content_path = WingedConfig::$config->HEAD_CONTENT_PATH;
             if ($this->head_path !== false) {
                 $head_content_path = $this->head_path;
             }
@@ -634,6 +819,7 @@ class Controller
             if (!in_array($identifier, $this->remove_js)) {
                 if ($content['type'] === 'file') {
                     ?>
+
                     <script src="<?= $this->makeAssetsSrc($content['string']) ?>" type="text/javascript"
                             charset="utf-8"></script>
                 <?php
@@ -649,6 +835,7 @@ class Controller
                 }
             }
         }
+        return ($create_css || $create_js) ? true : false;
     }
 
     private function createJsMinifyNew($path, $read)
@@ -677,9 +864,11 @@ class Controller
                 }
             }
         }
+
         $cache_file->write($minify->minify());
+
         $this->js = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->js);
-        $this->persistsMinifiedCacheFileInformation($read);
+        return $this->persistsMinifiedCacheFileInformation($read);
     }
 
     private function createJsMinify()
@@ -695,9 +884,9 @@ class Controller
             }
             $path = md5($path);
         }
-        if (WingedConfig::$AUTO_MINIFY) {
+        if (WingedConfig::$config->AUTO_MINIFY) {
             if (!array_key_exists($path, $read) && $path !== '') {
-                $this->createJsMinifyNew($path, $read);
+                return $this->createJsMinifyNew($path, $read);
             } else {
                 if (array_key_exists($path, $read)) {
                     $check = $read[$path];
@@ -715,7 +904,7 @@ class Controller
                             $renew = true;
                         }
                     }
-                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$AUTO_MINIFY) {
+                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$config->AUTO_MINIFY) {
                         $renew = true;
                     }
                     if ($renew) {
@@ -723,7 +912,7 @@ class Controller
                         if ($old_cache_file->exists()) {
                             $old_cache_file->delete();
                         }
-                        $this->createJsMinifyNew($path, $read);
+                        return $this->createJsMinifyNew($path, $read);
                     } else {
                         foreach ($check['formed_with'] as $key => $former) {
                             $this->removeJs($former['identifier']);
@@ -741,10 +930,13 @@ class Controller
                 $this->js = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->js);
             }
         }
+        return false;
     }
 
     private function createCssMinifyNew($path, $read)
     {
+        //$pattern = '/url\(([\'"]?.[^\'"]*\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|otf|eot|css)[\'"]?)\)/i';
+        $pattern = '/url\((?![\'"]?(?:data|http):)[\'"]?([^\'"\)]*)[\'"]?\)/i';
         $read[$path] = [
             'create_at' => Date::now()->timestamp(),
             'formed_with' => [],
@@ -752,11 +944,55 @@ class Controller
         ];
         $cache_file = new File($read[$path]['cache_file']);
         $minify = new CSS();
+        Container::$self->__css_paths__ = [];
+
+        function __recursiveCheck__($matches, $_file, $pattern, $minify)
+        {
+            /**
+             * @var $_file File
+             * @var $minify CSS
+             */
+            $full_string = $matches[0];
+            $file = str_replace(['"', "'"], '', $matches[1]);
+            //$extension = trim($matches[2]);
+            $now_in = Container::$self->__css_path_now__;
+
+            $file = explode(')', $file);
+            $file = array_shift($file);
+            $exp = explode('.', $file);
+            $extension = end($exp);
+
+            Container::$self->vars['__css_paths__'][Container::$self->__css_path_now__][] =
+                [
+                    'full_string' => $full_string,
+                    'file' => $file,
+                    'extension' => $extension
+                ];
+            if ($extension == 'css') {
+                $_file = new File($_file->folder->folder . $file, false);
+                if ($_file->exists()) {
+                    Container::$self->vars['__css_path_now__'] = $_file->file_path;
+                    Container::$self->vars['__css_paths__'][Container::$self->__css_path_now__] = [];
+                    preg_replace_callback($pattern, function ($matches) use ($file, $pattern, $minify) {
+                        __recursiveCheck__($matches, $file, $pattern, $minify);
+                    }, $_file->read());
+                    $minify->add($_file->read());
+                }
+                Container::$self->vars['__css_path_now__'] = $now_in;
+            }
+        }
+
         foreach ($this->css as $identifier => $content) {
             if (!in_array($identifier, $this->remove_css)) {
                 if ($content['type'] === 'file') {
                     $file = new File($content['string'], false);
                     if ($file->exists()) {
+                        Container::$self->vars['__css_path_now__'] = $file->file_path;
+                        Container::$self->vars['__css_paths__'][Container::$self->__css_path_now__] = [];
+                        preg_replace_callback($pattern, function ($matches) use ($file, $pattern, $minify) {
+                            __recursiveCheck__($matches, $file, $pattern, $minify);
+                        }, $file->read());
+
                         $minify->add($file->read());
                         $this->removeCss($identifier);
                         $read[$path]['formed_with'][$content['string']] = [
@@ -769,9 +1005,10 @@ class Controller
                 }
             }
         }
+
         $cache_file->write($minify->minify());
         $this->css = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->css);
-        $this->persistsMinifiedCacheFileInformation($read);
+        return $this->persistsMinifiedCacheFileInformation($read);
     }
 
     private function createCssMinify()
@@ -787,9 +1024,9 @@ class Controller
             }
             $path = md5($path);
         }
-        if (WingedConfig::$AUTO_MINIFY) {
+        if (WingedConfig::$config->AUTO_MINIFY) {
             if (!array_key_exists($path, $read) && $path !== '') {
-                $this->createCssMinifyNew($path, $read);
+                return $this->createCssMinifyNew($path, $read);
             } else {
                 //check and update if need
                 if (array_key_exists($path, $read)) {
@@ -808,7 +1045,7 @@ class Controller
                             $renew = true;
                         }
                     }
-                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$AUTO_MINIFY) {
+                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$config->AUTO_MINIFY) {
                         $renew = true;
                     }
                     if ($renew) {
@@ -816,7 +1053,7 @@ class Controller
                         if ($old_cache_file->exists()) {
                             $old_cache_file->delete();
                         }
-                        $this->createCssMinifyNew($path, $read);
+                        return $this->createCssMinifyNew($path, $read);
                     } else {
                         foreach ($check['formed_with'] as $key => $former) {
                             $this->removeCss($former['identifier']);
@@ -834,6 +1071,7 @@ class Controller
                 $this->css = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->css);
             }
         }
+        return false;
     }
 
     private function createMinifiedCacheFileInformation()
@@ -873,7 +1111,7 @@ class Controller
         return $this->head_path;
     }
 
-    public function returnContent($path, $vars = array(), $loads = array())
+    public function returnContent($path, $vars = [], $loads = [])
     {
         $path = $this->getViewFile($path);
         if (file_exists($path) && !is_directory($path)) {
@@ -926,7 +1164,7 @@ class Controller
         }
     }
 
-    public function renderAnyFile($path, $vars = array(), $loads = array())
+    public function renderAnyFile($path, $vars = [], $loads = [])
     {
         if (file_exists($path) && !is_directory($path)) {
             foreach ($vars as $key => $value) {
@@ -978,7 +1216,7 @@ class Controller
         }
     }
 
-    public function renderPartial($path, $vars = array(), $loads = array(), $return = false)
+    public function renderPartial($path, $vars = [], $loads = [], $return = false)
     {
         $path = $this->getViewFile($path);
         if (file_exists($path) && !is_directory($path)) {
@@ -1038,7 +1276,7 @@ class Controller
         return false;
     }
 
-    public function renderJson($path, $vars = array(), $loads = array())
+    public function renderJson($path, $vars = [], $loads = [])
     {
         $path = $this->getViewFile($path);
         if (file_exists($path) && !is_directory($path)) {
@@ -1134,7 +1372,7 @@ class Controller
             if (array_key_exists($identifier, $this->js)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->js[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
-            $this->js[$identifier] = array();
+            $this->js[$identifier] = [];
             $this->js[$identifier]['string'] = $string;
             $this->js[$identifier]['type'] = 'script';
             $this->js[$identifier]['options'] = $options;
@@ -1142,7 +1380,7 @@ class Controller
             if (array_key_exists($identifier, $this->js)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->js[$identifier] = array();
+            $this->js[$identifier] = [];
             $this->js[$identifier]['string'] = $string;
             $this->js[$identifier]['type'] = 'url';
             $this->js[$identifier]['options'] = $options;
@@ -1156,7 +1394,7 @@ class Controller
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script file '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = array();
+            $this->css[$identifier] = [];
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'file';
             $this->css[$identifier]['options'] = $options;
@@ -1164,7 +1402,7 @@ class Controller
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css '" . htmlspecialchars($this->css[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = array();
+            $this->css[$identifier] = [];
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'script';
             $this->css[$identifier]['options'] = $options;
@@ -1172,7 +1410,7 @@ class Controller
             if (array_key_exists($identifier, $this->css)) {
                 Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css url '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
             }
-            $this->css[$identifier] = array();
+            $this->css[$identifier] = [];
             $this->css[$identifier]['string'] = $string;
             $this->css[$identifier]['type'] = 'url';
             $this->css[$identifier]['options'] = $options;

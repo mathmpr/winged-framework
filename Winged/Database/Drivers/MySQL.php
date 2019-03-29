@@ -15,7 +15,7 @@ class MySQL
 
     public function setNames()
     {
-        CurrentDB::execute('SET NAMES ' . WingedConfig::$DATABASE_CHARSET);
+        CurrentDB::execute('SET NAMES ' . WingedConfig::$config->DATABASE_CHARSET);
     }
 
     /**

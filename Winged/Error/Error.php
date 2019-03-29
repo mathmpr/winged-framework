@@ -3,7 +3,7 @@
 namespace Winged\Error;
 
 use Winged\Buffer\Buffer;
-use Winged\Utils\WingedLib;
+use Winged\Winged;
 
 register_shutdown_function(["Winged\Error\ShutdownCallback", "shutdownHandler"]);
 
@@ -22,51 +22,18 @@ class Error
 
     public static $errors = [];
 
-    private static function protocol()
-    {
-        $self = WingedLib::convertslash(server("php_self"));
-        $host = WingedLib::convertslash(server("server_name"));
-        $selfs = WingedLib::slashexplode($self);
-
-        $self = "";
-        for ($x = 0; $x < count7($selfs); $x++) {
-            if ($selfs[$x] != "index.php") {
-                if ($x == 0) {
-                    $self = $selfs[$x];
-                } else {
-                    $self .= "/" . $selfs[$x];
-                }
-            }
-        }
-
-        if ($self == "") {
-            $https = "https://" . $host . "/";
-            $http = "http://" . $host . "/";
-        } else {
-            $https = "https://" . $host . "/" . $self . "/";
-            $http = "http://" . $host . "/" . $self . "/";
-        }
-
-        if (server('https')) {
-            if (server('https') != 'off') {
-                return $https;
-            }
-        }
-        return $http;
-    }
-
     public static function _die($type = 'Die | Fatal', $description = '', $call = false, $file = false, $line = false)
     {
         Buffer::reset();
         ?>
         <html>
         <head>
-            <base href="<?= self::protocol() . "winged/" ?>">
+            <base href="<?= Winged::$protocol . "Winged/" ?>">
             <title>Trace error</title>
             <meta charset="utf-8"/>
-            <link href="error/assets/winged.error.css?get=<?= time() ?>" rel="stylesheet" type="text/css"/>
+            <link href="Error/assets/winged.error.css" rel="stylesheet" type="text/css"/>
             <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1"/>
-            <link rel="icon" href="assets/img/fav.png"/>
+            <link rel="icon" href="Error/assets/fav.png"/>
             <style>
                 td, th {
                     width: 11%;
@@ -153,12 +120,12 @@ class Error
             ?>
             <html>
             <head>
-                <base href="<?= self::protocol() . "winged/" ?>">
+                <base href="<?= Winged::$protocol . "Winged/" ?>">
                 <title>Trace error</title>
                 <meta charset="utf-8"/>
-                <link href="error/assets/winged.error.css?get=<?= time() ?>" rel="stylesheet" type="text/css"/>
+                <link href="Error/assets/winged.error.css" rel="stylesheet" type="text/css"/>
                 <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1"/>
-                <link rel="icon" href="assets/img/fav.png"/>
+                <link rel="icon" href="Error/assets/fav.png"/>
                 <style>
                     td, th {
                         width: 11%;

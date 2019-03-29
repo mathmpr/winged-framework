@@ -2,6 +2,8 @@
 
 namespace Winged\Upload;
 
+use Winged\Formater\Formater;
+
 class Upload
 {
     private $allow = [
@@ -15,6 +17,8 @@ class Upload
 
     public function setOptions($path, $type = "", $add = "", $allow_no = "", $max_size = 64, $nametype = "token")
     {
+        ini_set('post_max_size', $max_size . 'M');
+        ini_set('upload_max_filesize', $max_size . 'M');
         $types = explode(",", $type);
         $adds = explode(",", $add);
         $allown = explode(",", $allow_no);
@@ -191,7 +195,9 @@ class Upload
                                     $ran = rand(1, 1000000);
                                     $name = strtotime(date("Y-m-d H:i:s")) . "rand" . $ran . $mime;
                                 } else if ($this->nametype == "preserve") {
-                                    $name = $input["name"][$x];
+                                    $exp = explode('.', $input["name"][$x]);
+                                    $ext = array_pop($exp);
+                                    $name = Formater::toUrl(join('.', $exp), Formater::KEEP_FORMAT) . '.' . $ext;
                                 } else {
                                     $name = randid() . $mime;
                                 }
@@ -226,7 +232,9 @@ class Upload
                             $ran = rand(1, 1000000);
                             $name = strtotime(date("Y-m-d H:i:s")) . "rand" . $ran . $mime;
                         } else if ($this->nametype == "preserve") {
-                            $name = $input["name"];
+                            $exp = explode('.', $input["name"]);
+                            $ext = array_pop($exp);
+                            $name = Formater::toUrl(join('.', $exp), Formater::KEEP_FORMAT) . '.' . $ext;
                         } else {
                             $name = randid() . $mime;
                         }

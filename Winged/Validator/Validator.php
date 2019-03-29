@@ -415,4 +415,10 @@ class Validator
     {
         return (boolean)filter_var($email, FILTER_VALIDATE_EMAIL);
     }
+
+    public static function checkEmail($email = '')
+    {
+        return Email::check($email, 'no-reply@gmail.com');
+    }
+
 }

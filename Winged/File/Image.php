@@ -293,7 +293,6 @@ class Image extends File
         }
     }
 
-
     public function resize($divider = 2)
     {
         if ((is_float($divider) || is_int($divider))) {
@@ -457,6 +456,39 @@ class Image extends File
             $image_obj->original = $image['image'];
             $this->delete();
             return $image_obj->save($quality);
+        }
+    }
+
+    public function filter($color = "#000", $opacity = 0.6)
+    {
+        if (!is_float($opacity)) {
+            $opacity = 100;
+        } else {
+            $opacity = 100 - ($opacity * 100);
+        }
+        if ($opacity === 0) {
+            $opacity = 1;
+        }
+        if ($this->original) {
+            if (begstr($color) != '#') {
+                $color = '#' . $color;
+            }
+            if (strlen($color) === 4) {
+                list($r, $g, $b) = sscanf($color, "#%01x%01x%01x");
+            } else if (strlen($color) === 7) {
+                list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
+            } else {
+                $color = '#000000';
+                list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
+            }
+
+            $filter = imagecreatetruecolor($this->width(), $this->height());
+            imagealphablending($filter, false);
+            imagesavealpha($filter, true);
+            $color = imagecolorallocatealpha($filter, $r, $g, $b, $opacity);
+            imagecolortransparent($filter, $color);
+            imagefill($filter, 0, 0, $color);
+            imagecopyresampled($this->original, $filter, 0, 0, 0, 0, $this->width(), $this->height(), $this->width(), $this->height());
         }
     }
 

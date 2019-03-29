@@ -8,9 +8,9 @@
  * @copyright Copyright (c) 2012, Matthias Mullie. All rights reserved
  * @license MIT License
  */
-namespace MatthiasMullie\Minify;
+namespace Winged\External\MatthiasMullie\Minify\Minify;
 
-use MatthiasMullie\Minify\Exceptions\IOException;
+use Winged\External\MatthiasMullie\Minify\Minify\Exceptions\IOException;
 use Psr\Cache\CacheItemInterface;
 
 /**

@@ -50,14 +50,14 @@ class SilencedErrors
                 'warning' => false,
                 'fatal' => false
             ],
-            //'stream_socket_client' => [
-            //    'warning' => false,
-            //    'fatal' => false
-            //],
-            //'fsockopen' => [
-            //    'warning' => false,
-            //    'fatal' => false
-            //],
+            'gzdecode' => [
+                'warning' => false,
+                'fatal' => false
+            ],
+            'gzinflate' => [
+                'warning' => false,
+                'fatal' => false
+            ],
         ];
     }
 }

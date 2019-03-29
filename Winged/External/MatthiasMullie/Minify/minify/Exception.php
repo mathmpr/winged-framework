@@ -6,7 +6,7 @@
  *
  * @author Matthias Mullie <minify@mullie.eu>
  */
-namespace MatthiasMullie\Minify;
+namespace Winged\External\MatthiasMullie\Minify\Minify;
 
 /**
  * Base Exception Class
@@ -15,6 +15,6 @@ namespace MatthiasMullie\Minify;
  * @package Minify
  * @author Matthias Mullie <minify@mullie.eu>
  */
-abstract class Exception extends \Exception
+class Exception extends \Exception
 {
 }

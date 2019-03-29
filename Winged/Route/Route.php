@@ -44,6 +44,70 @@ class Route
         $this->name = $name;
     }
 
+
+    /**
+     * @param string $search
+     * @param string $new_name
+     * @return mixed|Route
+     */
+    public static function duplicate($search = '', $new_name = '')
+    {
+        if (array_key_exists($search, Route::$routes) && $new_name != $search && !array_key_exists($new_name, Route::$routes)) {
+            Route::$routes[$new_name] = new Route($new_name);
+            Route::$part[$new_name] = clone Route::$part[$search];
+            return Route::$routes[$new_name];
+        }
+        //silence errors case duplicate fails
+        return new Route(RandomName::generate('sisisisi'));
+    }
+
+    /**
+     * @return $this
+     */
+    public function changeToGet()
+    {
+        Route::$part[$this->name]->http = 'get';
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function changeToPost()
+    {
+        Route::$part[$this->name]->http = 'post';
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function changeToPut()
+    {
+        Route::$part[$this->name]->http = 'put';
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function changeToDelete()
+    {
+        Route::$part[$this->name]->http = 'delete';
+        return $this;
+    }
+
+    /**
+     * @param array $origins
+     * @return $this
+     */
+    public function origins($origins = []){
+        if(is_array($origins)){
+            Route::$part[$this->name]->origins = $origins;
+        }
+        return $this;
+    }
+
     /**
      * @param $name
      */
@@ -60,18 +124,31 @@ class Route
      * if use this method, basci auth is required in request for this route
      * @param string | callable $user
      * @param string $password
+     * @param bool $require_password
      * @return $this
      */
-    public function credentials($user = 'root', $password = '')
+    public function credentials($user = 'root', $password = '', $require_password = false)
     {
         $current = false;
-        if (server('php_auth_user') && server('php_auth_pw')) {
+        if (server('php_auth_user') && server('php_auth_pw') || (!$require_password && server('php_auth_user'))) {
             if (is_string($user)) {
-                if (!server('php_auth_user') === $user || !server('php_auth_pw') === $password) {
+                if (!$require_password) {
+                    if (!server('php_auth_user') === $user) {
+                        $current = true;
+                    }
+                } else if (!server('php_auth_user') === $user || !server('php_auth_pw') === $password) {
                     $current = true;
                 }
             } else if (is_callable($user)) {
                 $current = call_user_func_array($user, [server('php_auth_user'), server('php_auth_pw')]);
+                if ($current) {
+                    if (is_array($current)) {
+                        Route::$part[$this->name]->vars = array_merge(Route::$part[$this->name]->vars, $current);
+                    }
+                    $current = false;
+                } else {
+                    $current = true;
+                }
             } else {
                 $current = true;
             }
@@ -177,7 +254,7 @@ class Route
      * @param $array
      * @param $xml
      */
-    protected static function arrayToXml($array, &$xml)
+    public static function arrayToXml($array, &$xml)
     {
         /**
          * @var $xml \SimpleXMLElement
@@ -217,12 +294,14 @@ class Route
             'callable' => false,
             'class' => false,
             'method' => false,
+            'vars' => [],
             'uri' => false,
             '_404' => false,
             '_401' => false,
             '_502' => false,
             'valid' => false,
             'rules' => [],
+            'origins' => [],
             'createSessionOptions' => [],
             'errors' => [
                 'rule' => []
@@ -260,34 +339,39 @@ class Route
         }
         //in any case of not configured callback or malformed callback throw 502 bad request
         $parsed = [];
-        $exp = explode('/', WingedLib::dotslash($uri));
-        $uri = explode('/', WingedLib::dotslash(Winged::$uri));
+        $exp = WingedLib::explodePath($uri);
+        $uri = WingedLib::explodePath(Winged::$uri);
+        if (!$uri) {
+            $uri = [];
+        }
         /*
          * parse uri
          * determine what is a value and what is a keyword
          */
-        foreach ($exp as $index => $value) {
-            $current = [];
-            $_value = $value;
-            if (begstr($value) === '{' && endstr($value) === '}') {
-                $current['type'] = 'arg';
-                $current['required'] = true;
-                begstr_replace($value);
-                endstr_replace($value, 1);
-                $_value = str_replace('?', '', $value);
-                if ($_value !== $value) {
-                    $current['required'] = false;
+        if ($exp) {
+            foreach ($exp as $index => $value) {
+                $current = [];
+                $_value = $value;
+                if (begstr($value) === '{' && endstr($value) === '}') {
+                    $current['type'] = 'arg';
+                    $current['required'] = true;
+                    begstr_replace($value);
+                    endstr_replace($value, 1);
+                    $_value = str_replace('?', '', $value);
+                    if ($_value !== $value) {
+                        $current['required'] = false;
+                    }
+                } else {
+                    $current['type'] = 'name';
+                    $current['required'] = true;
                 }
-            } else {
-                $current['type'] = 'name';
-                $current['required'] = true;
+                $current['name'] = $_value;
+                $current['value'] = null;
+                if (array_key_exists($index, $uri)) {
+                    $current['value'] = $uri[$index];
+                }
+                $parsed[$_value] = $current;
             }
-            $current['name'] = $_value;
-            $current['value'] = null;
-            if (array_key_exists($index, $uri)) {
-                $current['value'] = $uri[$index];
-            }
-            $parsed[$_value] = $current;
         }
         $construct['uri'] = $parsed;
         $name = RandomName::generate('sisisi', false, false);

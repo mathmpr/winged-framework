@@ -6,6 +6,7 @@ use Winged\Buffer\Buffer;
 use Winged\Date\Date;
 use Winged\Error\Error;
 use Winged\File\File;
+use Winged\Http\HttpResponseHandler;
 use Winged\Http\Session;
 use Winged\Utils\RandomName;
 use Winged\Utils\WingedLib;
@@ -20,7 +21,7 @@ class RouteExec extends Route
 {
     public static function sendErrorResponse()
     {
-        if (!empty(self::$response) && !empty($routes)) {
+        if (!empty(self::$response) && !empty(self::$routes)) {
             Error::clear();
             Buffer::kill();
             header_remove();
@@ -33,10 +34,10 @@ class RouteExec extends Route
                     break;
                 case 404:
                     header('HTTP/1.0 ' . self::$response['response'] . ' Not Found');
-                    $file = new File(WingedConfig::$NOTFOUND, false);
+                    $file = new File(WingedConfig::$config->NOTFOUND, false);
                     if ($file->exists()) {
                         Buffer::reset();
-                        include_once WingedConfig::$NOTFOUND;
+                        include_once WingedConfig::$config->NOTFOUND;
                         Buffer::flushKill();
                         exit;
                     }
@@ -46,41 +47,29 @@ class RouteExec extends Route
                     break;
             }
 
+            $responseHandler = new HttpResponseHandler();
             $headers = getallheaders();
             $accept = isset($headers['Accept']) ? $headers['Accept'] : 'application/json';
             switch ($accept) {
+                case 'text/yaml':
+                    $responseHandler->dispatchYaml(self::$response['content']);
+                    break;
                 case 'text/plain':
-                    $accept = 'text';
+                    $responseHandler->dispatchTxt(self::$response['content']);
                     break;
                 case 'text/xml':
-                    $accept = 'xml';
+                    $responseHandler->dispatchXml(self::$response['content']);
                     break;
                 case 'application/json':
-                    $accept = 'json';
+                    $responseHandler->dispatchJson(self::$response['content']);
                     break;
                 case '*/*':
-                    $accept = 'json';
+                    $responseHandler->dispatchJson(self::$response['content']);
                     break;
                 default:
-                    $accept = 'json';
+                    $responseHandler->dispatchJson(self::$response['content']);
                     break;
             }
-            if ($accept === 'json') {
-                header('Content-Type: application/json; charset=UTF-8');
-                print json_encode(self::$response['content']);
-            } else if ($accept === 'xml') {
-                header('Content-Type: text/xml; charset=UTF-8');
-                $xml = new \SimpleXMLElement('<response/>');
-                self::arrayToXml(self::$response['content'], $xml);
-                print $xml->asXML();
-            } else if ($accept === 'text') {
-                header('Content-Type: text/plain; charset=UTF-8');
-                print_r(self::$response['content']);
-            } else {
-                header('Content-Type: application/json; charset=UTF-8');
-                print json_encode(self::$response['content']);
-            }
-            exit;
         }
         return false;
     }
@@ -93,6 +82,9 @@ class RouteExec extends Route
         $headers = \getallheaders();
         $accept = isset($headers['Accept']) ? $headers['Accept'] : 'application/json';
         switch ($accept) {
+            case 'text/yaml':
+                $accept = 'yaml';
+                break;
             case 'text/plain':
                 $accept = 'text';
                 break;
@@ -112,7 +104,7 @@ class RouteExec extends Route
         /**
          * @var $route Route
          */
-        $uri = explode('/', WingedLib::dotslash(Winged::$uri));
+        $uri = WingedLib::explodePath(Winged::$uri);
         $times = 0;
         foreach (self::$routes as $register => $route) {
             if (count7(Route::$part[$route->name]->uri) === count7($uri)) {
@@ -166,6 +158,15 @@ class RouteExec extends Route
                     continue;
                 }
 
+                $origin = server('http_referer');
+
+                if (!empty(self::$part[$register]->origins)) {
+                    if (!in_array($origin, self::$part[$register]->origins)) {
+                        self::$part[$register]->_401 = 'The server can\'t respond appropriately because the client server is not allowed to make requests to that endpoint. To learn more, see more about CORS policies.';
+                        continue;
+                    }
+                }
+
                 if (is_post() && self::$part[$register]->http != 'post') {
                     self::$part[$register]->_502 = 'The route can\'t respond with found method in your http protocol.';
                     continue;
@@ -193,10 +194,10 @@ class RouteExec extends Route
                     header('HTTP/1.0 200 Ok');
                     $return = null;
                     if (self::$part[$register]->callable) {
-                        $return = call_user_func_array(self::$part[$register]->callable, $args);
-                    } else if(self::$part[$register]->class){
-                        $return = call_user_func_array([self::$part[$register]->class, self::$part[$register]->method], $args);
-                    }else{
+                        $return = call_user_func_array(self::$part[$register]->callable, array_merge($args, [self::$part[$register]->vars]));
+                    } else if (self::$part[$register]->class) {
+                        $return = call_user_func_array([self::$part[$register]->class, self::$part[$register]->method], array_merge($args, [self::$part[$register]->vars]));
+                    } else {
                         $token = RandomName::generate('sisisisisisi', true, false);
                         $expires = isset(self::$part[$register]->createSessionOptions['expires']) ? self::$part[$register]->createSessionOptions['expires'] : 3600;
                         $session = [
@@ -204,90 +205,102 @@ class RouteExec extends Route
                             'expires' => $expires
                         ];
                         Session::set($token, $session);
+
                         $response = [
                             'token' => [
+                                'status' => true,
                                 'name' => $token,
                                 'expires' => $expires
                             ]
                         ];
-                        if ($accept === 'json') {
-                            header('Content-Type: application/json; charset=UTF-8');
-                            print json_encode($response);
-                        } else if ($accept === 'xml') {
-                            header('Content-Type: text/xml; charset=UTF-8');
-                            $xml = new \SimpleXMLElement('<response/>');
-                            self::arrayToXml($response, $xml);
-                            print $xml->asXML();
-                        } else if ($accept === 'text') {
-                            header('Content-Type: text/plain; charset=UTF-8');
-                            print_r($response);
-                        } else {
-                            header('Content-Type: application/json; charset=UTF-8');
-                            print json_encode($response);
+
+                        $responseHandler = new HttpResponseHandler();
+                        switch ($accept) {
+                            case 'json':
+                                $responseHandler->dispatchJson($response);
+                                break;
+                            case 'xml':
+                                $responseHandler->dispatchXml($response);
+                                break;
+                            case 'text':
+                                $responseHandler->dispatchTxt($response);
+                                break;
+                            case 'yaml':
+                                $responseHandler->dispatchYaml($response);
+                                break;
+                            default:
+                                $responseHandler->dispatchJson($response);
+                                break;
                         }
-                        exit;
                     }
+
                     if (is_array($return)) {
-                        if ($accept === 'json') {
-                            header('Content-Type: application/json; charset=UTF-8');
-                            print json_encode($return);
-                        } else if ($accept === 'xml') {
-                            header('Content-Type: text/xml; charset=UTF-8');
-                            $xml = new \SimpleXMLElement('<response/>');
-                            self::arrayToXml($return, $xml);
-                            print $xml->asXML();
-                        } else if ($accept === 'text') {
-                            header('Content-Type: text/plain; charset=UTF-8');
-                            print_r($return);
-                        } else {
-                            header('Content-Type: application/json; charset=UTF-8');
-                            print json_encode($return);
+                        $responseHandler = new HttpResponseHandler();
+                        switch ($accept) {
+                            case 'json':
+                                $responseHandler->dispatchJson($return, false);
+                                break;
+                            case 'xml':
+                                $responseHandler->dispatchXml($return, false);
+                                break;
+                            case 'text':
+                                $responseHandler->dispatchTxt($return, false);
+                                break;
+                            case 'yaml':
+                                $responseHandler->dispatchYaml($return, false);
+                                break;
+                            default:
+                                $responseHandler->dispatchJson($return, false);
+                                break;
                         }
-                        exit;
                     }
-                    return true;
+                    return $return;
                 }
             }
-            return false;
         }
 
-        if ($times === 0) {
+        foreach (self::$routes as $route) {
+            if (Route::$part[$route->name]->valid) {
+                if (Route::$part[$route->name]->_401) {
+                    Route::$part[$route->name]->errors['rule']['status'] = false;
+                    self::registerErrorResponse([
+                        'response' => 401,
+                        'content' => [
+                            'data' => Route::$part[$route->name]->errors['unauthorized']
+                        ]
+                    ]);
+                } else if (is_string(Route::$part[$route->name]->_502)) {
+                    Route::$part[$route->name]->errors['rule']['status'] = false;
+                    self::registerErrorResponse([
+                        'response' => 502,
+                        'content' => [
+                            'data' => Route::$part[$route->name]->_502
+                        ]
+                    ]);
+                } else if (is_bool(Route::$part[$route->name]->_502)) {
+                    Route::$part[$route->name]->errors['rule']['status'] = false;
+                    self::registerErrorResponse([
+                        'response' => 502,
+                        'content' => [
+                            'data' => Route::$part[$route->name]->errors['rule']
+                        ]
+                    ]);
+                }
+            }
+        }
+
+        if (WingedConfig::$config->USE_404_WITH_ROUTES === true && $times === 0) {
             self::registerErrorResponse([
                 'response' => 404,
                 'content' => [
-                    'data' => '404! No route or controller was able to service your request.'
+                    'status' => false,
+                    'data' => [
+                        'status' => false,
+                        'notfound' => '404! No route or controller was able to service your request.'
+                    ]
                 ]
             ]);
-            return false;
-        } else {
-            foreach (self::$routes as $route) {
-                if (Route::$part[$route->name]->valid) {
-                    if (Route::$part[$route->name]->_401) {
-                        self::registerErrorResponse([
-                            'response' => 401,
-                            'content' => [
-                                'data' => Route::$part[$route->name]->errors['unauthorized']
-                            ]
-                        ]);
-                    } else if (is_string(Route::$part[$route->name]->_502)) {
-                        self::registerErrorResponse([
-                            'response' => 502,
-                            'content' => [
-                                'data' => Route::$part[$route->name]->_502
-                            ]
-                        ]);
-                    } else if (is_bool(Route::$part[$route->name]->_502)) {
-                        self::registerErrorResponse([
-                            'response' => 502,
-                            'content' => [
-                                'data' => Route::$part[$route->name]->errors['rule']
-                            ]
-                        ]);
-                    }
-                }
-            }
         }
-        return false;
+        return true;
     }
-
 }

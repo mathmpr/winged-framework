@@ -5,6 +5,7 @@ namespace Winged\Directory;
 use Winged\Formater\Formater;
 use Winged\File\File;
 use Winged\Utils\WingedLib;
+use Winged\Winged;
 
 class Directory
 {
@@ -83,7 +84,7 @@ class Directory
 
     public static function clearDirectory($folder, $keepWithFilesExtensions = [])
     {
-        $folder = WingedLib::dotslash(WingedLib::dotslash($folder), true);
+        $folder = WingedLib::normalizePath($folder);
         $scan = scandir($folder);
         if (is_string($keepWithFilesExtensions)) {
             $keepWithFilesExtensions = [$keepWithFilesExtensions];
@@ -113,6 +114,24 @@ class Directory
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    public function readDir(){
+        $files = [];
+        if($this->exists()){
+            $scan = scandir($this->folder);
+            if($scan && is_array($scan)){
+                array_shift($scan);
+                array_shift($scan);
+                foreach ($scan as $file){
+                    $file = new File($this->folder . $file, false);
+                    if($file->exists()){
+                        $files[] = $file;
+                    }
+                }
+            }
+        }
+        return $files;
     }
 
     public function deleteFullPath()

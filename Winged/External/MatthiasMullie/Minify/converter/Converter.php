@@ -1,6 +1,6 @@
 <?php
 
-namespace MatthiasMullie\PathConverter;
+namespace Winged\External\MatthiasMullie\Minify\Converter;
 
 /**
  * Convert paths relative from 1 file to another.
@@ -155,7 +155,7 @@ class Converter implements ConverterInterface
         $to = mb_substr($this->to, mb_strlen($shared));
 
         // add .. for every directory that needs to be traversed to new path
-        $to = str_repeat('../', mb_substr_count7($to, '/'));
+        $to = str_repeat('../', mb_substr_count($to, '/'));
 
         return $to.ltrim($path, '/');
     }
