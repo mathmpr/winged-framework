@@ -7,12 +7,13 @@ use Winged\Error\Error;
 /**
  * Class Vector
  */
-class Vector implements \ArrayAccess
+class Vector implements \ArrayAccess, \Iterator
 {
-
-    public $vector = [];
+    private $position = null;
+    private $vector = [];
     private $hashs = [];
     private $objectOffsets = [];
+    private $needsReset = false;
 
     public static function factory($vector = [])
     {
@@ -21,6 +22,7 @@ class Vector implements \ArrayAccess
 
     public function __construct($vector = [])
     {
+        $this->position = 0;
         $this->setVector($vector);
     }
 
@@ -91,7 +93,7 @@ class Vector implements \ArrayAccess
             if ($this->keyByValue($value)) {
                 return false;
             }
-            $this->hashs[] = spl_object_id($value);
+            $this->hashs[] = spl_object_hash($value);
         }
 
         if (is_object($offset)) {
@@ -102,7 +104,12 @@ class Vector implements \ArrayAccess
 
         if (is_string($offset) || is_int($offset)) {
             $this->vector[$offset] = $value;
+        } else {
+            if (!$offset) {
+                $this->vector[] = $value;
+            }
         }
+        $this->position = $this->key();
         return true;
     }
 
@@ -130,8 +137,15 @@ class Vector implements \ArrayAccess
             $offset = spl_object_hash($offset);
         }
         if (array_key_exists($offset, $this->vector)) {
+            if (key($this->vector) === $offset) {
+                if ($this->next()) {
+                    $this->position = key($this->vector);
+                } else if ($this->prev()) {
+                    $this->position = key($this->vector);
+                }
+            }
             if (is_object($this->vector[$offset])) {
-                $hash = spl_object_id($this->vector[$offset]);
+                $hash = spl_object_hash($this->vector[$offset]);
                 $search = array_search($hash, $this->hashs, true);
                 if ($search || is_int($search)) {
                     unset($this->hashs[$search]);
@@ -179,7 +193,7 @@ class Vector implements \ArrayAccess
     public function contains($value)
     {
         if (is_object($value)) {
-            return in_array(spl_object_id($value), $this->hashs);
+            return in_array(spl_object_hash($value), $this->hashs);
         }
         return in_array($value, $this->vector);
     }
@@ -351,8 +365,8 @@ class Vector implements \ArrayAccess
     {
         if ($vector) {
             if (is_object($vector) && !is_callable($vector)) {
-                if (!in_array(spl_object_id($vector), $stack)) {
-                    $stack[] = spl_object_id($vector);
+                if (!in_array(spl_object_hash($vector), $stack)) {
+                    $stack[] = spl_object_hash($vector);
                     if (get_class($vector) === 'stdClass') {
                         foreach ($vector as $key => $value) {
                             if (get_class($value) === __CLASS__) {
@@ -425,69 +439,251 @@ class Vector implements \ArrayAccess
         }
     }
 
+    function valid()
+    {
+        return isset($this->vector[$this->position]);
+    }
+
+    function key()
+    {
+        if ($this->needsReset) {
+            $this->rewind();
+        }
+        $key = key($this->vector);
+        if (array_key_exists($key, $this->objectOffsets)) {
+            return $this->objectOffsets[$key];
+        }
+        return $key;
+    }
+
+    public function next()
+    {
+        $next = next($this->vector);
+        $this->position = key($this->vector);
+        if ($next) {
+            return $next;
+        } else {
+            $this->needsReset = true;
+            return false;
+        }
+    }
+
+    public function prev()
+    {
+        $prev = prev($this->vector);
+        $this->position = key($this->vector);
+        if ($prev) {
+            return $prev;
+        } else {
+            return false;
+        }
+    }
+
+    public function current()
+    {
+        return current($this->vector);
+    }
+
+    function rewind()
+    {
+        reset($this->vector);
+        $this->position = key($this->vector);
+        return true;
+    }
+
+    public function end()
+    {
+        return end($this->vector);
+    }
+
+    public function isEmpty()
+    {
+        return !(count($this->vector) > 0);
+    }
+
     /**
-     * @param array | object $vector
+     * @param $function
      * @param array $stack
-     * @return array|null
+     * @param array|object $runIn
+     * @param string $from
+     * @param null|object $original
+     * @return array|callable
      * @throws \ReflectionException
      */
-    private function removeRecursion($vector, &$stack = [])
+    private function _walk($function, $runIn = [], &$stack = [], $from = '', $original = null)
     {
-        if ($vector) {
-            if (is_object($vector) && !in_array($vector, $stack, true) && !is_callable($vector)) {
-                $stack[] = &$vector;
-                if (get_class($vector) === 'stdClass') {
-                    foreach ($vector as $key => $value) {
-                        if (in_array($vector->{$key}, $stack, true)) {
-                            unset($vector->{$key});
-                            $vector->{$key} = null;
+        if (!array_key_exists(spl_object_id($this), $stack)) {
+            $stack[spl_object_id($this)] = &$this;
+        }
+        if (is_callable($function) && $runIn) {
+            if ((is_object($runIn) || is_array($runIn)) && !is_callable($runIn)) {
+                if (is_object($runIn)) {
+                    if (!array_key_exists(spl_object_id($runIn), $stack)) {
+                        $stack[spl_object_id($runIn)] = &$runIn;
+                        if (get_class($runIn) === 'stdClass') {
+                            foreach ($runIn as $key => $value) {
+                                if (is_object($value) && get_class($value)) {
+                                    if (array_key_exists(spl_object_id($value), $stack)) {
+                                        continue;
+                                    }
+                                }
+                                $get = $this->_walk($function, $value, $stack, $key, $runIn);
+                                if ($get) {
+                                    $runIn->{$key} = $get;
+                                }
+                            }
                         } else {
-                            $vector->{$key} = $this->removeRecursion($vector->{$key}, $stack);
+                            $reflection = (new \ReflectionClass(get_class($runIn)));
+                            $properties = $reflection->getProperties();
+                            if ($properties) {
+                                foreach ($properties as $property) {
+                                    $private = false;
+                                    if ($property->isProtected() || $property->isPrivate() || $property->isPublic()) {
+                                        if ($property->isPrivate() || $property->isProtected()) {
+                                            $property->setAccessible(true);
+                                            $private = true;
+                                        }
+                                    }
+
+                                    $get = $property->getValue();
+
+                                    if (is_object($get) && get_class($get) === __CLASS__) {
+                                        if (!array_key_exists(spl_object_id($get), $stack)) {
+                                            $get->walkDeep($function);
+                                        }
+                                    } else {
+                                        $get = $this->_walk($function, $get, $stack, $property->getName(), $runIn);
+                                        if ($get) {
+                                            $property->setValue($runIn, $get);
+                                        }
+                                    }
+
+                                    if ($private) {
+                                        $property->setAccessible(false);
+                                    }
+                                }
+                            }
                         }
                     }
-                    return $vector;
                 } else {
-                    $object = new \ReflectionObject($vector);
-                    $reflection = new \ReflectionClass($vector);
-                    $properties = $reflection->getProperties();
-                    if ($properties) {
-                        foreach ($properties as $property) {
-                            $property = $object->getProperty($property->getName());
-                            $property->setAccessible(true);
-                            if (!is_callable($property->getValue($vector))) {
+                    foreach ($runIn as $key => &$value) {
+                        if (is_object($value) && get_class($value) === __CLASS__) {
+                            if (!array_key_exists(spl_object_id($value), $stack)) {
+                                $runIn[$key]->walkDeep($function);
+                            }
+                        } else {
+                            if (is_object($value) && get_class($value)) {
+                                if (array_key_exists(spl_object_id($value), $stack)) {
+                                    continue;
+                                }
+                            }
+                            $get = $this->_walk($function, $value, $stack, $key, $runIn);
+                            if ($get) {
+                                $runIn[$key] = $get;
+                            }
+                        }
+                    }
+                }
+            } else {
+                $objectKey = null;
+                if (array_key_exists($from, $this->objectOffsets)) {
+                    $objectKey = $this->objectOffsets[$from];
+                }
+                $get = call_user_func_array($function, [
+                    'value' => $runIn,
+                    'key' => $from,
+                    'objectKey' => $objectKey
+                ]);
+                if ($get) {
+                    return $get;
+                }
+            }
+        }
+        return $runIn;
+    }
+
+    private function _executeWalkCallback($function, $runIn, $from)
+    {
+        $objectKey = null;
+        if (array_key_exists($from, $this->objectOffsets)) {
+            $objectKey = $this->objectOffsets[$from];
+        }
+        $get = call_user_func_array($function, [
+            'value' => $runIn,
+            'key' => $from,
+            'objectKey' => $objectKey
+        ]);
+        return $get;
+    }
+
+    private function _walkOne($function, $runIn = [])
+    {
+        if (is_callable($function) && $runIn) {
+            if ((is_object($runIn) || is_array($runIn)) && !is_callable($runIn)) {
+                if (is_object($runIn)) {
+                    if (get_class($runIn) === 'stdClass') {
+                        foreach ($runIn as $key => $value) {
+                            if (!is_object($value) && !is_array($value)) {
+                                $get = $this->_executeWalkCallback($function, $value, $key);
+                                if ($get) {
+                                    $runIn->{$key} = $get;
+                                }
+                            }
+                        }
+                    } else {
+                        $reflection = (new \ReflectionClass(get_class($runIn)));
+                        $properties = $reflection->getProperties();
+                        if ($properties) {
+                            foreach ($properties as $property) {
                                 $private = false;
-                                if ($property->isPrivate()) {
-                                    $property->setAccessible(true);
-                                    $private = true;
+                                if ($property->isProtected() || $property->isPrivate() || $property->isPublic()) {
+                                    if ($property->isPrivate() || $property->isProtected()) {
+                                        $property->setAccessible(true);
+                                        $private = true;
+                                    }
                                 }
-
-                                if (in_array($property->getValue($vector), $stack, true)) {
-                                    $property->setValue($vector, null);
-                                } else {
-                                    $property->setValue($vector, $this->removeRecursion($property->getValue($vector), $stack));
+                                $get = $property->getValue();
+                                if (!is_object($get) && !is_array($get)) {
+                                    $get = $this->_executeWalkCallback($function, $get, $property->getName());
+                                    if ($get) {
+                                        $property->setValue($runIn, $get);
+                                    }
                                 }
-
                                 if ($private) {
                                     $property->setAccessible(false);
                                 }
                             }
                         }
                     }
-                    return $vector;
-                }
-            } else if (is_array($vector)) {
-                $nvector = [];
-                foreach ($vector as $key => $value) {
-                    $nvector[$key] = $this->removeRecursion($value, $stack);
-                }
-                return $nvector;
-            } else {
-                if (is_object($vector) && !is_callable($vector)) {
-                    return null;
+                } else {
+                    foreach ($runIn as $key => $value) {
+                        if (!is_object($value) && !is_array($value)) {
+                            $get = $this->_executeWalkCallback($function, $value, $key);
+                            if ($get) {
+                                $runIn[$key] = $get;
+                            }
+                        }
+                    }
                 }
             }
         }
-        return $vector;
+        return $runIn;
+    }
+
+    public function walkDeep($function = null)
+    {
+        if (is_callable($function)) {
+            if (is_callable($function)) {
+                $this->vector = $this->_walk($function, $this->vector);
+            }
+        }
+    }
+
+    public function walk($function = null)
+    {
+        if (is_callable($function)) {
+            $this->vector = $this->_walkOne($function, $this->vector);
+        }
     }
 
     /**
@@ -497,67 +693,7 @@ class Vector implements \ArrayAccess
      */
     public function getVectorAllWithoutRecursion()
     {
-        return $this->removeRecursion(DeepClone::factory($this->getVectorAll())->copy(), $stack);
-    }
-
-    /**
-     * @param object|array $vector
-     * @return array
-     * @throws \ReflectionException
-     */
-    private function removeClosure($vector = [])
-    {
-        if ($vector) {
-            if (is_object($vector)) {
-                if (get_class($vector) === 'stdClass') {
-                    foreach ($vector as $key => $value) {
-                        if (is_callable($value)) {
-                            $vector->{$key} = null;
-                        } else {
-                            if (is_object($value) || is_array($value)) {
-                                $vector->{$key} = $this->removeClosure($value);
-                            }
-                        }
-                    }
-                } else {
-                    $object = new \ReflectionObject($vector);
-                    $reflection = new \ReflectionClass($vector);
-                    $properties = $reflection->getProperties();
-                    if ($properties) {
-                        foreach ($properties as $property) {
-                            $private = false;
-                            $property = $object->getProperty($property->getName());
-                            if ($property->isPrivate() || $property->isProtected()) {
-                                $property->setAccessible(true);
-                                $private = true;
-                            }
-                            $get = $property->getValue($vector);
-                            if (is_callable($get)) {
-                                $property->setValue($vector, null);
-                            } else {
-                                if (is_object($get) || is_array($get)) {
-                                    $property->setValue($this->removeClosure($get), null);
-                                }
-                            }
-                            if ($private) {
-                                $property->setAccessible(false);
-                            }
-                        }
-                    }
-                }
-            } else if (is_array($vector)) {
-                foreach ($vector as $key => $value) {
-                    if (is_callable($value)) {
-                        $vector[$key] = null;
-                    } else {
-                        if (is_object($value) || is_array($value)) {
-                            $vector[$key] = $this->removeClosure($value);
-                        }
-                    }
-                }
-            }
-        }
-        return $vector;
+        return DeepClone::factory($this->getVectorAll())->copyRemoveRecursion();
     }
 
     /**
@@ -567,7 +703,7 @@ class Vector implements \ArrayAccess
      */
     public function getVectorAllWithoutRecursionAndClosure()
     {
-        return $this->removeClosure($this->removeRecursion(DeepClone::factory($this->getVectorAll())->copy(), $stack));
+        return DeepClone::factory($this->getVectorAll())->copyRemoveRecursionAndClosures();
     }
 
 }

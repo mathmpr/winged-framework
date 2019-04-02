@@ -27,10 +27,10 @@ class DeepClone
         }
     }
 
-    private function recursiveCopy($origin = null, $target = null, &$stack = [], &$objects = [])
+    public function recursiveCopy($origin = null, $target = null, &$stack = [], &$objects = [], $from = null)
     {
         if (!$target) {
-            if (is_object($origin) && !in_array(spl_object_id($origin), $stack)) {
+            if (is_object($origin) && !array_key_exists(spl_object_id($origin), $stack)) {
                 if (get_class($origin) === 'stdClass') {
                     $target = new \stdClass();
                     $stack[spl_object_id($origin)] = spl_object_id($target);
@@ -70,17 +70,22 @@ class DeepClone
                                     $private = true;
                                 }
                                 $get = $property->getValue($origin);
-                                if (is_object($get) && !is_callable($get)) {
-                                    $property->setValue($target, $this->recursiveCopy($get, null, $stack, $objects));
+
+                                if (is_object($get) && array_key_exists(spl_object_id($get), $stack)) {
+                                    $property->setValue($target, $objects[$stack[spl_object_id($get)]]);
                                 } else {
-                                    if (is_callable($get)) {
-                                        $property->setValue($target, $get->bindTo($target));
+                                    if ((is_object($get) || is_array($get)) && !is_callable($get)) {
+                                        $property->setValue($target, $this->recursiveCopy($get, null, $stack, $objects, $property->getName()));
                                     } else {
-                                        $property->setValue($target, $get);
+                                        if (is_callable($get) && get_class($get) === 'Closure') {
+                                            $property->setValue($target, $get->bindTo($target));
+                                        } else {
+                                            $property->setValue($target, $get);
+                                        }
                                     }
-                                }
-                                if ($private) {
-                                    $property->setAccessible(false);
+                                    if ($private) {
+                                        $property->setAccessible(false);
+                                    }
                                 }
                             }
                         }
@@ -91,7 +96,7 @@ class DeepClone
                 $target = [];
                 foreach ($origin as $key => $value) {
                     if (is_object($value) || is_array($value)) {
-                        $target[$key] = $this->recursiveCopy($value, null, $stack);
+                        $target[$key] = $this->recursiveCopy($value, null, $stack, $objects);
                     } else {
                         $target[$key] = $value;
                     }
@@ -110,7 +115,7 @@ class DeepClone
      * @return array
      * @throws \ReflectionException
      */
-    private function removeClosure($vector = [])
+    public function removeClosure($vector = [])
     {
         if ($vector) {
             if (is_object($vector)) {
@@ -137,11 +142,11 @@ class DeepClone
                                 $private = true;
                             }
                             $get = $property->getValue($vector);
-                            if (is_callable($get)) {
+                            if (is_callable($get) && get_class($get) === 'Closure') {
                                 $property->setValue($vector, null);
                             } else {
                                 if (is_object($get) || is_array($get)) {
-                                    $property->setValue($this->removeClosure($get), null);
+                                    $property->setValue($vector, $this->removeClosure($get));
                                 }
                             }
                             if ($private) {
@@ -151,15 +156,17 @@ class DeepClone
                     }
                 }
             } else if (is_array($vector)) {
+                $nvector = [];
                 foreach ($vector as $key => $value) {
-                    if (is_callable($value)) {
-                        $vector[$key] = null;
+                    if (is_callable($value) && get_class($value) === 'Closure') {
+                        $nvector[$key] = null;
                     } else {
                         if (is_object($value) || is_array($value)) {
-                            $vector[$key] = $this->removeClosure($value);
+                            $nvector[$key] = $this->removeClosure($value);
                         }
                     }
                 }
+                return $nvector;
             }
         }
         return $vector;
@@ -172,8 +179,7 @@ class DeepClone
             $copy = $this->recursiveCopy($this->target);
             if ($copy) {
                 $copy = $this->removeRecursion($copy, $stack);
-                $this->removeClosure($copy);
-                return $copy;
+                return $this->removeClosure($copy);
             }
         }
         return false;
@@ -182,9 +188,9 @@ class DeepClone
     private function removeRecursion($vector, &$stack = [])
     {
         if ($vector) {
-            if (is_object($vector) && !in_array($vector, $stack, true) && !is_callable($vector)) {
-                $stack[] = &$vector;
+            if (is_object($vector) && !in_array(spl_object_id($vector), $stack, true) && !is_callable($vector)) {
                 if (get_class($vector) === 'stdClass') {
+                    $stack[] = spl_object_id($vector);
                     foreach ($vector as $key => $value) {
                         if (in_array($vector->{$key}, $stack, true)) {
                             unset($vector->{$key});
@@ -195,6 +201,7 @@ class DeepClone
                     }
                     return $vector;
                 } else {
+                    $stack[] = spl_object_id($vector);
                     $object = new \ReflectionObject($vector);
                     $reflection = new \ReflectionClass($vector);
                     $properties = $reflection->getProperties();
