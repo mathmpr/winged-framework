@@ -27,6 +27,41 @@ class Vector implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return offset has string if offset is an object
+     * @param $offset
+     * @return bool|string
+     */
+    public function stringOffset($offset)
+    {
+        if ($this->keyExists($offset)) {
+            if (is_object($offset)) {
+                $offset = spl_object_hash($offset);
+            }
+            return $offset;
+        }
+        return false;
+    }
+
+    /**
+     * return offset has object if offset exists inside $this->objectOffsets
+     * @param $offset
+     * @return bool|mixed|string
+     */
+    public function objectOffset($offset)
+    {
+        if ($this->keyExists($offset)) {
+            if (is_object($offset)) {
+                $offset = spl_object_hash($offset);
+            }
+            if (array_key_exists($offset, $this->objectOffsets)) {
+                return $this->objectOffsets[$offset];
+            }
+            return $offset;
+        }
+        return false;
+    }
+
+    /**
      * check if offset exists inside vector
      * @param $offset
      * @return bool
@@ -59,9 +94,7 @@ class Vector implements \ArrayAccess, \Iterator
      */
     public function offsetGet($offset)
     {
-        if (is_object($offset)) {
-            $offset = spl_object_hash($offset);
-        }
+        $offset = $this->stringOffset($offset);
         if (array_key_exists($offset, $this->vector)) {
             return $this->vector[$offset];
         }
@@ -90,7 +123,7 @@ class Vector implements \ArrayAccess, \Iterator
     public function offsetSet($offset, $value)
     {
         if (is_object($value)) {
-            if ($this->keyByValue($value)) {
+            if ($this->keyByValue($value)->count() > 0) {
                 return false;
             }
             $this->hashs[] = spl_object_hash($value);
@@ -102,7 +135,7 @@ class Vector implements \ArrayAccess, \Iterator
             $offset = $_offset;
         }
 
-        if (is_string($offset) || is_int($offset)) {
+        if (is_scalar($offset)) {
             $this->vector[$offset] = $value;
         } else {
             if (!$offset) {
@@ -133,9 +166,7 @@ class Vector implements \ArrayAccess, \Iterator
      */
     public function offsetUnset($offset)
     {
-        if (is_object($offset)) {
-            $offset = spl_object_hash($offset);
-        }
+        $offset = $this->stringOffset($offset);
         if (array_key_exists($offset, $this->vector)) {
             if (key($this->vector) === $offset) {
                 if ($this->next()) {
@@ -202,19 +233,35 @@ class Vector implements \ArrayAccess, \Iterator
      * return a key linked with values
      * value can be an object
      * @param $value
-     * @return false|int|mixed|string|object
+     * @return Vector
      */
     public function keyByValue($value)
     {
-        $key = array_search($value, $this->vector, true);
-        if ($key || is_int($key)) {
-            if (array_key_exists($key, $this->objectOffsets)) {
-                return $this->objectOffsets[$key];
-            } else {
-                return $key;
+        $keys = array_filter($this->vector, function ($v) use ($value) {
+            $offset = -1;
+            $valueOffset = -2;
+            if (is_object($v)) {
+                $offset = spl_object_hash($v);
+            }
+            if (is_object($value)) {
+                $valueOffset = spl_object_hash($value);
+            }
+            if ($v === $value || $offset === $valueOffset) {
+                return true;
+            }
+            return false;
+        });
+        $_keys = Vector::factory([]);
+        if (!empty($keys)) {
+            foreach ($keys as $key => $value) {
+                if (array_key_exists($key, $this->objectOffsets)) {
+                    $_keys[] = $this->objectOffsets[$key];
+                } else {
+                    $_keys[] = $key;
+                }
             }
         }
-        return $key;
+        return $_keys;
     }
 
     /**
@@ -225,7 +272,7 @@ class Vector implements \ArrayAccess, \Iterator
      */
     public function keyByValueAll($values = [])
     {
-        $keys = [];
+        $keys = Vector::factory([]);
         if (!is_array($values)) {
             if (is_object($values) && get_class($values) === 'stdClass') {
                 $values = (array)DeepClone::factory($values)->copy();
@@ -233,10 +280,7 @@ class Vector implements \ArrayAccess, \Iterator
         }
         if (is_array($values)) {
             foreach ($values as $value) {
-                $key = $this->keyByValue($value);
-                if ($key || is_int($key)) {
-                    $keys[] = $key;
-                }
+                $keys->setVector(array_merge($keys->getVector(), $this->keyByValue($value)));
             }
         }
         return $keys;
@@ -246,39 +290,29 @@ class Vector implements \ArrayAccess, \Iterator
      * unset vector by value passed
      * value can be an object
      * @param $value
-     * @return bool
      */
     public function unsetByValue($value)
     {
-        $key = $this->keyByValue($value);
-        if ($key || is_int($key)) {
-            return $this->offsetUnset($key);
+        $keys = $this->keyByValue($value);
+        if (!empty($keys)) {
+            foreach ($keys as $key) {
+                $this->offsetUnset($key);
+            }
         }
-        return false;
     }
 
     /**
      * unset all offsets in vector by passed values
      * value inside values can be an object
      * @param $values array
-     * @return bool
      */
     public function unsetByValueAll($values = [])
     {
-        $unset = true;
-        if (!is_array($values)) {
-            if (is_object($values) && get_class($values) === 'stdClass') {
-                $values = (array)DeepClone::factory($values)->copy();
-            }
-        }
         if (is_array($values)) {
             foreach ($values as $value) {
-                if (!$this->unsetByValue($value)) {
-                    $unset = false;
-                }
+                $this->unsetByValue($value);
             }
         }
-        return $unset;
     }
 
     /**
@@ -313,7 +347,7 @@ class Vector implements \ArrayAccess, \Iterator
      */
     public function getAll($offsets = [])
     {
-        $return = [];
+        $return = Vector::factory([]);
         if (!is_array($offsets)) {
             if (is_object($offsets) && get_class($offsets) === 'stdClass') {
                 $offsets = (array)DeepClone::factory($offsets)->copy();
@@ -439,11 +473,19 @@ class Vector implements \ArrayAccess, \Iterator
         }
     }
 
+    /**
+     * check if offset is valid
+     * @return bool
+     */
     function valid()
     {
         return isset($this->vector[$this->position]);
     }
 
+    /**
+     * return current key of vector
+     * @return int|mixed|string|null
+     */
     function key()
     {
         if ($this->needsReset) {
@@ -456,6 +498,10 @@ class Vector implements \ArrayAccess, \Iterator
         return $key;
     }
 
+    /**
+     * go to next position in vector
+     * @return bool|mixed
+     */
     public function next()
     {
         $next = next($this->vector);
@@ -468,6 +514,10 @@ class Vector implements \ArrayAccess, \Iterator
         }
     }
 
+    /**
+     * go to prev element in vector
+     * @return bool|mixed
+     */
     public function prev()
     {
         $prev = prev($this->vector);
@@ -479,23 +529,83 @@ class Vector implements \ArrayAccess, \Iterator
         }
     }
 
+    /**
+     * return current element of internal pointer of vector
+     * @return mixed
+     */
     public function current()
     {
         return current($this->vector);
     }
 
-    function rewind()
+    /**
+     * reset position of vector
+     * @return bool
+     */
+    public function rewind()
     {
         reset($this->vector);
         $this->position = key($this->vector);
         return true;
     }
 
-    public function end()
+    /**
+     * return first key of vector
+     * @return mixed
+     */
+    public function firstKey()
     {
-        return end($this->vector);
+        return array_key_first($this->vector);
     }
 
+    /**
+     * return last key of vector
+     * @return mixed
+     */
+    public function lastKey()
+    {
+        return array_key_last($this->vector);
+    }
+
+    /**
+     * return last element of vector
+     * @return bool|mixed
+     */
+    public function end()
+    {
+        $key = $this->lastKey();
+        if ($key) {
+            return $this->get($key);
+        }
+        return false;
+    }
+
+    /**
+     * return fist element of vector
+     * @return bool|mixed
+     */
+    public function begin()
+    {
+        $key = $this->firstKey();
+        if ($key) {
+            return $this->get($key);
+        }
+        return false;
+    }
+
+    /**
+     * return count of elements of vector
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->vector);
+    }
+
+    /**
+     * check if vector is empty
+     * @return bool
+     */
     public function isEmpty()
     {
         return !(count($this->vector) > 0);
@@ -506,11 +616,10 @@ class Vector implements \ArrayAccess, \Iterator
      * @param array $stack
      * @param array|object $runIn
      * @param string $from
-     * @param null|object $original
      * @return array|callable
      * @throws \ReflectionException
      */
-    private function _walk($function, $runIn = [], &$stack = [], $from = '', $original = null)
+    private function _walk($function, $runIn = [], &$stack = [], $from = '')
     {
         if (!array_key_exists(spl_object_id($this), $stack)) {
             $stack[spl_object_id($this)] = &$this;
@@ -527,7 +636,7 @@ class Vector implements \ArrayAccess, \Iterator
                                         continue;
                                     }
                                 }
-                                $get = $this->_walk($function, $value, $stack, $key, $runIn);
+                                $get = $this->_walk($function, $value, $stack, $key);
                                 if ($get) {
                                     $runIn->{$key} = $get;
                                 }
@@ -552,7 +661,7 @@ class Vector implements \ArrayAccess, \Iterator
                                             $get->walkDeep($function);
                                         }
                                     } else {
-                                        $get = $this->_walk($function, $get, $stack, $property->getName(), $runIn);
+                                        $get = $this->_walk($function, $get, $stack, $property->getName());
                                         if ($get) {
                                             $property->setValue($runIn, $get);
                                         }
@@ -577,7 +686,7 @@ class Vector implements \ArrayAccess, \Iterator
                                     continue;
                                 }
                             }
-                            $get = $this->_walk($function, $value, $stack, $key, $runIn);
+                            $get = $this->_walk($function, $value, $stack, $key);
                             if ($get) {
                                 $runIn[$key] = $get;
                             }
@@ -602,6 +711,12 @@ class Vector implements \ArrayAccess, \Iterator
         return $runIn;
     }
 
+    /**
+     * @param $function
+     * @param $runIn
+     * @param $from
+     * @return mixed
+     */
     private function _executeWalkCallback($function, $runIn, $from)
     {
         $objectKey = null;
@@ -616,6 +731,12 @@ class Vector implements \ArrayAccess, \Iterator
         return $get;
     }
 
+    /**
+     * @param $function
+     * @param array $runIn
+     * @return array
+     * @throws \ReflectionException
+     */
     private function _walkOne($function, $runIn = [])
     {
         if (is_callable($function) && $runIn) {
@@ -670,6 +791,13 @@ class Vector implements \ArrayAccess, \Iterator
         return $runIn;
     }
 
+    /**
+     * execute function on elements inside vector and if function return an value, the vector in position replace with it
+     * if the current element is an array or object walk is executed again
+     * function is applied into properties inside objects including private properties
+     * @param callable $function
+     * @throws \ReflectionException
+     */
     public function walkDeep($function = null)
     {
         if (is_callable($function)) {
@@ -679,11 +807,363 @@ class Vector implements \ArrayAccess, \Iterator
         }
     }
 
+    /**
+     * execute function on elements inside vector and if function return an value, the vector in position replace with it
+     * @param callable $function
+     * @throws \ReflectionException
+     */
     public function walk($function = null)
     {
         if (is_callable($function)) {
             $this->vector = $this->_walkOne($function, $this->vector);
         }
+    }
+
+    /**
+     * remove the last element of vector and return it
+     * @return bool|mixed
+     */
+    public function pop()
+    {
+        $value = $this->end();
+        $key = $this->lastKey();
+        if ($value && $key) {
+            $value = $this->get($key);
+            $this->offsetUnset($key);
+            return $value;
+        }
+        return false;
+    }
+
+    /**
+     * remove the first element of vector and return it
+     * @return bool|mixed
+     */
+    public function popBegin()
+    {
+        $value = $this->begin();
+        $key = $this->firstKey();
+        if ($value && $key) {
+            $value = $this->get($key);
+            $this->offsetUnset($key);
+            return $value;
+        }
+        return false;
+    }
+
+    /**
+     * push value on end of vector
+     * @param $value
+     * @return bool|mixed
+     */
+    public function push($value)
+    {
+        array_push($this->vector, $value);
+        return $this->end();
+    }
+
+    /**
+     * push an value on begin vector
+     * @param $value
+     * @return bool|mixed
+     */
+    public function pushBegin($value)
+    {
+        $this->vector = array_merge([$value], $this->vector);
+        return $this->begin();
+    }
+
+    /**
+     * execute an function inside all elements of vector and return the joined value
+     * @param callable $function
+     * @param bool|mixed $initial
+     * @return bool|mixed
+     */
+    public function reduce($function, $initial = false)
+    {
+        if (is_callable($function)) {
+            $reduced = array_reduce($this->vector, function ($carry, $item) use ($function, $initial) {
+                if ($initial) {
+                    return $function($carry, $item, $initial);
+                } else {
+                    return $function($carry, $item, $initial);
+                }
+            }, $initial);
+            return $reduced;
+        }
+        return false;
+    }
+
+    /**
+     * remove all duplicated values in vector
+     */
+    public function unique()
+    {
+        $keys = [];
+        foreach ($this->vector as $value) {
+            $_keys = $this->keyByValue($value);
+            if ($_keys->count() > 1) {
+                foreach ($_keys as $_key => $key) {
+                    if ($_key != 0) {
+                        $keys[] = $key;
+                    }
+                }
+            }
+        }
+        foreach ($keys as $key) {
+            if ($this->offsetExists($key)) {
+                $this->offsetUnset($key);
+            }
+        }
+    }
+
+    /**
+     * @param string|object|int|float $start
+     * @param int $deleteCount
+     * @param bool|string|int|float|array|object $value
+     * @return Vector
+     */
+    public function splice($start, $deleteCount, $value = false)
+    {
+        $count = 0;
+        $remove = false;
+        $removed = Vector::factory([]);
+        if ($this->stringOffset($start)) {
+            $start = $this->stringOffset($start);
+            foreach ($this->vector as $key => $_value) {
+                if ($key === $start) {
+                    $remove = true;
+                }
+                if ($remove) {
+                    $removed[$this->objectOffset($key)] = $this->get($key);
+                    $this->offsetUnset($key);
+                    $count++;
+                }
+
+                if ($count === $deleteCount) {
+                    $remove = false;
+                    if($value){
+                        if (is_array($value)) {
+                            foreach ($value as $_key => $v) {
+                                $this->offsetSet($_key, $v);
+                            }
+                        } else {
+                            $this->push($value);
+                        }
+                    }
+                }
+            }
+        }
+        return $removed;
+    }
+
+    /**
+     * @param mixed|object $columnKey
+     * @param null $indexKey
+     * @return bool|Vector
+     */
+    public function column($columnKey, $indexKey = null)
+    {
+        if (is_object($columnKey)) {
+            $columnKey = spl_object_hash($columnKey);
+        }
+        if (is_object($indexKey)) {
+            $indexKey = spl_object_hash($indexKey);
+        }
+        $arrays = $this->getFiltered(['array', 'object']);
+        $array = Vector::factory([]);
+        /**
+         * @var $value Vector
+         */
+        foreach ($arrays as $value) {
+            if (!isset($value[$columnKey])) {
+                trigger_error("Key \"$columnKey\" does not exist in array");
+                return false;
+            }
+            if (is_null($indexKey)) {
+                $array[] = $value[$columnKey];
+            } else {
+                if (!isset($value[$indexKey])) {
+                    trigger_error("Key \"$indexKey\" does not exist in array");
+                    return false;
+                }
+                if (!is_scalar($value[$indexKey])) {
+                    trigger_error("Key \"$indexKey\" does not contain scalar value");
+                    return false;
+                }
+                $array[$value[$indexKey]] = $value[$columnKey];
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * get parts of vector with matched types
+     * @param array $types
+     * @return array
+     */
+    public function getFiltered($types = [])
+    {
+        $parts = Vector::factory([]);
+        foreach ($this->vector as $key => $value) {
+            if (is_array($value) && in_array('array', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_resource($value) && in_array('resource', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_object($value) && in_array('object', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_int($value) && in_array('int', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_float($value) && in_array('float', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_double($value) && in_array('double', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_string($value) && in_array('string', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_bool($value) && in_array('bool', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+            if (is_null($value) && in_array('null', $types)) {
+                $parts[$this->objectOffset($key)] = $value;
+            }
+        }
+        return $parts;
+    }
+
+    /**
+     * return all arrays inside vector
+     * @return array
+     */
+    public function getArraysInside()
+    {
+        return $this->getFiltered(['array']);
+    }
+
+    /**
+     * return all resources inside vector
+     * @return array
+     */
+    public function getResourcesInside()
+    {
+        return $this->getFiltered(['resource']);
+    }
+
+    /**
+     * return all objects inside vector
+     * @return array
+     */
+    public function getObjectsInside()
+    {
+        return $this->getFiltered(['object']);
+    }
+
+    /**
+     * return all integers inside vector
+     * @return array
+     */
+    public function getIntegersInside()
+    {
+        return $this->getFiltered(['int']);
+    }
+
+    /**
+     * return all floats inside vector
+     * @return array
+     */
+    public function getFloatsInside()
+    {
+        return $this->getFiltered(['float']);
+    }
+
+    /**
+     * return all doubles inside vector
+     * @return array
+     */
+    public function getDoublesInside()
+    {
+        return $this->getFiltered(['double']);
+    }
+
+    /**
+     * return all strings inside vector
+     * @return array
+     */
+    public function getStringsInside()
+    {
+        return $this->getFiltered(['string']);
+    }
+
+    /**
+     * return all booleans inside vector
+     * @return array
+     */
+    public function getBooleansInside()
+    {
+        return $this->getFiltered(['bool']);
+    }
+
+    /**
+     * return all nulls inside vector
+     * @return array
+     */
+    public function getNullsInside()
+    {
+        return $this->getFiltered(['null']);
+    }
+
+    /**
+     * get chunked vector
+     * @param $size
+     * @param bool $preserveKeys
+     * @return array
+     */
+    public function chunk($size, $preserveKeys = true)
+    {
+        return array_chunk($this->vector, $size, $preserveKeys);
+    }
+
+    public function countValues()
+    {
+        $counts = Vector::factory([]);
+        foreach ($this->vector as $key => $value) {
+            $counts->set($value, $this->keyByValue($value)->count());
+        }
+        return $counts;
+    }
+
+    public function sortDesc($keepKeys = true){
+        if($keepKeys){
+            arsort($this->vector);
+        }else{
+            rsort($this->vector);
+        }
+    }
+
+    public function sortAsc($keepKeys = true){
+        if($keepKeys){
+            rsort($this->vector);
+        }else{
+            sort($this->vector);
+        }
+    }
+
+    public function sortDescKeys(){
+        krsort($this->vector);
+    }
+
+    public function sortAscKeys(){
+        ksort($this->vector);
+    }
+
+    public function shuffle(){
+        shuffle($this->vector);
     }
 
     /**
