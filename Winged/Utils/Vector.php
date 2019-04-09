@@ -862,6 +862,7 @@ class Vector implements \ArrayAccess, \Iterator
      * function is applied into properties inside objects including private properties
      * @param callable $function
      * @throws \ReflectionException
+     * @return $this
      */
     public function walkDeep($function = null)
     {
@@ -870,18 +871,21 @@ class Vector implements \ArrayAccess, \Iterator
                 $this->vector = $this->_walk($function, $this->vector);
             }
         }
+        return $this;
     }
 
     /**
      * execute function on elements inside vector and if function return an value, the vector in position replace with it
      * @param callable $function
      * @throws \ReflectionException
+     * @return $this
      */
     public function walk($function = null)
     {
         if (is_callable($function)) {
             $this->vector = $this->_walkOne($function, $this->vector);
         }
+        return $this;
     }
 
     /**
@@ -1091,6 +1095,10 @@ class Vector implements \ArrayAccess, \Iterator
     {
         $parts = Vector::factory([]);
         foreach ($this->vector as $key => $value) {
+            if (is_scalar($value) && in_array('scalar', $types)) {
+                $parts[$this->offset($key)] = $value;
+                continue;
+            }
             if (is_array($value) && in_array('array', $types)) {
                 $parts[$this->offset($key)] = $value;
             }
@@ -1206,6 +1214,15 @@ class Vector implements \ArrayAccess, \Iterator
     public function getNullsInside()
     {
         return $this->getFiltered(['null']);
+    }
+
+    /**
+     * return all scalar inside vector
+     * @return Vector
+     */
+    public function getScalarsInside()
+    {
+        return $this->getFiltered(['scalar']);
     }
 
     /**
@@ -1372,6 +1389,19 @@ class Vector implements \ArrayAccess, \Iterator
             $this[$key] = $value;
         }
         unset($fliped);
+        return $this;
+    }
+
+    public function join($glue = ''){
+        return Chord::factory(join($glue, $this->getStringsInside()->getVector()));
+    }
+
+    public function unsetEmptyOffsets(){
+        foreach ($this as $key => $value){
+            if(empty($value)){
+                unset($this[$key]);
+            }
+        }
         return $this;
     }
 
