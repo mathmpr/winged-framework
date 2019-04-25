@@ -42,12 +42,6 @@ class WingedConfig extends WingedConfigDefaults
     public $DEV = true;
 
     /**
-     * @property $DBEXT bool
-     * on | off mysql extensions and all class. Inflicts DelegateQuery, QueryBuilder, CurrentDB, Connections, Database, DbDict, Models and Migrate class
-     */
-    public $DBEXT = true;
-
-    /**
      * @property $USE_PREPARED_STMT bool
      * on | off prepared statements
      * view more of prepared statements in
@@ -103,6 +97,12 @@ class WingedConfig extends WingedConfigDefaults
     public $HEAD_CONTENT_PATH = null;
 
     /**
+     * @property $DBEXT bool
+     * on | off mysql extensions and all class. Inflicts DelegateQuery, QueryBuilder, CurrentDB, Connections, Database, DbDict and Models classes
+     */
+    public $DBEXT = false;
+
+    /**
      * @property $HOST string
      * defines default server name for mysql connection
      */
@@ -118,7 +118,7 @@ class WingedConfig extends WingedConfigDefaults
      * @property $DBNAME string
      * default database name for mysql connection
      */
-    public $DBNAME = "osc";
+    public $DBNAME = "mysql";
 
     /**
      * @property $PASSWORD string
@@ -203,13 +203,13 @@ class WingedConfig extends WingedConfigDefaults
      * @var $FORCE_WWW bool
      * if www not found in URL, Winged make an redirect with same URL with www
      */
-    public $FORCE_WWW = true;
+    public $FORCE_WWW = false;
 
     /**
      * @var $FORCE_HTTPS bool
      * if https not found in URL, Winged make an redirect with same URL with https
      */
-    public $FORCE_HTTPS = true;
+    public $FORCE_HTTPS = false;
 
     /**
      * @property $INCLUDES array
