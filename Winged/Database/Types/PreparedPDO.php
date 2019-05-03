@@ -108,6 +108,15 @@ class PreparedPDO
         }
     }
 
+    public function describe($tableName){
+        $result = $this->fetch(CurrentDB::$current->queryStringHandler->describe($tableName), []);
+        return CurrentDB::$current->queryStringHandler->describeMiddleware($result);
+    }
+
+    public function show(){
+
+    }
+
     public function sp($param = '', $args = [], $register_last = false)
     {
         switch ($param) {

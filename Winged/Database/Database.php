@@ -15,6 +15,7 @@ use Winged\Database\Types\PreparedPDO;
 use Winged\Database\Types\NormalMysqli;
 use Winged\Database\Types\NormalPDO;
 
+
 class Database
 {
     /**
@@ -85,11 +86,11 @@ class Database
                     "real_name" => "mysql",
                     "object" => function ($args) {
                         /**
-                         * @var $host string
-                         * @var $user string
+                         * @var $host     string
+                         * @var $user     string
                          * @var $password string
-                         * @var $dbname string
-                         * @var $port string
+                         * @var $dbname   string
+                         * @var $port     string
                          */
                         extract($args);
                         $host = $this->getRealHost($host);
@@ -172,15 +173,17 @@ class Database
         return $this;
     }
 
-    public function isPdo(){
-        if($this->class === IS_MYSQLI){
+    public function isPdo()
+    {
+        if ($this->class === IS_MYSQLI) {
             return false;
         }
         return true;
     }
 
-    public function isMysqli(){
-        if($this->class === IS_MYSQLI){
+    public function isMysqli()
+    {
+        if ($this->class === IS_MYSQLI) {
             return true;
         }
         return false;
@@ -205,11 +208,11 @@ class Database
         extract($vars);
 
         /**
-         * @var $host string
-         * @var $user string
+         * @var $host     string
+         * @var $user     string
          * @var $password string
-         * @var $dbname string
-         * @var $port string
+         * @var $dbname   string
+         * @var $port     string
          */
 
         $host = $this->getRealHost($host);

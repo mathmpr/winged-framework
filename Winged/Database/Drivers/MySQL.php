@@ -13,7 +13,7 @@ use Winged\WingedConfig;
 class MySQL
 {
 
-    public function setNames()
+    public function setEncoding()
     {
         CurrentDB::execute('SET NAMES ' . WingedConfig::$config->DATABASE_CHARSET);
     }

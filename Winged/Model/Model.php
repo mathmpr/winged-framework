@@ -8,7 +8,11 @@ use Winged\Database\Database;
 use Winged\Database\CurrentDB;
 use Winged\Error\Error;
 
-class Model extends DelegateQuery
+/**
+ * Class Model
+ * @package Winged\Model
+ */
+abstract class Model extends DelegateQuery
 {
     public $errors = [];
 
@@ -26,9 +30,49 @@ class Model extends DelegateQuery
 
     protected static $cached_info = [];
 
+
+    /**
+     * @return string
+     */
+    abstract public static function primaryKeyName();
+
+    /**
+     * @return string
+     */
+    abstract public static function tableName();
+
+    /**
+     * @param bool $pk
+     * @return mixed
+     */
+    abstract public function primaryKey($pk = false);
+
+    /**
+     * @return array
+     */
+    abstract public function behaviors();
+
+    /**
+     * @return array
+     */
+    abstract public function reverseBehaviors();
+
+    /**
+     * @return array
+     */
+    abstract public function rules();
+
+    /**
+     * Labels used by Winged\Form\Form in components
+     * @return array
+     */
+    abstract public function labels();
+
+
     public function __construct()
     {
         $this->getTableFields();
+        pre_clear_buffer_die($this->table_info);
         if (!$this->extras) {
             $this->extras = new \stdClass();
         }
@@ -752,39 +796,8 @@ class Model extends DelegateQuery
         return false;
     }
 
-    public static function primaryKeyName()
-    {
-        return '';
-    }
-
-    public function primaryKey()
-    {
-        return 0;
-    }
-
     public function pushExtra($index, $value)
     {
         return $this->extras->$index = $value;
     }
-
-    public static function tableName()
-    {
-        return '';
-    }
-
-    public function behaviors()
-    {
-        return [];
-    }
-
-    public function reverseBehaviors()
-    {
-        return [];
-    }
-
-    public function rules()
-    {
-        return [];
-    }
-
 }

@@ -23,7 +23,11 @@ class HomeController extends Controller
         parent::__construct();
     }
 
-    public function indexAction(){
+    public function actionIndex(){
+
+        pre_clear_buffer_die('asdasdasd');
+        //$test = new Test();
+
         $this->rewriteHeadContentPath('./head.php');
         $this->renderHtml('home');
     }

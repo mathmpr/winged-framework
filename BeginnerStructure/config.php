@@ -56,13 +56,13 @@ class WingedConfig extends WingedConfigDefaults
      * only mysql will be available for use. To see the availability of classes and functions of your server,
      * go to <your_domain_name>/winged/available#database
      */
-    public $DB_DRIVER = DB_DRIVER_SQLITE;
+    public $DB_DRIVER = DB_DRIVER_MYSQL;
 
     /**
      * @property $STD_DB_CLASS string
      * defines which class will be used for the interaction between PHP and the database
      */
-    public $STD_DB_CLASS = IS_PDO;
+    public $STD_DB_CLASS = IS_MYSQLI;
 
     /**
      * @property $STANDARD string
@@ -100,13 +100,13 @@ class WingedConfig extends WingedConfigDefaults
      * @property $DBEXT bool
      * on | off mysql extensions and all class. Inflicts DelegateQuery, QueryBuilder, CurrentDB, Connections, Database, DbDict and Models classes
      */
-    public $DBEXT = true;
+    public $DBEXT = false;
 
     /**
      * @property $HOST string
      * defines default server name for mysql connection
      */
-    public $HOST = "./winged.db";
+    public $HOST = "localhost";
 
     /**
      * @property $USER string
@@ -118,7 +118,7 @@ class WingedConfig extends WingedConfigDefaults
      * @property $DBNAME string
      * default database name for mysql connection
      */
-    public $DBNAME = "test";
+    public $DBNAME = "mysql";
 
     /**
      * @property $PASSWORD string

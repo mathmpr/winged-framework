@@ -3,6 +3,7 @@
 namespace Winged\Database\Drivers;
 
 use Winged\Database\CurrentDB;
+use Winged\Winged;
 use Winged\WingedConfig;
 
 /**
@@ -13,16 +14,16 @@ use Winged\WingedConfig;
 class PostgreSQL
 {
 
-    public function setNames()
+    public function setEncoding()
     {
-        CurrentDB::execute('SET CLIENT_ENCODING TO \'UTF8\'');
+        CurrentDB::execute('SET NAMES ' . WingedConfig::$config->EN);
     }
 
     /**
      * Return query string for show tables in current database
      * @return string
      */
-    public function showTables()
+    public function show()
     {
         return "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema = '" . WingedConfig::$config->SCHEMA . "' ORDER BY table_schema,table_name";
     }
@@ -31,7 +32,7 @@ class PostgreSQL
      * Return query string for describe a table schema in current database
      * @return string
      */
-    public function descTable($tableName = '')
+    public function describe($tableName = '')
     {
         return "PRAGMA table_info([" . $tableName . "])";
     }

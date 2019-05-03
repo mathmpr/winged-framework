@@ -110,6 +110,7 @@
     "./Winged/Http/Response.php",
     "./Winged/Http/Session.php",
     "./Winged/Model/Model.php",
+    "./Winged/Model/ModelInterface.php",
     "./Winged/Route/Route.php",
     "./Winged/Route/RouteExec.php",
     "./Winged/Socket/RatchetServer.php",

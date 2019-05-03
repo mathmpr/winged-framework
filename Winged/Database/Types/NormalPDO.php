@@ -106,6 +106,7 @@ class NormalPDO
                     $desc = [];
                     foreach ($result as $field) {
                         $name = $field['Field'];
+                        pre_clear_buffer_die($field['Field']);
                         unset($field['Field']);
                         $desc[$name] = [];
                         foreach ($field as $key => $prop) {

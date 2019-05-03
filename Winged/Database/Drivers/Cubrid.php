@@ -3,6 +3,7 @@
 namespace Winged\Database\Drivers;
 
 use Winged\Database\CurrentDB;
+use Winged\WingedConfig;
 
 /**
  * Syntax compatible with PostgreSQL 10.0.2
@@ -11,8 +12,10 @@ use Winged\Database\CurrentDB;
  */
 class Cubrid{
 
-    public function setNames(){
-        CurrentDB::execute('SET CLIENT_ENCODING TO \'UTF8\'');
+    public function setEncoding(){
+        CurrentDB::execute('SET NAMES ' . WingedConfig::$config->DATABASE_CHARSET);
     }
+
+
 
 }

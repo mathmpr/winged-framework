@@ -2,7 +2,13 @@
 
 namespace Winged\Database;
 
-class DbDict{
+/**
+ * have the main keywords to help in queries
+ * Class Dict
+ * @package Winged\Database
+ */
+
+class Dict{
     const DIFFERENT = '<>'; //of the rest, men i know it's hard to digest
     const SMALLER = '<';
     const LARGER = '>'; //remove 'r' from this word after work

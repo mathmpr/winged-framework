@@ -11,8 +11,8 @@ use Winged\Database\CurrentDB;
  */
 class Firebird{
 
-    public function setNames(){
-        CurrentDB::execute('SET CLIENT_ENCODING TO \'UTF8\'');
+    public function setEncoding(){
+        CurrentDB::execute('SET NAMES ' . WingedConfig::$config->DATABASE_CHARSET);
     }
 
 }
