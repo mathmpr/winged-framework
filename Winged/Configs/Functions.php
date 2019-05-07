@@ -1,7 +1,6 @@
 <?php
 
 use Winged\Buffer\Buffer;
-use Winged\WingedConfig;
 use Winged\Winged;
 use Winged\Database\CurrentDB;
 
@@ -355,6 +354,11 @@ function get_value_by_key($needle = null, $array = [])
 }
 
 if (!function_exists('getallheaders')) {
+    /**
+     * if this native function no exists i can create it for you
+     *
+     * @return array
+     */
     function getallheaders()
     {
         $headers = [];
@@ -368,9 +372,18 @@ if (!function_exists('getallheaders')) {
 }
 
 if (!function_exists('array_column')) {
+    /**
+     * if this native function no exists i can create it for you
+     *
+     * @param array $input
+     * @param       $columnKey
+     * @param null  $indexKey
+     *
+     * @return array|bool
+     */
     function array_column(array $input, $columnKey, $indexKey = null)
     {
-        $array = array();
+        $array = [];
         foreach ($input as $value) {
             if (!array_key_exists($columnKey, $value)) {
                 trigger_error("Key \"$columnKey\" does not exist in array");
@@ -530,26 +543,6 @@ function no_injection($str)
         return CurrentDB::$current->db->real_escape_string($str);
     }
     return $str;
-}
-
-/**
- * return string with all slash to left
- * @param $str string
- * @return mixed
- */
-function trade_slash_left($str)
-{
-    return str_replace("\\", "/", $str);
-}
-
-/**
- * return string with all slash to right
- * @param $str string
- * @return mixed
- */
-function trade_slash_right($str)
-{
-    return str_replace("/", "\\", $str);
 }
 
 /**

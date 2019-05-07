@@ -5,7 +5,7 @@ namespace Winged\Http;
 use Winged\Date\Date;
 use Winged\File\File;
 use Winged\Route\Route;
-use Winged\WingedConfig;
+use WingedConfig;
 use Winged\WingedConfigDefaults;
 
 class HttpResponseHandler
@@ -990,7 +990,7 @@ class HttpResponseHandler
         } else {
             header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
         }
-        if ($this->ages[$type]['gzip'] && WingedConfigDefaults::$runtime_configs->get('USE_GZENCODE')) {
+        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
             header("Content-Encoding: gzip");
             echo $json ? gzencode($json, 9) : gzencode($content, 9);
         } else {
@@ -1013,7 +1013,7 @@ class HttpResponseHandler
         } else {
             header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
         }
-        if ($this->ages[$type]['gzip'] && WingedConfigDefaults::$runtime_configs->get('USE_GZENCODE')) {
+        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
             header("Content-Encoding: gzip");
             echo gzencode($content, 9);
         } else {
@@ -1041,7 +1041,7 @@ class HttpResponseHandler
         } else {
             header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
         }
-        if ($this->ages[$type]['gzip'] && WingedConfigDefaults::$runtime_configs->get('USE_GZENCODE')) {
+        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
             header("Content-Encoding: gzip");
             echo $xml ? gzencode($xml->asXML(), 9) : gzencode($content, 9);
         } else {
@@ -1068,7 +1068,7 @@ class HttpResponseHandler
         } else {
             header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
         }
-        if ($this->ages[$type]['gzip'] && WingedConfigDefaults::$runtime_configs->get('USE_GZENCODE')) {
+        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
             header("Content-Encoding: gzip");
             echo $yaml ? gzencode($yaml, 9) : gzencode($content, 9);
         } else {
@@ -1091,7 +1091,7 @@ class HttpResponseHandler
         } else {
             header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
         }
-        if ($this->ages[$type]['gzip'] && WingedConfigDefaults::$runtime_configs->get('USE_GZENCODE')) {
+        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
             header("Content-Encoding: gzip");
             echo gzencode($content, 9);
         } else {
@@ -1128,7 +1128,7 @@ class HttpResponseHandler
                     header("Last-Modified: " . (new Date($file->modifyTime()))->custom('%a, %d %b %Y %H:%M:%S GMT'));
                     header("ETag: " . '"' . $file->modifyTime() . '-' . md5($file->read()) . '"');
                     header("Expires: " . (new Date($file->modifyTime()))->add(['s' => $this->ages[$file->getExtension()]['age']])->custom('%a, %d %b %Y %H:%M:%S GMT'));
-                    if ($this->ages[$file->getExtension()]['gzip'] && WingedConfigDefaults::$runtime_configs->get('USE_GZENCODE')) {
+                    if ($this->ages[$file->getExtension()]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
                         header("Content-Encoding: gzip");
                         echo gzencode($file->read(), 9);
                     } else {

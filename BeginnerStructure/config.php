@@ -97,10 +97,10 @@ class WingedConfig extends WingedConfigDefaults
     public $HEAD_CONTENT_PATH = null;
 
     /**
-     * @property $DBEXT bool
+     * @property $USE_DATABASE bool
      * on | off mysql extensions and all class. Inflicts DelegateQuery, QueryBuilder, CurrentDB, Connections, Database, DbDict and Models classes
      */
-    public $DBEXT = false;
+    public $USE_DATABASE = false;
 
     /**
      * @property $HOST string

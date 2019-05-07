@@ -2,7 +2,7 @@
 
 namespace Winged\Database;
 
-use Winged\WingedConfig;
+use WingedConfig;
 
 class CurrentDB
 {
@@ -31,14 +31,19 @@ class CurrentDB
         return self::$current->count($query, $args);
     }
 
-    public static function sp($param, $args = [])
+    public static function show()
     {
-        return self::$current->sp($param, $args);
+        return self::$current->show();
     }
 
-    public static function tableExists($table_name)
+    public static function describe($tableName)
     {
-        if (in_array($table_name, self::$current->db_tables)) {
+        return self::$current->describe($tableName);
+    }
+
+    public static function exists($tableName)
+    {
+        if (in_array($tableName, self::$current->db_tables)) {
             return true;
         }
         return false;

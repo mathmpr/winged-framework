@@ -3,7 +3,7 @@
 namespace Winged\Database\Drivers;
 
 use Winged\Database\CurrentDB;
-use Winged\WingedConfig;
+use WingedConfig;
 
 /**
  * Syntax compatible with PostgreSQL 10.0.2

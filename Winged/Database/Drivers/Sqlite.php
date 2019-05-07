@@ -10,10 +10,12 @@ use Winged\Database\CurrentDB;
  *
  * @package Winged\Database\Drivers
  */
-class Sqlite
+class Sqlite extends DriverMiddleware
 {
 
-    public function setEncoding(){}
+    public function setEncoding()
+    {
+    }
 
     /**
      * Return query string for show tables in current database
@@ -23,6 +25,26 @@ class Sqlite
     public function show()
     {
         return "SELECT name FROM sqlite_master WHERE type = 'table'";
+    }
+
+    /**
+     * parse results into a formated results to database core
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    public function showMiddleware($fields = [])
+    {
+        $clear_fields = [];
+        if (!empty($fields)) {
+            foreach ($fields as $field) {
+                $clear_fields[$field['name']] = [
+                    'table_name' => $field['name'],
+                ];
+            }
+        }
+        return $clear_fields;
     }
 
     /**
@@ -50,20 +72,16 @@ class Sqlite
         if (!empty($fields)) {
             foreach ($fields as $field) {
                 $clear_fields[$field['name']] = [
-                    'name' => $field['name'],
+                    'field' => $field['name'],
                     'not_null' => $field['notnull'] == 1 ? true : false,
                     'default' => $field['dflt_value'],
                     'pk' => $field['pk'] == 1 ? true : false,
                     'type' => trim(preg_replace("/\([^)]+\)/", '', $field['type'])),
+                    'extra' => ''
                 ];
             }
         }
         return $clear_fields;
-    }
-
-    public function remove()
-    {
-
     }
 
 }

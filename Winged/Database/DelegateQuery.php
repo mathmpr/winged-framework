@@ -3,7 +3,7 @@
 namespace Winged\Database;
 
 use Winged\Error\Error;
-use Winged\WingedConfig;
+use WingedConfig;
 use Winged\Date\Date;
 use Winged\Model\Model;
 
@@ -861,7 +861,7 @@ class DelegateQuery extends QueryBuilder
                 $query = 'UPDATE ';
                 $first = true;
                 foreach ($this->update_arr as $key => $value) {
-                    if (!CurrentDB::tableExists($value)) {
+                    if (!CurrentDB::exists($value)) {
                         Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->DBNAME, __LINE__, __FILE__, __LINE__);
                     }
                     if ($first) {
@@ -886,7 +886,7 @@ class DelegateQuery extends QueryBuilder
                 $alias = '';
                 $first = true;
                 foreach ($this->delete_arr as $key => $value) {
-                    if (!CurrentDB::tableExists($value)) {
+                    if (!CurrentDB::exists($value)) {
                         Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->DBNAME, __LINE__, __FILE__, __LINE__);
                     }
                     if ($first) {

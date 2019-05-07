@@ -34,12 +34,12 @@ abstract class Model extends DelegateQuery
     /**
      * @return string
      */
-    abstract public static function primaryKeyName();
+    //abstract public static function primaryKeyName();
 
     /**
      * @return string
      */
-    abstract public static function tableName();
+    //abstract public static function tableName();
 
     /**
      * @param bool $pk
@@ -72,7 +72,6 @@ abstract class Model extends DelegateQuery
     public function __construct()
     {
         $this->getTableFields();
-        pre_clear_buffer_die($this->table_info);
         if (!$this->extras) {
             $this->extras = new \stdClass();
         }
@@ -612,7 +611,7 @@ abstract class Model extends DelegateQuery
             return self::$cached_info[$class_name]->table_fields;
         } else {
             if (empty($this->table_fields) && $this->tableName() != '') {
-                $all = $table = CurrentDB::sp(Database::SP_DESC_TABLE, ['table_name' => $this->tableName()]);
+                $all = CurrentDB::describe($this->tableName());
                 foreach ($all as $key => $field) {
                     $this->table_fields[] = $key;
                     $this->table_info[$key] = $field;

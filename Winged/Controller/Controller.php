@@ -13,7 +13,7 @@ use Winged\Utils\Container;
 use Winged\Utils\RandomName;
 use Winged\Utils\WingedLib;
 use Winged\Winged;
-use Winged\WingedConfig;
+use WingedConfig;
 use Winged\Error\Error;
 use Winged\Buffer\Buffer;
 

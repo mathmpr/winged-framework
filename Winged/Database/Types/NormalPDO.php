@@ -97,39 +97,13 @@ class NormalPDO
         }
     }
 
-    public function sp($param = '', $args = [], $register_last = false)
-    {
-        switch ($param) {
-            case Database::SP_DESC_TABLE:
-                if (array_key_exists('table_name', $args)) {
-                    $result = $this->fetch('DESC ' . $args['table_name'], $register_last);
-                    $desc = [];
-                    foreach ($result as $field) {
-                        $name = $field['Field'];
-                        pre_clear_buffer_die($field['Field']);
-                        unset($field['Field']);
-                        $desc[$name] = [];
-                        foreach ($field as $key => $prop) {
-                            $desc[$name][strtolower($key)] = $prop;
-                        }
-                    }
-                    unset($result);
-                    return $desc;
-                }
-                break;
-            case Database::SP_SHOW_TABLES:
-                $result = $this->fetch('SHOW TABLES', $register_last);
-                $tables = [];
-                foreach ($result as $table) {
-                    $keys = array_keys($table);
-                    $tables[] = $table[$keys[0]];
-                }
-                return $tables;
-                break;
-            default:
-                return null;
-                break;
-        }
-        return null;
+    public function describe($tableName){
+        $result = $this->fetch(CurrentDB::$current->queryStringHandler->describe($tableName), []);
+        return CurrentDB::$current->queryStringHandler->describeMiddleware($result);
+    }
+
+    public function show(){
+        $result = $this->fetch(CurrentDB::$current->queryStringHandler->show(), []);
+        return CurrentDB::$current->queryStringHandler->showMiddleware($result);
     }
 }

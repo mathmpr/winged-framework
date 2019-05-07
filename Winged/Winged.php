@@ -12,6 +12,7 @@ use Winged\Route\Route;
 use Winged\Route\RouteExec;
 use Winged\Utils\WingedLib;
 use Winged\Utils\Container;
+use WingedConfig;
 
 WingedHead::init();
 
@@ -30,7 +31,6 @@ class Winged
     public static $controller_page;
     public static $controller_action;
     public static $controller_debug = true;
-
 
     public static $http;
     public static $https;
@@ -204,7 +204,7 @@ class Winged
             }
         }
 
-        WingedConfigDefaults::$runtime_configs->set('USE_GZENCODE', $use_gzencode);
+        WingedConfig::$config->set('USE_GZENCODE', $use_gzencode);
 
         Route::get('__winged_file_handle_core__/{file}', function ($file) {
             header_remove();

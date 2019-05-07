@@ -4,7 +4,7 @@ namespace Winged\Database;
 
 use Winged\Error\Error;
 use Winged\Model\Model;
-use Winged\WingedConfig;
+use WingedConfig;
 
 class QueryBuilder
 {
@@ -68,7 +68,7 @@ class QueryBuilder
      */
     public function into($table_name)
     {
-        if (!CurrentDB::tableExists($table_name)) {
+        if (!CurrentDB::exists($table_name)) {
             Error::_die(__CLASS__, "Table " . $table_name . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
         }
         if (is_string($table_name)) {
@@ -132,7 +132,7 @@ class QueryBuilder
         if (count7($from) > 0) {
             $key = array_keys($from);
             if (is_string($key[0]) && is_string($from[$key[0]]) && $this->from_arr == '') {
-                if (!CurrentDB::tableExists(trim($from[$key[0]]))) {
+                if (!CurrentDB::exists(trim($from[$key[0]]))) {
                     Error::_die(__CLASS__, "Table " . trim($from[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->from_arr = 'FROM ' . trim($from[$key[0]]) . ' AS ' . trim($key[0]) . '';
@@ -153,7 +153,7 @@ class QueryBuilder
         if ($condition != '' && count7($inner) > 0) {
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
-                if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
+                if (!CurrentDB::exists(trim($inner[$key[0]]))) {
                     Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->inner_arr[] = 'INNER JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
@@ -173,7 +173,7 @@ class QueryBuilder
         if ($condition != '' && count7($inner) > 0) {
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
-                if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
+                if (!CurrentDB::exists(trim($inner[$key[0]]))) {
                     Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->left_arr[] = 'LEFT JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
@@ -193,7 +193,7 @@ class QueryBuilder
         if ($condition != '' && count7($inner) > 0) {
             $key = array_keys($inner);
             if (is_string($key[0])) {
-                if (!CurrentDB::tableExists(trim($inner[$key[0]]))) {
+                if (!CurrentDB::exists(trim($inner[$key[0]]))) {
                     Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
                 }
                 $this->right_arr[] = 'RIGHT JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);

@@ -11,7 +11,7 @@ use Winged\Http\Session;
 use Winged\Utils\RandomName;
 use Winged\Utils\WingedLib;
 use Winged\Winged;
-use Winged\WingedConfig;
+use WingedConfig;
 
 /**
  * Class Route
