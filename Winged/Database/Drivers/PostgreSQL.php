@@ -11,7 +11,7 @@ use WingedConfig;
  *
  * @package Winged\Database\Drivers
  */
-class PostgreSQL extends DriverMiddleware
+class PostgreSQL extends Eloquent implements EloquentInterface
 {
 
     public function setEncoding()
@@ -59,6 +59,38 @@ class PostgreSQL extends DriverMiddleware
     public function describe($tableName = '')
     {
         return "PRAGMA table_info([" . $tableName . "])";
+    }
+
+    public function parseQuery()
+    {
+    }
+
+    public function parseJoin()
+    {
+    }
+
+    public function parseWhere()
+    {
+    }
+
+    public function parseGroup()
+    {
+    }
+
+    public function parseHaving()
+    {
+    }
+
+    public function parseOrder()
+    {
+    }
+
+    public function parseSet()
+    {
+    }
+
+    public function parseValues()
+    {
     }
 
 }

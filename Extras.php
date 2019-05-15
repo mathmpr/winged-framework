@@ -1,7 +1,5 @@
 <?php
 
-
-
 \Winged\Utils\Container::$self->attach('whenControllerNotFound', function(){
     return false;
 });

@@ -2,12 +2,40 @@
 
 namespace Winged\Database;
 
+use Winged\Database\Drivers\Cubrid;
+use Winged\Database\Drivers\MySQL;
+use Winged\Database\Drivers\PostgreSQL;
+use Winged\Database\Drivers\Sqlite;
+use Winged\Database\Drivers\SQLServer;
 use Winged\Error\Error;
 use Winged\Model\Model;
 use WingedConfig;
 
-class QueryBuilder
+/**
+ * Class AbstractEloquent
+ *
+ * @package Winged\Database
+ */
+class TheQueryBuilderOld
 {
+    /**
+     * @var $eloquent null | Sqlite | MySQL | Cubrid | SQLServer | PostgreSQL
+     */
+    public $eloquent = null;
+
+    public function __construct()
+    {
+        try {
+            $reflection = new \ReflectionClass(get_class(CurrentDB::$current->queryStringHandler));
+            $this->eloquent = $reflection->newInstanceArgs([CurrentDB::$current, $this]);
+        } catch (\ReflectionException $exception) {
+            return false;
+        }
+        return $this;
+    }
+
+
+
     protected $select_arr = [];
     protected $from_arr = '';
     protected $inner_arr = [];
@@ -42,7 +70,9 @@ class QueryBuilder
 
     /**
      * Example: ['alias' => 'table_name', 'alias' => 'table_name', 'table_name', 'table_name']
+     *
      * @param array $update
+     *
      * @return $this
      */
     public function update($update = [])
@@ -64,12 +94,13 @@ class QueryBuilder
 
     /**
      * @param $table_name
+     *
      * @return $this
      */
     public function into($table_name)
     {
         if (!CurrentDB::exists($table_name)) {
-            Error::_die(__CLASS__, "Table " . $table_name . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
+            Error::_die(__CLASS__, "Table " . $table_name . " no exists in database " . WingedConfig::$config->db()->DBNAME, __FILE__, __LINE__);
         }
         if (is_string($table_name)) {
             $this->into_arr = $table_name;
@@ -79,7 +110,9 @@ class QueryBuilder
 
     /**
      * Example: after call of method into() call with ['field_name' => 'value']
+     *
      * @param array $values
+     *
      * @return $this
      */
     public function values($values = [])
@@ -90,7 +123,9 @@ class QueryBuilder
 
     /**
      * Example: ['alias' => 'table_name', 'alias' => 'table_name', 'table_name', 'table_name']
+     *
      * @param array $delete
+     *
      * @return $this
      */
     public function delete($delete = [])
@@ -102,7 +137,9 @@ class QueryBuilder
 
     /**
      * Example: after call of method into() call with ['field_name' => 'value']
+     *
      * @param array $set
+     *
      * @return $this
      */
     public function set($set = [])
@@ -113,7 +150,9 @@ class QueryBuilder
 
     /**
      * Example: use to select distinct
+     *
      * @param bool $option
+     *
      * @return $this
      */
     public function distinct($option = true)
@@ -124,7 +163,9 @@ class QueryBuilder
 
     /**
      * Example: ['alias' => 'table_name']
+     *
      * @param array $from
+     *
      * @return $this | Model
      */
     public function from($from = [])
@@ -133,7 +174,7 @@ class QueryBuilder
             $key = array_keys($from);
             if (is_string($key[0]) && is_string($from[$key[0]]) && $this->from_arr == '') {
                 if (!CurrentDB::exists(trim($from[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($from[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($from[$key[0]]) . " no exists in database " . WingedConfig::$config->db()->DBNAME, __FILE__, __LINE__);
                 }
                 $this->from_arr = 'FROM ' . trim($from[$key[0]]) . ' AS ' . trim($key[0]) . '';
                 $this->main_alias = array('alias' => trim($key[0]), 'table_name' => trim($from[$key[0]]));
@@ -144,8 +185,10 @@ class QueryBuilder
 
     /**
      * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
-     * @param array $inner
+     *
+     * @param array  $inner
      * @param string $condition
+     *
      * @return $this
      */
     public function innerJoin($inner = [], $condition = '')
@@ -154,7 +197,7 @@ class QueryBuilder
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
                 if (!CurrentDB::exists(trim($inner[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->db()->DBNAME, __FILE__, __LINE__);
                 }
                 $this->inner_arr[] = 'INNER JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
             }
@@ -164,8 +207,10 @@ class QueryBuilder
 
     /**
      * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
-     * @param array $inner
+     *
+     * @param array  $inner
      * @param string $condition
+     *
      * @return $this
      */
     public function leftJoin($inner = [], $condition = '')
@@ -174,7 +219,7 @@ class QueryBuilder
             $key = array_keys($inner);
             if (is_string($key[0]) && is_string($key[0])) {
                 if (!CurrentDB::exists(trim($inner[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->db()->DBNAME, __FILE__, __LINE__);
                 }
                 $this->left_arr[] = 'LEFT JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
             }
@@ -184,8 +229,10 @@ class QueryBuilder
 
     /**
      * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
-     * @param array $inner
+     *
+     * @param array  $inner
      * @param string $condition
+     *
      * @return $this
      */
     public function rightJoin($inner = [], $condition = '')
@@ -194,7 +241,7 @@ class QueryBuilder
             $key = array_keys($inner);
             if (is_string($key[0])) {
                 if (!CurrentDB::exists(trim($inner[$key[0]]))) {
-                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->DBNAME, __FILE__, __LINE__);
+                    Error::_die(__CLASS__, "Table " . trim($inner[$key[0]]) . " no exists in database " . WingedConfig::$config->db()->DBNAME, __FILE__, __LINE__);
                 }
                 $this->right_arr[] = 'RIGHT JOIN ' . trim($inner[$key[0]]) . ' AS ' . trim($key[0]) . ' ON ' . trim($condition);
             }
@@ -204,8 +251,10 @@ class QueryBuilder
 
     /**
      * Example: DbDict::EQUALS, ['alias.field_name' => 'value']
+     *
      * @param string $condition
-     * @param array $args
+     * @param array  $args
+     *
      * @return $this
      */
     public function having($condition = '', $args = [])
@@ -227,8 +276,10 @@ class QueryBuilder
 
     /**
      * Example: DbDict::EQUALS, ['alias.field_name' => 'value']
+     *
      * @param string $condition
-     * @param array $args
+     * @param array  $args
+     *
      * @return $this
      */
     public function andHaving($condition = '', $args = [])
@@ -250,8 +301,10 @@ class QueryBuilder
 
     /**
      * Example: DbDict::EQUALS, ['alias.field_name' => 'value']
+     *
      * @param string $condition
-     * @param array $args
+     * @param array  $args
+     *
      * @return $this
      */
     public function orHaving($condition = '', $args = [])
@@ -273,6 +326,7 @@ class QueryBuilder
 
     /**
      * @param string $field_name
+     *
      * @return $this
      */
     public function addGroupBy($field_name)
@@ -283,6 +337,7 @@ class QueryBuilder
 
     /**
      * @param array $fields
+     *
      * @return $this
      */
     public function groupBy($fields = [])
@@ -294,14 +349,16 @@ class QueryBuilder
     /**
      * Example: DbDict::EQUALS, ['alias.field_name' => 'value']
      * Example: if you need a sub select or explicit argument without commas in query call with -> param, param, $extra = DbDict::SUB_SELECT | DbDict::ARGUMENT
+     *
      * @param string $condition
-     * @param array $args
+     * @param array  $args
      * @param string $extra
+     *
      * @return $this
      */
     public function where($condition = '', $args = [], $extra = null)
     {
-        if(count($this->where_order) > 0){
+        if (count($this->where_order) > 0) {
             return $this->andWhere($condition, $args, $extra);
         }
         $condition = trim($condition);
@@ -379,9 +436,11 @@ class QueryBuilder
     /**
      * Example: DbDict::EQUALS, ['alias.field_name' => 'value']
      * Example: if you need a sub select or explicit argument without commas in query call with -> param, param, $extra = DbDict::SUB_SELECT | DbDict::ARGUMENT
+     *
      * @param string $condition
-     * @param array $args
+     * @param array  $args
      * @param string $extra
+     *
      * @return $this
      */
     public function andWhere($condition = '', $args = [], $extra = null)
@@ -461,9 +520,11 @@ class QueryBuilder
     /**
      * Example: DbDict::EQUALS, ['alias.field_name' => 'value']
      * Example: if you need a sub select or explicit argument without commas in query call with -> param, param, $extra = DbDict::SUB_SELECT | DbDict::ARGUMENT
+     *
      * @param string $condition
-     * @param array $args
+     * @param array  $args
      * @param string $extra
+     *
      * @return $this
      */
     public function orWhere($condition = '', $args = [], $extra = null)
@@ -540,12 +601,13 @@ class QueryBuilder
 
     /**
      * @param string | array $direction
-     * @param string $field
+     * @param string         $field
+     *
      * @return $this;
      */
     public function orderBy($direction = '', $field = '')
     {
-        if(count($this->order_bys) > 0){
+        if (count($this->order_bys) > 0) {
             return $this->andWhere($direction, $field);
         }
         if (is_array($direction) && count7($direction) == 2) {
@@ -561,7 +623,8 @@ class QueryBuilder
 
     /**
      * @param string | array $direction
-     * @param string $field
+     * @param string         $field
+     *
      * @return $this;
      */
     public function addOrderBy($direction = '', $field = '')
@@ -583,6 +646,7 @@ class QueryBuilder
     /**
      * @param int $initial_or_count
      * @param int $final
+     *
      * @return $this
      */
     public function limit($initial_or_count, $final = 0)

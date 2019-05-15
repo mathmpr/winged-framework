@@ -43,7 +43,7 @@ class CurrentDB
 
     public static function exists($tableName)
     {
-        if (in_array($tableName, self::$current->db_tables)) {
+        if (array_key_exists($tableName, self::$current->db_tables)) {
             return true;
         }
         return false;

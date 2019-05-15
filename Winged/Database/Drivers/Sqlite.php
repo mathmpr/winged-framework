@@ -10,7 +10,7 @@ use Winged\Database\CurrentDB;
  *
  * @package Winged\Database\Drivers
  */
-class Sqlite extends DriverMiddleware
+class Sqlite extends Eloquent implements EloquentInterface
 {
 
     public function setEncoding()
@@ -82,6 +82,38 @@ class Sqlite extends DriverMiddleware
             }
         }
         return $clear_fields;
+    }
+
+    public function parseQuery()
+    {
+    }
+
+    public function parseJoin()
+    {
+    }
+
+    public function parseWhere()
+    {
+    }
+
+    public function parseGroup()
+    {
+    }
+
+    public function parseHaving()
+    {
+    }
+
+    public function parseOrder()
+    {
+    }
+
+    public function parseSet()
+    {
+    }
+
+    public function parseValues()
+    {
     }
 
 }

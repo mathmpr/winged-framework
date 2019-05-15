@@ -2,7 +2,7 @@
 
 namespace Winged\Database\Types;
 
-use Winged\Database\Database;
+use Winged\Database\CurrentDB;
 
 class NormalMysqli
 {

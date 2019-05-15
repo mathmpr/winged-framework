@@ -108,12 +108,14 @@ class PreparedPDO
         }
     }
 
-    public function describe($tableName){
+    public function describe($tableName)
+    {
         $result = $this->fetch(CurrentDB::$current->queryStringHandler->describe($tableName), []);
         return CurrentDB::$current->queryStringHandler->describeMiddleware($result);
     }
 
-    public function show(){
+    public function show()
+    {
         $result = $this->fetch(CurrentDB::$current->queryStringHandler->show(), []);
         return CurrentDB::$current->queryStringHandler->showMiddleware($result);
     }
@@ -122,14 +124,13 @@ class PreparedPDO
     {
         if (count7($args) > 0) {
             $query = str_replace('?', '%s', $query);
-            $fields = [$query];
+            $argsNames = [];
+            $forSprintf = [$query];
             foreach ($args as $key => $value) {
-                $_key = ':' . str_replace(['i-', 's-', 'd-', 'b-', '-'], '', $key);
-                $args[$_key] = $value;
-                unset($args[$key]);
-                $fields[] = $_key;
+                $argsNames[':' . $key] = $value;
+                $forSprintf[] = ':' . $key;
             }
-            $query = call_user_func_array('sprintf', array_merge($fields));
+            $query = call_user_func_array('sprintf', $forSprintf);
             try {
                 $stmt = $this->refer->prepare($query);
             } catch (\PDOException $error) {
@@ -138,7 +139,7 @@ class PreparedPDO
             if ($stmt === false) {
                 return $stmt;
             }
-            foreach ($args as $key => $value) {
+            foreach ($argsNames as $key => $value) {
                 $stmt->bindValue($key, $value);
             }
             return $stmt;

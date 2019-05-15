@@ -22,7 +22,7 @@ class WingedDatabaseConfigDefaults
 
     /**
      * @property $USE_DATABASE bool
-     * on | off mysql extensions and all class. Inflicts DelegateQuery, QueryBuilder, CurrentDB, Connections, Database, DbDict, Models and Migrate class
+     * on | off mysql extensions and all class. Inflicts DelegateQuery, AbstractEloquent, CurrentDB, Connections, Database, DbDict, Models and Migrate class
      */
     public $USE_DATABASE = false;
 

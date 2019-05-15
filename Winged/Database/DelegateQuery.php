@@ -7,7 +7,7 @@ use WingedConfig;
 use Winged\Date\Date;
 use Winged\Model\Model;
 
-class DelegateQuery extends QueryBuilder
+class DelegateQuery extends AbstractEloquent
 {
     protected $last_query_key = '';
     protected $as_array = false;
@@ -135,7 +135,7 @@ class DelegateQuery extends QueryBuilder
                             $array[$key][$_key] = (float)($u);
                             $this->{$_key} = $array[$key][$_key];
                         } else {
-                            if (WingedConfig::$config->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
+                            if (WingedConfig::$config->db()->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
                                 $array[$key][$_key] = stripslashes((string)$u);
                             }
                             $array[$key][$_key] = $this->getRealValue($array[$key][$_key], $type['key']);
@@ -180,7 +180,7 @@ class DelegateQuery extends QueryBuilder
                         $array[$_key] = (float)($u);
                         $this->{$_key} = $array[$_key];
                     } else {
-                        if (WingedConfig::$config->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
+                        if (WingedConfig::$config->db()->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
                             $array[$_key] = stripslashes((string)$u);
                         }
                         $array[$_key] = $this->getRealValue($array[$_key], $type['key']);
@@ -221,7 +221,7 @@ class DelegateQuery extends QueryBuilder
 
     private function realInsert()
     {
-        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $args = $this->delegate()->getQueryInfo();
             return CurrentDB::insert($args['query'], $args['args']);
         }else{
@@ -231,7 +231,7 @@ class DelegateQuery extends QueryBuilder
 
     private function realExecute()
     {
-        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $args = $this->delegate()->getQueryInfo();
             return CurrentDB::execute($args['query'], $args['args']);
         }else{
@@ -241,7 +241,7 @@ class DelegateQuery extends QueryBuilder
 
     private function fetch()
     {
-        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $args = $this->delegate()->getQueryInfo();
             return CurrentDB::fetch($args['query'], $args['args']);
         } else {
@@ -269,7 +269,7 @@ class DelegateQuery extends QueryBuilder
     public function count()
     {
         $cloned = clone $this;
-        if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+        if (WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
             $query = $cloned->delegate()->getQueryInfo();
             $count = CurrentDB::count($query['query'], $query['args']);
         } else {
@@ -771,7 +771,7 @@ class DelegateQuery extends QueryBuilder
 
     private function addPrepared($type, $value)
     {
-        if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
+        if (WingedConfig::$config->db()->STD_DB_CLASS === IS_MYSQLI) {
             if (!array_key_exists(0, $this->prepared_args)) {
                 $this->prepared_args[0] = '';
             }
@@ -796,11 +796,11 @@ class DelegateQuery extends QueryBuilder
         $field = explode('.', $field);
         $field = trim(array_pop($field));
 
-        if (!is_object($value) && WingedConfig::$config->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
+        if (!is_object($value) && WingedConfig::$config->db()->USE_PREPARED_STMT !== USE_PREPARED_STMT) {
             $value = rtrim(addslashes($value), '/');
         }
 
-        if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
+        if (WingedConfig::$config->db()->STD_DB_CLASS === IS_MYSQLI) {
             if (!array_key_exists_check($field, $this->table_info)) {
                 $type = ['type' => 's', 'key' => 's_s'];
             } else {
@@ -862,7 +862,7 @@ class DelegateQuery extends QueryBuilder
                 $first = true;
                 foreach ($this->update_arr as $key => $value) {
                     if (!CurrentDB::exists($value)) {
-                        Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->DBNAME, __LINE__, __FILE__, __LINE__);
+                        Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->db()->DBNAME, __LINE__, __FILE__, __LINE__);
                     }
                     if ($first) {
                         if (is_int($key)) {
@@ -887,7 +887,7 @@ class DelegateQuery extends QueryBuilder
                 $first = true;
                 foreach ($this->delete_arr as $key => $value) {
                     if (!CurrentDB::exists($value)) {
-                        Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->DBNAME, __LINE__, __FILE__, __LINE__);
+                        Error::_die('Die | Fatal', "Table " . $key . " no exists in database " . WingedConfig::$config->db()->DBNAME, __LINE__, __FILE__, __LINE__);
                     }
                     if ($first) {
                         if (is_int($key)) {
@@ -929,7 +929,9 @@ class DelegateQuery extends QueryBuilder
         $query = $args['query'];
         if (!empty($args['args'])) {
             $values = $args['args'];
-            array_shift($values);
+            if(array_key_exists(0, $values)){
+                array_shift($values);
+            }
             $query = str_replace('?', '%s', $query);
             foreach ($values as $key => $value) {
                 $values[$key] = $this->typeOfValue($key, $value);
@@ -1016,8 +1018,8 @@ class DelegateQuery extends QueryBuilder
     {
         $prepared = [];
         if ($this->fkValue($this) != null) {
-            if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
+            if (WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                if (WingedConfig::$config->db()->STD_DB_CLASS === IS_MYSQLI) {
                     $prepared[] = 's';
                 }
                 $prepared[] = $this->fkValue($this);
@@ -1074,7 +1076,7 @@ class DelegateQuery extends QueryBuilder
             }
             $this->set($real_load);
             $prepared = false;
-            if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+            if (WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                 $query = $this->delegate()->getQueryInfo();
                 $prepared = $query['args'];
                 $query = $query['query'];
@@ -1111,7 +1113,7 @@ class DelegateQuery extends QueryBuilder
             }
             $this->values($real_load);
             $prepared = false;
-            if (WingedConfig::$config->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+            if (WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                 $query = $this->delegate()->getQueryInfo();
                 $prepared = $query['args'];
                 $query = $query['query'];

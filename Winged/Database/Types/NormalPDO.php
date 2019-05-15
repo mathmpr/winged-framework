@@ -3,7 +3,7 @@
 namespace Winged\Database\Types;
 
 use Winged\Error\Error;
-use Winged\Database\Database;
+use Winged\Database\CurrentDB;
 
 class NormalPDO
 {

@@ -2,17 +2,16 @@
 
 namespace Winged\Model;
 
-use Winged\Database\DelegateQuery;
 use Winged\Database\DbDict;
-use Winged\Database\Database;
 use Winged\Database\CurrentDB;
+use Winged\Database\AbstractEloquent;
 use Winged\Error\Error;
 
 /**
  * Class Model
  * @package Winged\Model
  */
-abstract class Model extends DelegateQuery
+abstract class Model extends AbstractEloquent
 {
     public $errors = [];
 
@@ -28,58 +27,76 @@ abstract class Model extends DelegateQuery
 
     private $parsed_properties = [];
 
+    private $tableFields = [];
+
+    private $tableInfo = [];
+
     protected static $cached_info = [];
-
-
-    /**
-     * @return string
-     */
-    //abstract public static function primaryKeyName();
-
-    /**
-     * @return string
-     */
-    //abstract public static function tableName();
-
-    /**
-     * @param bool $pk
-     * @return mixed
-     */
-    abstract public function primaryKey($pk = false);
-
-    /**
-     * @return array
-     */
-    abstract public function behaviors();
-
-    /**
-     * @return array
-     */
-    abstract public function reverseBehaviors();
-
-    /**
-     * @return array
-     */
-    abstract public function rules();
-
-    /**
-     * Labels used by Winged\Form\Form in components
-     * @return array
-     */
-    abstract public function labels();
-
 
     public function __construct()
     {
-        $this->getTableFields();
+        parent::__construct();
+        $this->tableFields();
         if (!$this->extras) {
             $this->extras = new \stdClass();
         }
     }
 
-    public function className()
+    /**
+     * get table fields and fields informations
+     *
+     * @return mixed
+     */
+    public function tableFields()
     {
-        return get_class($this);
+        $class_name = get_class($this);
+        if (array_key_exists($class_name, self::$cached_info)) {
+            $this->tableFields = self::$cached_info[$class_name]->table_fields;
+            $this->tableInfo = self::$cached_info[$class_name]->table_info;
+            return self::$cached_info[$class_name]->table_fields;
+        } else {
+            if (empty($this->table_fields) && $this->_tableName() != '') {
+                $all = CurrentDB::describe($this->_tableName());
+                foreach ($all as $key => $field) {
+                    $this->tableFields[] = $key;
+                    $this->tableInfo[$key] = $field;
+                }
+            }
+            if (!array_key_exists($class_name, self::$cached_info)) {
+                self::$cached_info[$class_name] = new \stdClass();
+                self::$cached_info[$class_name]->table_fields = $this->tableFields;
+                self::$cached_info[$class_name]->table_info = $this->tableInfo;
+            }
+            return $this->table_fields;
+        }
+    }
+
+    /**
+     * Call static method from model to get table name
+     *
+     * @return string
+     */
+    protected function _tableName(){
+        try {
+            $reflect = new \ReflectionMethod(get_class($this), 'tableName');
+            return $reflect->invoke(null);
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Call static method from model to get primary key name
+     *
+     * @return string
+     */
+    protected function _primaryKeyName(){
+        try {
+            $reflect = new \ReflectionMethod(get_class($this), 'primaryKeyName');
+            return $reflect->invoke(null);
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 
     public function hasOne($class_name, $link = [])
@@ -222,17 +239,18 @@ abstract class Model extends DelegateQuery
                 $this->safe_fields[] = $key;
             }
 
-            if ((in_array(strtolower($key), $this->table_fields) || $safe) && property_exists($class_name, strtolower($key))) {
+            if ((in_array($key, $this->table_fields) || $safe) && property_exists($class_name, $key)) {
                 $type = $this->returnMysqlType($key);
                 $this->{$key} = $this->getRealValue($value, $type['key']);
                 $this->loaded_fields[] = $key;
                 $fields_loaded_in_this_call[] = $key;
                 if ($trade && !array_key_exists($key, $this->before_values) && (!$this->isNew() || $newobj)) {
-                    $this->before_values[strtolower($key)] = $value_of_property_before_parse;
+                    $this->before_values[$key] = $value_of_property_before_parse;
                     $this->before_values_loaded = true;
                 }
             }
         }
+
 
         $behaviors = $this->behaviors();
 
@@ -360,7 +378,6 @@ abstract class Model extends DelegateQuery
 
         return $models;
     }
-
 
     public function pushValidateError($key, $error, $pn)
     {
@@ -602,29 +619,7 @@ abstract class Model extends DelegateQuery
         return null;
     }
 
-    public function getTableFields()
-    {
-        $class_name = get_class($this);
-        if (array_key_exists($class_name, self::$cached_info)) {
-            $this->table_fields = self::$cached_info[$class_name]->table_fields;
-            $this->table_info = self::$cached_info[$class_name]->table_info;
-            return self::$cached_info[$class_name]->table_fields;
-        } else {
-            if (empty($this->table_fields) && $this->tableName() != '') {
-                $all = CurrentDB::describe($this->tableName());
-                foreach ($all as $key => $field) {
-                    $this->table_fields[] = $key;
-                    $this->table_info[$key] = $field;
-                }
-            }
-            if (!array_key_exists($class_name, self::$cached_info)) {
-                self::$cached_info[$class_name] = new \stdClass();
-                self::$cached_info[$class_name]->table_fields = $this->table_fields;
-                self::$cached_info[$class_name]->table_info = $this->table_info;
-            }
-            return $this->table_fields;
-        }
-    }
+
 
     public function _behaviors()
     {

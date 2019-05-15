@@ -98,7 +98,7 @@ class WingedConfig extends WingedConfigDefaults
 
     /**
      * @property $USE_DATABASE bool
-     * on | off mysql extensions and all class. Inflicts DelegateQuery, QueryBuilder, CurrentDB, Connections, Database, DbDict and Models classes
+     * on | off mysql extensions and all class. Inflicts DelegateQuery, AbstractEloquent, CurrentDB, Connections, Database, DbDict and Models classes
      */
     public $USE_DATABASE = false;
 

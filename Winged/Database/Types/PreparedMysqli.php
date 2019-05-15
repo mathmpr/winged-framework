@@ -3,6 +3,7 @@
 namespace Winged\Database\Types;
 
 use Winged\Error\Error;
+use Winged\Database\CurrentDB;
 use Winged\Database\Database;
 use WingedConfig;
 
