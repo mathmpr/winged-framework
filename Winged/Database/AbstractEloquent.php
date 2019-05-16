@@ -214,17 +214,17 @@ class AbstractEloquent
     }
 
     /**
-     * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
+     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
-     * @param array  $inner
      * @param string $condition
+     * @param array  $inner
      *
      * @return $this
      */
-    public function leftJoin($inner = [], $condition = '')
+    public function leftJoin($condition = '', $inner = [])
     {
         try {
-            $this->eloquent->leftJoin($inner, $condition);
+            $this->eloquent->leftJoin($condition, $inner);
         } catch (\Exception $exception) {
             return $this;
         }
@@ -232,17 +232,17 @@ class AbstractEloquent
     }
 
     /**
-     * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
+     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
-     * @param array  $inner
      * @param string $condition
+     * @param array  $inner
      *
      * @return $this
      */
-    public function rightJoin($inner = [], $condition = '')
+    public function rightJoin($condition = '', $inner = [])
     {
         try {
-            $this->eloquent->rightJoin($inner, $condition);
+            $this->eloquent->rightJoin($condition, $inner);
         } catch (\Exception $exception) {
             return $this;
         }
@@ -250,17 +250,17 @@ class AbstractEloquent
     }
 
     /**
-     * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
+     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
-     * @param array  $inner
      * @param string $condition
+     * @param array  $inner
      *
      * @return $this
      */
-    public function innerJoin($inner = [], $condition = '')
+    public function innerJoin($condition = '', $inner = [])
     {
         try {
-            $this->eloquent->innerJoin($inner, $condition);
+            $this->eloquent->innerJoin($condition, $inner);
         } catch (\Exception $exception) {
             return $this;
         }

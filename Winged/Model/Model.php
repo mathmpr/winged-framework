@@ -9,6 +9,7 @@ use Winged\Error\Error;
 
 /**
  * Class Model
+ *
  * @package Winged\Model
  */
 abstract class Model extends AbstractEloquent
@@ -55,8 +56,8 @@ abstract class Model extends AbstractEloquent
             $this->tableInfo = self::$cached_info[$class_name]->table_info;
             return self::$cached_info[$class_name]->table_fields;
         } else {
-            if (empty($this->table_fields) && $this->_tableName() != '') {
-                $all = CurrentDB::describe($this->_tableName());
+            if (empty($this->table_fields) && $this->_tableName() != '' && array_key_exists($this->_tableName(), CurrentDB::$current->db_tables)) {
+                $all = CurrentDB::$current->db_tables[$this->_tableName()]['fields'];
                 foreach ($all as $key => $field) {
                     $this->tableFields[] = $key;
                     $this->tableInfo[$key] = $field;
@@ -76,7 +77,8 @@ abstract class Model extends AbstractEloquent
      *
      * @return string
      */
-    protected function _tableName(){
+    protected function _tableName()
+    {
         try {
             $reflect = new \ReflectionMethod(get_class($this), 'tableName');
             return $reflect->invoke(null);
@@ -90,7 +92,8 @@ abstract class Model extends AbstractEloquent
      *
      * @return string
      */
-    protected function _primaryKeyName(){
+    protected function _primaryKeyName()
+    {
         try {
             $reflect = new \ReflectionMethod(get_class($this), 'primaryKeyName');
             return $reflect->invoke(null);
@@ -147,8 +150,9 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
-    public function old($property){
-        if(array_key_exists($property, $this->before_values)){
+    public function old($property)
+    {
+        if (array_key_exists($property, $this->before_values)) {
             return $this->before_values[$property];
         }
         return false;
@@ -618,7 +622,6 @@ abstract class Model extends AbstractEloquent
         }
         return null;
     }
-
 
 
     public function _behaviors()

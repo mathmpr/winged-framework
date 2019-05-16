@@ -225,17 +225,73 @@ class MySQL extends Eloquent implements EloquentInterface
             throw new \Exception('property ' . $propertyName . ' do not exists in $this object');
         }
         foreach ($this->{$propertyName} as $key => $property) {
-            if (count($property) > 1) {
-                $parts = explode('.', $property);
-                if (count($parts) > 1) {
-                    $table = $parts[0];
-                    $field = $parts[1];
-                } else {
-                    $field = $parts[0];
-                }
-            } else {
 
+            if (!array_key_exists($propertyName, $this->queryFields)) {
+                $this->queryFields[$propertyName] = [];
+                $this->queryFieldsAlias[$propertyName] = [];
             }
+
+            if (is_array($property)) {
+                if ($propertyName === 'where') {
+                    $keys = array_keys($property['args']);
+                    $information = $this->getInformation($keys[0]);
+                    $theValue = $this->normalizeValue($property['args'][$keys[0]], $information['table'], $information['field']);
+                    if (!is_string($keys[0])) {
+                        //normal
+                        pre_clear_buffer_die('//normal se fodeu');
+                    }
+                    if (($property['condition'] === ELOQUENT_IN || $property['condition'] === ELOQUENT_NOTIN) &&
+                        !is_array($theValue)) {
+                        //in | not in
+                        pre_clear_buffer_die('//in | not in se fodeu');
+                    }
+                    if ($property['condition'] === ELOQUENT_BETWEEN &&
+                        !is_array($theValue) &&
+                        count7($theValue) != 2) {
+                        //betwen
+                        pre_clear_buffer_die('//betwen se fodeu');
+                    }
+
+
+                    if(is_subclass_of())
+                    pre_clear_buffer_die($field);
+
+                } else {
+                    $k = 's';
+                    echo $k;
+                }
+
+                if ($property['args'])
+                    $info = [
+                        'condition' => $property['condition'],
+                        'original' => $property,
+                        'left' => $leftInfo,
+                        'right' => $rightInfo,
+                        'type' => 'joins',
+                    ];
+                $this->queryTablesInfo[$propertyName][] = $info;
+            } else {
+                if (is_string($key)) {
+                    $realName = $this->getInformation($key);
+                    $this->queryFieldsAlias[$propertyName] = $property;
+                    $this->queryFields[$propertyName] = $realName['field'];
+                } else {
+                    $realName = $this->getInformation($property);
+                    $this->queryFieldsAlias[$propertyName] = false;
+                    $this->queryFields[$propertyName] = $realName['field'];
+                }
+            }
+            //if (count7($property) > 1) {
+            //    $parts = explode('.', $property);
+            //    if (count7($parts) > 1) {
+            //        $table = $parts[0];
+            //        $field = $parts[1];
+            //    } else {
+            //        $field = $parts[0];
+            //    }
+            //} else {
+
+            //}
         }
         return $this;
     }
@@ -257,21 +313,39 @@ class MySQL extends Eloquent implements EloquentInterface
             if (!array_key_exists($propertyName, $this->queryTables)) {
                 $this->queryTables[$propertyName] = [];
                 $this->queryTablesAlias[$propertyName] = [];
-                $this->queryInfo[$propertyName] = [];
+                $this->queryTablesInfo[$propertyName] = [];
             }
-
             $info = false;
+            $alias = false;
             if (is_array($property)) {
                 switch ($propertyName) {
                     case 'joins':
                         $condition = str_replace(' ', '', $property['condition']);
-
+                        $keys = array_keys($property['args']);
+                        if (is_string($keys[0])) {
+                            $alias = $keys[0];
+                        }
+                        $tableName = $property['args'][$keys[0]];
+                        $this->queryTables[$propertyName][] = $tableName;
+                        $this->queryTablesAlias[$propertyName][] = $alias;
+                        if (!is_string($keys[1])) {
+                            throw new \Exception('in join clause is required an string key with field or table.field or alias.field');
+                        }
+                        $leftInfo = $this->getInformation($keys[1]);
+                        $rightInfo = $this->getInformation($property['args'][$keys[1]]);
+                        $info = [
+                            'condition' => $condition,
+                            'original' => $property,
+                            'left' => $leftInfo,
+                            'right' => $rightInfo,
+                            'type' => 'joins',
+                        ];
+                        $this->queryTablesInfo[$propertyName][] = $info;
+                        break;
                     default:
                         break;
                 }
-                pre_clear_buffer_die($property);
             } else {
-                $alias = false;
                 if (is_string($key)) {
                     $alias = $key;
                     if (in_array($alias, $this->queryTablesAlias[$propertyName])) {
@@ -286,12 +360,10 @@ class MySQL extends Eloquent implements EloquentInterface
                 if (in_array($tableName, $this->queryTables[$propertyName])) {
                     throw new \Exception('can\'t use name of table twice. the name of table is: ' . $tableName);
                 }
+                $this->queryTables[$propertyName][] = $tableName;
+                $this->queryTablesAlias[$propertyName][] = $alias;
+                $this->queryTablesInfo[$propertyName][] = $info;
             }
-
-            $this->queryTables[$propertyName][] = $tableName;
-            $this->queryTablesAlias[$propertyName][] = $alias;
-            $this->queryInfo[$propertyName][] = $info;
-
         }
         return $this;
     }
@@ -330,6 +402,9 @@ class MySQL extends Eloquent implements EloquentInterface
                 } catch (\Exception $exception) {
                     return $this;
                 }
+
+                pre_clear_buffer_die($this);
+
                 $this->parseSelect()
                     ->parseFrom()
                     ->parseJoin()

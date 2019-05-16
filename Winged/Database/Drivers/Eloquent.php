@@ -32,7 +32,9 @@ abstract class Eloquent
 
     public $queryFieldsAlias = [];
 
-    public $queryInfo = [];
+    public $queryTablesInfo = [];
+
+    public $queryFieldsInfo = [];
 
     public $initialDelete = 'DELETE';
 
@@ -408,16 +410,16 @@ abstract class Eloquent
     }
 
     /**
-     * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
+     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
-     * @param array  $inner
      * @param string $condition
+     * @param array  $inner
      *
      * @throws \Exception
      *
      * @return $this
      */
-    public function leftJoin($inner = [], $condition = '')
+    public function leftJoin($condition = '', $inner = [])
     {
         if ($condition != '' && count7($inner) > 0) {
             try {
@@ -430,16 +432,16 @@ abstract class Eloquent
     }
 
     /**
-     * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
+     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
-     * @param array  $inner
      * @param string $condition
+     * @param array  $inner
      *
      * @throws \Exception
      *
      * @return $this
      */
-    public function rightJoin($inner = [], $condition = '')
+    public function rightJoin($condition = '', $inner = [])
     {
 
         if ($condition != '' && count7($inner) > 0) {
@@ -453,16 +455,16 @@ abstract class Eloquent
     }
 
     /**
-     * Example: ['alias' => 'table_name'], 'alias.field_name = alias.field_name'
+     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
-     * @param array  $inner
      * @param string $condition
+     * @param array  $inner
      *
      * @throws \Exception
      *
      * @return $this
      */
-    public function innerJoin($inner = [], $condition = '')
+    public function innerJoin($condition = '', $inner = [])
     {
         if ($condition != '' && count7($inner) > 0) {
             try {
@@ -599,8 +601,14 @@ abstract class Eloquent
         }
 
         $countArguments = count7($args);
-        if ($countArguments >= 2) {
-            throw new \Exception('args inside $args expected exactly two parameters, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
+        if (in_array($command, ['inner', 'left', 'right'])) {
+            if ($countArguments < 2) {
+                throw new \Exception('args inside $args expected exactly two parameters, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
+            }
+        } else {
+            if ($countArguments > 1) {
+                throw new \Exception('args inside $args expected exactly one parameter, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
+            }
         }
 
         if (($command === 'or' || $command === 'and') && empty($this->{$propertyName})) {
@@ -627,12 +635,21 @@ abstract class Eloquent
     /**
      * check if field exists inside an table
      *
-     * @param string $string
+     * @param string        $string
+     * @param string | bool $tableName
      *
      * @return bool
      */
-    protected function fieldExists($string = '')
+    protected function fieldExists($string = '', $tableName = false)
     {
+        if (is_string($tableName) && $tableName != '') {
+            if (array_key_exists($tableName, $this->database->db_tables)) {
+                if (array_key_exists($string, $this->database->db_tables[$tableName]['fields'])) {
+                    return true;
+                }
+            }
+            return false;
+        }
         if ($this->model) {
             return in_array($string, $this->model->tableFields());
         }
@@ -651,5 +668,93 @@ abstract class Eloquent
         return array_key_exists($string, $this->database->db_tables);
     }
 
+    /**
+     * check if alias has registred in eloquent object
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    protected function aliasExists($string = '')
+    {
+        foreach ($this->queryTablesAlias as $key => $value) {
+            if (in_array($key, ['from', 'into', 'delete', 'update', 'joins'])) {
+                if (in_array($string, $value)) {
+                    $aliasIndex = array_search($string, $value);
+                    if (array_key_exists($aliasIndex, $this->queryTables[$key])) {
+                        return $this->queryTables[$key][$aliasIndex];
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param Eloquent | Model | string | int | boolean | float | double $value
+     *
+     * @throws \Exception
+     *
+     * @return array
+     */
+    protected function getInformation($value)
+    {
+        $info = [
+            'type' => false,
+            'alias' => false,
+            'table' => false,
+            'field' => false,
+            'value' => false,
+            'eloquent' => false,
+        ];
+        if (is_string($value)) {
+            $exp = explode('.', trim($value));
+            if ($exp > 1) {
+                $possibleTableOrAlias = $exp[0];
+                $possibleFieldName = $exp[1];
+                $tableName = $this->aliasExists($possibleTableOrAlias);
+                if ($this->tableExists($possibleTableOrAlias) && !$this->aliasExists($possibleTableOrAlias)) {
+                    $info['type'] = 'table';
+                    $info['table'] = $possibleTableOrAlias;
+                    if (!$this->fieldExists($possibleFieldName, $possibleTableOrAlias)) {
+                        throw new \Exception('field ' . $possibleFieldName . ' not exists in table ' . $possibleTableOrAlias);
+                    }
+                    $info['field'] = $possibleFieldName;
+                } else if ($tableName) {
+                    $info['type'] = 'alias';
+                    $info['alias'] = $possibleTableOrAlias;
+                    $info['table'] = $tableName;
+                    if (!$this->fieldExists($possibleFieldName, $tableName)) {
+                        throw new \Exception('field ' . $possibleFieldName . ' not exists in table ' . $possibleTableOrAlias);
+                    }
+                    $info['field'] = $possibleFieldName;
+                } else {
+                    throw new \Exception('table name or alias not registred in query. name is: ' . $possibleTableOrAlias);
+                }
+            } else {
+                throw new \Exception('format alias.field_name is required in join clause');
+            }
+        }
+        return $info;
+    }
+
+    /**
+     * normalize value for register after in query
+     *
+     * @param Model | Eloquent | int | float | array | double | string $value
+     * @param string                                                   $tableName
+     * @param string                                                   $fieldName
+     *
+     * @return array
+     */
+    protected function normalizeValue($value, $tableName, $fieldName)
+    {
+        $normalized = [];
+
+        if (is_object($value)) {
+
+        }
+        return $normalized;
+    }
 
 }

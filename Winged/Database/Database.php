@@ -297,6 +297,10 @@ class Database
 
         $this->db_tables = $this->show();
 
+        foreach ($this->db_tables as $table => $info) {
+            $this->db_tables[$table] = array_merge($info, ['fields' => $this->describe($table)]);
+        }
+
         return $this;
     }
 
