@@ -2,6 +2,7 @@
 
 namespace Winged\Database\Drivers;
 
+use Winged\Database\CurrentDB;
 use Winged\Database\Database;
 use Winged\Model\Model;
 
@@ -35,6 +36,12 @@ abstract class Eloquent
     public $queryTablesInfo = [];
 
     public $queryFieldsInfo = [];
+
+    public $mysqliDataType = [];
+
+    public $pdoDataType = [];
+
+    public $queryValues = [];
 
     public $initialDelete = 'DELETE';
 
@@ -201,13 +208,14 @@ abstract class Eloquent
      * @param Database     $database
      * @param Model | null $model
      */
-    public function __construct($database, $model = null)
+    public function __construct($database = null, $model = null)
     {
-        $this->database = $database;
-        $this->model = $model;
-        if (!$model) {
-
+        if (!$database) {
+            $this->database = CurrentDB::$current;
+        } else {
+            $this->database = $database;
         }
+        $this->model = $model;
     }
 
     /**
@@ -739,22 +747,139 @@ abstract class Eloquent
     }
 
     /**
+     * return type of value, as date, string, float or int
+     *
+     * @param $tableName
+     * @param $fieldName
+     *
+     * @throws \Exception
+     *
+     * @return array
+     */
+    protected function getTypeOfField($tableName, $fieldName)
+    {
+        if (array_key_exists($tableName, $this->database->db_tables)) {
+            if (array_key_exists($fieldName, $this->database->db_tables[$tableName]['fields'])) {
+                $field = $this->database->db_tables[$tableName]['fields'][$fieldName];
+                if (array_key_exists($field['type'], $this->database->normalTypes)) {
+                    return [
+                        'type' => $this->database->normalTypes[$field['type']],
+                        'field' => $field['type']
+                    ];
+                } else {
+                    return [
+                        'type' => 's',
+                        'field' => $field['type']
+                    ];
+                }
+            } else {
+                throw new \Exception('field ' . $fieldName . ' no exists in table ' . $tableName . ' on database ' . $this->database->dbname);
+            }
+        } else {
+            throw new \Exception('table ' . $tableName . ' no exists in database ' . $this->database->dbname);
+        }
+    }
+
+    /**
      * normalize value for register after in query
      *
      * @param Model | Eloquent | int | float | array | double | string $value
      * @param string                                                   $tableName
      * @param string                                                   $fieldName
      *
+     * @throws \Exception
+     *
      * @return array
      */
     protected function normalizeValue($value, $tableName, $fieldName)
     {
-        $normalized = [];
+        $normalized = [
+            'value' => null
+        ];
+        $fieldType = $this->getTypeOfField($tableName, $fieldName);
+        $normalized = array_merge($normalized, $fieldType);
 
         if (is_object($value)) {
-
+            if (in_array($fieldType['field'], ['date', 'time', 'year', 'timestamp', 'datetime', 'timestamptz'])) {
+                if (get_class($value) !== 'Winged\Date\Date') {
+                    switch ($fieldType['field']) {
+                        case 'date':
+                            if (Date::valid($value)) {
+                                $value = new Date($value);
+                            }
+                            break;
+                        case 'time':
+                            if (Date::valid('1994-09-15 ' . $value)) {
+                                $value = new Date('1994-09-15 ' . $value);
+                            }
+                            break;
+                        case 'year':
+                            if (strlen($value) === 4 && intval($value) > 0) {
+                                $value = new Date($value . '-09-15');
+                            }
+                            break;
+                        case 'timestamp':
+                            if (Date::valid($value)) {
+                                $value = new Date($value);
+                            }
+                            break;
+                        case 'timestamptz':
+                            if (Date::valid($value)) {
+                                $value = new Date($value);
+                            }
+                            break;
+                        case 'datetime':
+                            if (Date::valid($value)) {
+                                $value = new Date($value);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    throw new \Exception('field type is: ' . $fieldType['field'] . ', but the value founded in clause is:' . get_class($value));
+                }
+            } else {
+                if (is_subclass_of($value, 'Winged\Model\Model')
+                    || is_subclass_of($value, 'Winged\Database\Drivers\Eloquent')
+                    || get_class($value) === 'Winged\Model\Model'
+                    || get_class($value) === 'Winged\Database\Drivers\Eloquent'
+                ) {
+                    $value = $value->build();
+                    //@todo
+                }
+            }
+        } else {
+            if (!is_array($value)) {
+                if ($fieldType['field'] === 'i') {
+                    $value = intval($value);
+                }
+                if ($fieldType['field'] === 'd') {
+                    $value = doubleval($value);
+                }
+                if ($fieldType['field'] === 's') {
+                    $value = '' . $value . '';
+                }
+            }
         }
+        $normalized['value'] = $value;
         return $normalized;
+    }
+
+    public function pushQueryInformation($left, $right)
+    {
+        if (is_array($right['value'])) {
+            foreach ($right['value'] as $value) {
+                $this->mysqliDataType[] = $right['type'];
+                $this->pdoDataType[] = ':' . $left['field'] . uniqid('_');
+                $this->queryValues[] = $value;
+            }
+        } else {
+            $this->mysqliDataType[] = $right['type'];
+            $this->pdoDataType[] = ':' . $left['field'];
+            $this->queryValues[] = $right['value'];
+        }
+
     }
 
 }

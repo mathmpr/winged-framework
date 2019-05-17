@@ -140,21 +140,54 @@ class MySQL extends Eloquent implements EloquentInterface
 
     public function parseJoin()
     {
-        foreach ($this->joins as $join) {
-            if (is_array($join)) {
+        $part = '';
+        foreach ($this->queryTablesInfo['joins'] as $key => $join) {
+            $part .= strtoupper($join['original']['type']) . ' JOIN ';
 
+            if ($this->queryTablesAlias['joins'][$key]) {
+                $part .= $this->queryTablesAlias['joins'][$key] . '.' . $this->queryTables['joins'][$key];
+            } else {
+                $part .= $this->queryTables['joins'][$key];
+            }
+
+            $part .= ' ON ';
+
+            if ($join['left']['alias']) {
+                $part .= $join['left']['alias'] . '.' . $join['left']['field'];
+            } else {
+                $part .= $join['left']['table'] . '.' . $join['left']['field'];
+            }
+
+            if ($join['right']['alias']) {
+                $part .= ' ' . $join['condition'] . ' ' . $join['right']['alias'] . '.' . $join['right']['field'];
+            } else {
+                $part .= ' ' . $join['condition'] . ' ' . $join['right']['table'] . '.' . $join['right']['field'];
             }
         }
+        $this->currentQueryString .= ' ' . $part;
         return $this;
     }
 
     public function parseWhere()
     {
-        foreach ($this->where as $where) {
-            if (is_array($where)) {
-
+        $part = '(';
+        foreach ($this->queryTablesInfo['where'] as $key => $where) {
+            $operation = '';
+            if ($where['original']['type'] === 'and') {
+                $operation = ' AND ';
+            }
+            if ($where['original']['type'] === 'or') {
+                $operation = ') OR (';
+            }
+            $this->pushQueryInformation($where['left'], $where['right']);
+            if ($where['left']['alias']) {
+                $part .= $operation . $where['left']['alias'] . '.' . $where['left']['table'] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+            } else {
+                $part .= $operation . $where['left']['table'] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
             }
         }
+        $part .= ')';
+        $this->currentQueryString .= ' WHERE' . $part;
         return $this;
     }
 
@@ -190,7 +223,26 @@ class MySQL extends Eloquent implements EloquentInterface
 
     public function parseSelect()
     {
-
+        $part = '';
+        foreach ($this->queryFields['select'] as $key => $field) {
+            if ($this->queryTablesAlias['select'][$key]) {
+                if ($this->queryFieldsAlias['select'][$key]) {
+                    $part .= $this->queryTablesAlias['select'][$key] . '.' . $field . ' AS ' . $this->queryFieldsAlias['select'][$key] . ',';
+                } else {
+                    $part .= $this->queryTablesAlias['select'][$key] . '.' . $field . ',';
+                }
+            } else {
+                if ($this->queryFieldsAlias['select'][$key]) {
+                    $part .= $field . ' AS ' . $this->queryFieldsAlias['select'][$key] . ',';
+                } else {
+                    $part .= $field . ',';
+                }
+            }
+        }
+        $part = Chord::factory($part);
+        $part->endReplace(',');
+        $this->currentQueryString .= ' ' . $part->get();
+        return $this;
     }
 
     /**
@@ -208,7 +260,7 @@ class MySQL extends Eloquent implements EloquentInterface
         }
         $part = Chord::factory($part);
         $part->endReplace(',');
-        $this->currentQueryString .= ' ' . $part->get();
+        $this->currentQueryString .= ' FROM ' . $part->get();
         return $this;
     }
 
@@ -237,61 +289,41 @@ class MySQL extends Eloquent implements EloquentInterface
                     $information = $this->getInformation($keys[0]);
                     $theValue = $this->normalizeValue($property['args'][$keys[0]], $information['table'], $information['field']);
                     if (!is_string($keys[0])) {
-                        //normal
-                        pre_clear_buffer_die('//normal se fodeu');
+                        throw new \Exception('error in where clause, check if sintax are correctly. first params is condition, and second is an associative array where key is an string and any value after');
                     }
                     if (($property['condition'] === ELOQUENT_IN || $property['condition'] === ELOQUENT_NOTIN) &&
                         !is_array($theValue)) {
-                        //in | not in
-                        pre_clear_buffer_die('//in | not in se fodeu');
+                        throw new \Exception('error in where clause, in condition requires value has array');
                     }
                     if ($property['condition'] === ELOQUENT_BETWEEN &&
                         !is_array($theValue) &&
                         count7($theValue) != 2) {
-                        //betwen
-                        pre_clear_buffer_die('//betwen se fodeu');
+                        throw new \Exception('error in where clause, between condition requires value has array and array count exactly equals two');
                     }
-
-
-                    if(is_subclass_of())
-                    pre_clear_buffer_die($field);
-
-                } else {
-                    $k = 's';
-                    echo $k;
-                }
-
-                if ($property['args'])
                     $info = [
                         'condition' => $property['condition'],
                         'original' => $property,
-                        'left' => $leftInfo,
-                        'right' => $rightInfo,
-                        'type' => 'joins',
+                        'left' => $information,
+                        'right' => $theValue,
+                        'type' => 'where',
                     ];
-                $this->queryTablesInfo[$propertyName][] = $info;
+                    $this->queryTablesInfo[$propertyName][] = $info;
+                }
             } else {
                 if (is_string($key)) {
                     $realName = $this->getInformation($key);
-                    $this->queryFieldsAlias[$propertyName] = $property;
-                    $this->queryFields[$propertyName] = $realName['field'];
+                    $this->queryFieldsAlias[$propertyName][] = $property;
+                    $this->queryFields[$propertyName][] = $realName['field'];
+                    $this->queryTables[$propertyName][] = $realName['table'];
+                    $this->queryTablesAlias[$propertyName][] = $realName['alias'];
                 } else {
                     $realName = $this->getInformation($property);
-                    $this->queryFieldsAlias[$propertyName] = false;
-                    $this->queryFields[$propertyName] = $realName['field'];
+                    $this->queryFieldsAlias[$propertyName][] = false;
+                    $this->queryTables[$propertyName][] = $realName['table'];
+                    $this->queryTablesAlias[$propertyName][] = $realName['alias'];
+                    $this->queryFields[$propertyName][] = $realName['field'];
                 }
             }
-            //if (count7($property) > 1) {
-            //    $parts = explode('.', $property);
-            //    if (count7($parts) > 1) {
-            //        $table = $parts[0];
-            //        $field = $parts[1];
-            //    } else {
-            //        $field = $parts[0];
-            //    }
-            //} else {
-
-            //}
         }
         return $this;
     }
@@ -402,8 +434,6 @@ class MySQL extends Eloquent implements EloquentInterface
                 } catch (\Exception $exception) {
                     return $this;
                 }
-
-                pre_clear_buffer_die($this);
 
                 $this->parseSelect()
                     ->parseFrom()

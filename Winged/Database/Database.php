@@ -46,6 +46,9 @@ class Database
     public $dbname = '';
     public $port = 0;
     public $schema = '';
+    public $normalTypes = [
+        'tinyint' => 'i', 'smallint' => 'i', 'mediumint' => 'i', 'int' => 'i', 'int2' => 'i', 'int4' => 'i', 'int8' => 'i', 'integer' => 'i', 'intval' => 'i', 'bigint' => 'i', 'bit' => 'i', 'real' => 'd', 'double' => 'd', 'float' => 'd', 'float4' => 'd', 'float8' => 'd', 'decimal' => 'd', 'numeric' => 'd', 'char' => 's', 'varchar' => 's', 'date' => 's', 'time' => 's', 'year' => 's', 'timestamp' => 's', 'timestamptz' => 's', 'datetime' => 's', 'tinyblob' => 'b', 'blob' => 'b', 'mediumblob' => 'b', 'longblob' => 'b', 'tinytext' => 's', 'text' => 's', 'mediumtext' => 's', 'longtext' => 's', 'enum' => 's', 'set' => 's', 'binary' => 'b', 'varbinary' => 'b', 'point' => 's', 'linestring' => 's', 'polygon' => 's', 'path' => 's', 'serial2' => 's', 'serial4' => 's', 'serial8' => 's', 'line' => 's', 'geometry' => 's', 'multipoint' => 's', 'multilinestring' => 's', 'multipolygon' => 's', 'geometrycollection' => 's', 'json' => 's', 'jsonb' => 's'
+    ];
 
     /**
      * @var $queryStringHandler null | Cubrid | Firebird | MySQL | PostgreSQL | Sqlite | SQLServer
