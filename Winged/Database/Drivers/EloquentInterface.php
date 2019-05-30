@@ -54,23 +54,6 @@ interface EloquentInterface
      */
     public function parseLimit();
 
-    /**
-     * @param string $propertyName
-     *
-     * @throws \Exception
-     *
-     * @return array
-     */
-    public function parseFields($propertyName = '');
-
-    /**
-     * @param string $propertyName
-     *
-     * @throws \Exception
-     *
-     * @return array
-     */
-    public function parseTables($propertyName = '');
 
     /**
      * @return $this

@@ -193,11 +193,75 @@ class MySQL extends Eloquent implements EloquentInterface
 
     public function parseGroup()
     {
+        $part = 'GROUP BY ';
+        foreach ($this->queryFields['groupBy'] as $key => $field) {
+            if ($this->queryFieldsAlias['groupBy'][$key]) {
+                $part .= $this->queryTablesAlias['groupBy'][$key] . '.' . $field . ' AS ' . $this->queryFieldsAlias['groupBy'][$key] . ',';
+            } else {
+                $part .= $this->queryTablesAlias['groupBy'][$key] . '.' . $field . ',';
+            }
+        }
+        $part = Chord::factory($part);
+        $part->endReplace(',');
+        $this->currentQueryString .= ' ' . $part->get();
         return $this;
     }
 
     public function parseHaving()
     {
+        $part = '(';
+        $parenthesis = 0;
+        foreach ($this->queryTablesInfo['having'] as $key => $having) {
+            $operation = '';
+            $keys = array_keys($having['original']['args']);
+            if ($having['original']['type'] === 'begin') {
+                $parenthesis++;
+            }
+            if ($having['original']['type'] === 'and') {
+                $operation = ' AND (';
+                $parenthesis++;
+            }
+            if ($having['original']['type'] === 'or') {
+                if ($key > 0) {
+                    if ($this->queryTablesInfo['having'][$key - 1]['original']['type'] === 'and') {
+                        $operation = ' OR (';
+                        $parenthesis++;
+                    }
+                }else{
+                    $operation = ' OR ';
+                }
+            }
+            $this->pushQueryInformation($having['left'], $having['right']);
+            if ($having['left']['alias']) {
+                $part .= $operation . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
+            } else {
+                $part .= $operation . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
+            }
+            if ($having['original']['type'] === 'or') {
+                if ($key + 1 < count($this->queryTablesInfo['having'])) {
+                    if ($this->queryTablesInfo['having'][$key + 1]['original']['type'] !== 'or') {
+                        if ($parenthesis > 0) {
+                            $parenthesis--;
+                        }
+                        $part .= ')';
+                    }
+                } else {
+                    if ($parenthesis > 0) {
+                        $parenthesis--;
+                    }
+                    $part .= ')';
+                }
+            }
+        }
+        for ($x = 0; $x < $parenthesis; $x++) {
+            $part .= ')';
+        }
+        if ($parenthesis === 0) {
+            $this->currentQueryString .= ' HAVING(' . $part . ')';
+        } else {
+            $this->currentQueryString .= ' HAVING ' . $part;
+        }
+
         return $this;
     }
 
@@ -265,142 +329,6 @@ class MySQL extends Eloquent implements EloquentInterface
     }
 
     /**
-     * @param string $propertyName
-     *
-     * @throws \Exception
-     *
-     * @return $this
-     */
-    public function parseFields($propertyName = '')
-    {
-        if (!property_exists($this, $propertyName)) {
-            throw new \Exception('property ' . $propertyName . ' do not exists in $this object');
-        }
-        foreach ($this->{$propertyName} as $key => $property) {
-
-            if (!array_key_exists($propertyName, $this->queryFields)) {
-                $this->queryFields[$propertyName] = [];
-                $this->queryFieldsAlias[$propertyName] = [];
-            }
-
-            if (is_array($property)) {
-                if ($propertyName === 'where') {
-                    $keys = array_keys($property['args']);
-                    $information = $this->getInformation($keys[0]);
-                    $theValue = $this->normalizeValue($property['args'][$keys[0]], $information['table'], $information['field']);
-                    if (!is_string($keys[0])) {
-                        throw new \Exception('error in where clause, check if sintax are correctly. first params is condition, and second is an associative array where key is an string and any value after');
-                    }
-                    if (($property['condition'] === ELOQUENT_IN || $property['condition'] === ELOQUENT_NOTIN) &&
-                        !is_array($theValue)) {
-                        throw new \Exception('error in where clause, in condition requires value has array');
-                    }
-                    if ($property['condition'] === ELOQUENT_BETWEEN &&
-                        !is_array($theValue) &&
-                        count7($theValue) != 2) {
-                        throw new \Exception('error in where clause, between condition requires value has array and array count exactly equals two');
-                    }
-                    $info = [
-                        'condition' => $property['condition'],
-                        'original' => $property,
-                        'left' => $information,
-                        'right' => $theValue,
-                        'type' => 'where',
-                    ];
-                    $this->queryTablesInfo[$propertyName][] = $info;
-                }
-            } else {
-                if (is_string($key)) {
-                    $realName = $this->getInformation($key);
-                    $this->queryFieldsAlias[$propertyName][] = $property;
-                    $this->queryFields[$propertyName][] = $realName['field'];
-                    $this->queryTables[$propertyName][] = $realName['table'];
-                    $this->queryTablesAlias[$propertyName][] = $realName['alias'];
-                } else {
-                    $realName = $this->getInformation($property);
-                    $this->queryFieldsAlias[$propertyName][] = false;
-                    $this->queryTables[$propertyName][] = $realName['table'];
-                    $this->queryTablesAlias[$propertyName][] = $realName['alias'];
-                    $this->queryFields[$propertyName][] = $realName['field'];
-                }
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * @param string $propertyName
-     *
-     * @throws \Exception
-     *
-     * @return $this;
-     */
-    public function parseTables($propertyName = '')
-    {
-        if (!property_exists($this, $propertyName)) {
-            throw new \Exception('property ' . $propertyName . ' do not exists in $this object');
-        }
-        foreach ($this->{$propertyName} as $key => $property) {
-
-            if (!array_key_exists($propertyName, $this->queryTables)) {
-                $this->queryTables[$propertyName] = [];
-                $this->queryTablesAlias[$propertyName] = [];
-                $this->queryTablesInfo[$propertyName] = [];
-            }
-            $info = false;
-            $alias = false;
-            if (is_array($property)) {
-                switch ($propertyName) {
-                    case 'joins':
-                        $condition = str_replace(' ', '', $property['condition']);
-                        $keys = array_keys($property['args']);
-                        if (is_string($keys[0])) {
-                            $alias = $keys[0];
-                        }
-                        $tableName = $property['args'][$keys[0]];
-                        $this->queryTables[$propertyName][] = $tableName;
-                        $this->queryTablesAlias[$propertyName][] = $alias;
-                        if (!is_string($keys[1])) {
-                            throw new \Exception('in join clause is required an string key with field or table.field or alias.field');
-                        }
-                        $leftInfo = $this->getInformation($keys[1]);
-                        $rightInfo = $this->getInformation($property['args'][$keys[1]]);
-                        $info = [
-                            'condition' => $condition,
-                            'original' => $property,
-                            'left' => $leftInfo,
-                            'right' => $rightInfo,
-                            'type' => 'joins',
-                        ];
-                        $this->queryTablesInfo[$propertyName][] = $info;
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                if (is_string($key)) {
-                    $alias = $key;
-                    if (in_array($alias, $this->queryTablesAlias[$propertyName])) {
-                        throw new \Exception('can\'t use an table alias twice. the duplicated alias is: ' . $alias);
-                    }
-                }
-                $tableName = $property;
-                if (!$this->tableExists($tableName)) {
-                    throw new \Exception('table ' . $tableName . ' do not exists in database ' . $this->database->dbname);
-                }
-
-                if (in_array($tableName, $this->queryTables[$propertyName])) {
-                    throw new \Exception('can\'t use name of table twice. the name of table is: ' . $tableName);
-                }
-                $this->queryTables[$propertyName][] = $tableName;
-                $this->queryTablesAlias[$propertyName][] = $alias;
-                $this->queryTablesInfo[$propertyName][] = $info;
-            }
-        }
-        return $this;
-    }
-
-    /**
      * @return $this|EloquentInterface
      */
     public function build()
@@ -443,6 +371,9 @@ class MySQL extends Eloquent implements EloquentInterface
                     ->parseHaving()
                     ->parseOrder()
                     ->parseLimit();
+
+                pre_clear_buffer_die($this->currentQueryString);
+
                 break;
             default:
                 break;
