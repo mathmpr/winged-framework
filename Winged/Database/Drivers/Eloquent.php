@@ -784,7 +784,7 @@ abstract class Eloquent
             throw new \Exception('table ' . $tableName . ' no exists in database ' . $this->database->dbname);
         }
     }
-
+ 
     /**
      * normalize value for register after in query
      *
@@ -1037,6 +1037,84 @@ abstract class Eloquent
             }
         }
         return $this;
+    }
+
+    /**
+     * get after clause relative to $current position in $this->queryTablesInfo with $propertyName
+     * util to get information for parsing where and having clause for example
+     *
+     * @throws \Exception
+     *
+     * @param int    $current
+     * @param string $propertyName
+     *
+     * @return bool | array
+     */
+    public function afterClause($current = 0, $propertyName = '')
+    {
+        if (!array_key_exists($propertyName, $this->queryTablesInfo)) {
+            throw new \Exception('key ' . $propertyName . ' do not exists in $this->queryTablesInfo');
+        }
+        if ($current + 1 > count($this->queryTablesInfo[$propertyName])) return false;
+        return $this->queryTablesInfo[$propertyName][$current + 1];
+    }
+
+    /**
+     * get before clause relative to $current position in $this->queryTablesInfo with $propertyName
+     * util to get information for parsing where and having clause for example
+     *
+     * @throws \Exception
+     *
+     * @param int    $current
+     * @param string $propertyName
+     *
+     * @return bool | array
+     */
+    public function beforeClause($current = 0, $propertyName = '')
+    {
+        if (!array_key_exists($propertyName, $this->queryTablesInfo)) {
+            throw new \Exception('key ' . $propertyName . ' do not exists in $this->queryTablesInfo');
+        }
+        if ($current === 0) return false;
+        return $this->queryTablesInfo[$propertyName][$current - 1];
+    }
+
+    /**
+     * same as beforeClause(), but this return only type of operation like OR, BEGIN or AND.
+     *
+     * @throws \Exception
+     *
+     * @param int    $current
+     * @param string $propertyName
+     *
+     * @return bool | string
+     */
+    public function beforeClauseOperation($current = 0, $propertyName = '')
+    {
+        $before = $this->beforeClause($current, $propertyName);
+        if ($before) {
+            return $before['original']['type'];
+        }
+        return false;
+    }
+
+    /**
+     * same as afterClause(), but this return only type of operation like OR, BEGIN or AND.
+     *
+     * @throws \Exception
+     *
+     * @param int    $current
+     * @param string $propertyName
+     *
+     * @return bool | string
+     */
+    public function afterClauseOperation($current = 0, $propertyName = '')
+    {
+        $after = $this->afterClause($current, $propertyName);
+        if ($after) {
+            return $after['original']['type'];
+        }
+        return false;
     }
 
 }

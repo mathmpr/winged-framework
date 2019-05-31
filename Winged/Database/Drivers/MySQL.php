@@ -170,24 +170,42 @@ class MySQL extends Eloquent implements EloquentInterface
 
     public function parseWhere()
     {
-        $part = '(';
-        foreach ($this->queryTablesInfo['where'] as $key => $where) {
-            $operation = '';
+        $part = '';
+        $masterKey = 'where';
+        $parenthesis = 0;
+        foreach ($this->queryTablesInfo[$masterKey] as $key => $where) {
+            $keys = array_keys($where['original']['args']);
+            if ($where['original']['type'] === 'begin') {
+                $part .= ' WHERE (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+            }
             if ($where['original']['type'] === 'and') {
-                $operation = ' AND ';
+                $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                $parenthesis++;
             }
             if ($where['original']['type'] === 'or') {
-                $operation = ') OR (';
+                $next = $this->afterClauseOperation($key, $masterKey);
+                if ($next) {
+                    if ($next == 'or') {
+                        $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                    } else {
+                        if ($parenthesis > 0) {
+                            $parenthesis--;
+                        }
+                        $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s )';
+                    }
+                } else {
+                    if ($parenthesis > 0) {
+                        $parenthesis--;
+                    }
+                    $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s )';
+                }
             }
             $this->pushQueryInformation($where['left'], $where['right']);
-            if ($where['left']['alias']) {
-                $part .= $operation . $where['left']['alias'] . '.' . $where['left']['table'] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
-            } else {
-                $part .= $operation . $where['left']['table'] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
-            }
         }
-        $part .= ')';
-        $this->currentQueryString .= ' WHERE' . $part;
+        for ($x = 0; $x < $parenthesis; $x++) {
+            $part .= ')';
+        }
+        $this->currentQueryString .= ' ' . $part . ')';
         return $this;
     }
 
@@ -207,61 +225,49 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+
+    /**
+     * @return $this|EloquentInterface
+     * @throws \Exception
+     */
     public function parseHaving()
     {
-        $part = '(';
+        $part = '';
+        $masterKey = 'having';
         $parenthesis = 0;
-        foreach ($this->queryTablesInfo['having'] as $key => $having) {
-            $operation = '';
+        foreach ($this->queryTablesInfo[$masterKey] as $key => $having) {
             $keys = array_keys($having['original']['args']);
             if ($having['original']['type'] === 'begin') {
-                $parenthesis++;
+                $part .= ' HAVING (' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
             }
             if ($having['original']['type'] === 'and') {
-                $operation = ' AND (';
+                $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
                 $parenthesis++;
             }
             if ($having['original']['type'] === 'or') {
-                if ($key > 0) {
-                    if ($this->queryTablesInfo['having'][$key - 1]['original']['type'] === 'and') {
-                        $operation = ' OR (';
-                        $parenthesis++;
-                    }
-                }else{
-                    $operation = ' OR ';
-                }
-            }
-            $this->pushQueryInformation($having['left'], $having['right']);
-            if ($having['left']['alias']) {
-                $part .= $operation . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
-            } else {
-                $part .= $operation . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
-            }
-            if ($having['original']['type'] === 'or') {
-                if ($key + 1 < count($this->queryTablesInfo['having'])) {
-                    if ($this->queryTablesInfo['having'][$key + 1]['original']['type'] !== 'or') {
+                $next = $this->afterClauseOperation($key, $masterKey);
+                if ($next) {
+                    if ($next == 'or') {
+                        $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
+                    } else {
                         if ($parenthesis > 0) {
                             $parenthesis--;
                         }
-                        $part .= ')';
+                        $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s )';
                     }
                 } else {
                     if ($parenthesis > 0) {
                         $parenthesis--;
                     }
-                    $part .= ')';
+                    $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s )';
                 }
             }
+            $this->pushQueryInformation($having['left'], $having['right']);
         }
         for ($x = 0; $x < $parenthesis; $x++) {
             $part .= ')';
         }
-        if ($parenthesis === 0) {
-            $this->currentQueryString .= ' HAVING(' . $part . ')';
-        } else {
-            $this->currentQueryString .= ' HAVING ' . $part;
-        }
-
+        $this->currentQueryString .= ' ' . $part . ')';
         return $this;
     }
 
