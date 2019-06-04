@@ -21,9 +21,17 @@ abstract class Eloquent
 
     const COMMAND_INSERT = 'insert';
 
+    public $prepared = false;
+
+    public $builded = false;
+
     public $queryAlias = false;
 
     public $currentQueryString = '';
+
+    public $tablesUsed = [];
+
+    public $aliasUsed = [];
 
     public $queryTables = [];
 
@@ -722,7 +730,7 @@ abstract class Eloquent
             } else {
                 $exp = explode('.', trim($matchs[1]));
             }
-            if ($exp > 1) {
+            if (count($exp) > 1) {
                 $possibleTableOrAlias = $exp[0];
                 $possibleFieldName = $exp[1];
                 $tableName = $this->aliasExists($possibleTableOrAlias);
@@ -745,7 +753,32 @@ abstract class Eloquent
                     throw new \Exception('table name or alias not registred in query. name is: ' . $possibleTableOrAlias);
                 }
             } else {
-                throw new \Exception('format alias.field_name is required in join clause');
+                $stack = debug_backtrace();
+                $columnArgs = array_column(array_column($stack, 'args'), 0);
+                if (in_array('joins', $columnArgs)) {
+                    throw new \Exception('format alias.field_name is required in join clause');
+                }
+                $possibleAny = $exp[0];
+                if (!in_array($possibleAny, $this->aliasUsed) && !in_array($possibleAny, $this->tablesUsed)) {
+                    $found = false;
+                    $foundIn = false;
+                    foreach ($this->tablesUsed as $key => $tableName) {
+                        if ($this->fieldExists($possibleAny, $tableName)) {
+                            $found = $tableName;
+                            $foundIn = $key;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        throw new \Exception('field name ' . $possibleAny . ' not found in any tables names registred in query');
+                    }
+                    $info['type'] = 'field';
+                    $info['alias'] = $this->aliasUsed[$foundIn];
+                    $info['table'] = $found;
+                    $info['field'] = $possibleAny;
+                } else {
+                    pre_clear_buffer_die('to doooooooooooooooooooooo');
+                }
             }
         }
         return $info;
@@ -784,7 +817,7 @@ abstract class Eloquent
             throw new \Exception('table ' . $tableName . ' no exists in database ' . $this->database->dbname);
         }
     }
- 
+
     /**
      * normalize value for register after in query
      *
@@ -881,7 +914,7 @@ abstract class Eloquent
             }
         } else {
             $this->mysqliDataType[] = $right['type'];
-            $this->pdoDataType[] = ':' . $left['field'];
+            $this->pdoDataType[] = ':' . $left['field'] . uniqid('_');
             $this->queryValues[] = $right['value'];
         }
 
@@ -948,6 +981,17 @@ abstract class Eloquent
                     ];
                     $this->queryTablesInfo[$propertyName][] = $info;
                 }
+                if ($propertyName === 'orderBy') {
+                    $information = $this->getInformation($property[1]);
+                    $info = [
+                        'condition' => $property[0],
+                        'original' => $property,
+                        'left' => false,
+                        'right' => $information,
+                        'type' => 'orderBy',
+                    ];
+                    $this->queryTablesInfo[$propertyName][] = $info;
+                }
             } else {
                 if (is_string($key)) {
                     $realName = $this->getInformation($key);
@@ -955,12 +999,20 @@ abstract class Eloquent
                     $this->queryFields[$propertyName][] = $realName['field'];
                     $this->queryTables[$propertyName][] = $realName['table'];
                     $this->queryTablesAlias[$propertyName][] = $realName['alias'];
+                    if (in_array($propertyName, ['set', 'into'])) {
+                        $this->queryValues[] = $property;
+                        $this->normalizeValue($property, $realName['table'], $realName['field']);
+                    }
                 } else {
                     $realName = $this->getInformation($property);
                     $this->queryFieldsAlias[$propertyName][] = false;
                     $this->queryTables[$propertyName][] = $realName['table'];
                     $this->queryTablesAlias[$propertyName][] = $realName['alias'];
                     $this->queryFields[$propertyName][] = $realName['field'];
+                    if (in_array($propertyName, ['set', 'into'])) {
+                        $this->queryValues[] = $property;
+                        $this->normalizeValue($property, $realName['table'], $realName['field']);
+                    }
                 }
             }
         }
@@ -997,6 +1049,8 @@ abstract class Eloquent
                             $alias = $keys[0];
                         }
                         $tableName = $property['args'][$keys[0]];
+                        $this->tablesUsed[] = $tableName;
+                        $this->aliasUsed[] = $alias;
                         $this->queryTables[$propertyName][] = $tableName;
                         $this->queryTablesAlias[$propertyName][] = $alias;
                         if (!is_string($keys[1])) {
@@ -1031,6 +1085,8 @@ abstract class Eloquent
                 if (in_array($tableName, $this->queryTables[$propertyName])) {
                     throw new \Exception('can\'t use name of table twice. the name of table is: ' . $tableName);
                 }
+                $this->tablesUsed[] = $tableName;
+                $this->aliasUsed[] = $alias;
                 $this->queryTables[$propertyName][] = $tableName;
                 $this->queryTablesAlias[$propertyName][] = $alias;
                 $this->queryTablesInfo[$propertyName][] = $info;
@@ -1115,6 +1171,60 @@ abstract class Eloquent
             return $after['original']['type'];
         }
         return false;
+    }
+
+    /**
+     * reset only prepared infos
+     *
+     * @return $this
+     */
+    public function reset()
+    {
+        $this->prepared = false;
+
+        $this->queryAlias = false;
+        $this->currentQueryString = '';
+        $this->queryTables = [];
+        $this->queryFields = [];
+        $this->queryTablesAlias = [];
+        $this->queryFieldsAlias = [];
+        $this->queryTablesInfo = [];
+        $this->queryFieldsInfo = [];
+        $this->mysqliDataType = [];
+        $this->pdoDataType = [];
+        $this->queryValues = [];
+        return $this;
+    }
+
+    /**
+     * reset prepared infos and all registred commands in query
+     *
+     * @return $this
+     */
+    public function resetAll()
+    {
+        $this->builded = false;
+
+        $this->reset();
+        $this->select = [];
+        $this->from = [];
+        $this->joins = [];
+        $this->having = [];
+        $this->groupBy = [];
+        $this->distinct = false;
+        $this->orderBy = [];
+        $this->limit = [];
+        $this->alias = [];
+        $this->into = [];
+        $this->update = [];
+        $this->insert = [];
+        $this->delete = [];
+        $this->set = [];
+        $this->eloquents = [];
+        $this->values = [];
+        $this->where = [];
+        $this->command = false;
+        return $this;
     }
 
 }

@@ -355,10 +355,30 @@ class AbstractEloquent
     /**
      * perform query building
      *
-     * @return Cubrid|MySQL|PostgreSQL|Sqlite|SQLServer
+     * @return Cubrid|Drivers\EloquentInterface|MySQL|PostgreSQL|Sqlite|SQLServer
+     * @throws \Exception
      */
     public function build()
     {
+        if (!$this->eloquent->prepared) {
+            $this->eloquent->prepare();
+        }
         return $this->eloquent->build();
+    }
+
+    /**
+     * perform an pre build query
+     *
+     * @return Cubrid|Drivers\EloquentInterface|MySQL|PostgreSQL|Sqlite|SQLServer|$this
+     * @throws \Exception
+     */
+    public function prepare()
+    {
+        try {
+            return $this->eloquent->prepare();
+        } catch (\Exception $exception) {
+            return $this;
+        }
+
     }
 }

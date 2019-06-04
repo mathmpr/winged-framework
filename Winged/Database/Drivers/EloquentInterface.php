@@ -54,7 +54,6 @@ interface EloquentInterface
      */
     public function parseLimit();
 
-
     /**
      * @return $this
      */
@@ -64,6 +63,21 @@ interface EloquentInterface
      * @return $this
      */
     public function parseSelect();
+
+    /**
+     * @return $this
+     */
+    public function parseDelete();
+
+    /**
+     * @return $this
+     */
+    public function parseUpdate();
+
+    /**
+     * @return $this
+     */
+    public function prepare();
 
     /**
      * @return $this
