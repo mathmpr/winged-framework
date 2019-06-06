@@ -21,7 +21,7 @@ class MySQL extends Eloquent implements EloquentInterface
 
     public $initialSelect = 'SELECT';
 
-    public $initialInsert = 'INSERT INTO';
+    public $initialInsert = 'INSERT';
 
     public $modifiersConditions = [
         ELOQUENT_DIFFERENT => '<>',
@@ -113,7 +113,11 @@ class MySQL extends Eloquent implements EloquentInterface
         return $clear_fields;
     }
 
-
+    /**
+     * get initial query for the selected command
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseQuery()
     {
         switch ($this->command) {
@@ -138,6 +142,11 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+    /**
+     * adds join clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseJoin()
     {
         $part = '';
@@ -146,7 +155,7 @@ class MySQL extends Eloquent implements EloquentInterface
             $part .= strtoupper($join['original']['type']) . ' JOIN ';
 
             if ($this->queryTablesAlias[$masterKey][$key]) {
-                $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $this->queryTables[$masterKey][$key];
+                $part .= $this->queryTables[$masterKey][$key] . ' AS ' . $this->queryTablesAlias[$masterKey][$key];
             } else {
                 $part .= $this->queryTables[$masterKey][$key];
             }
@@ -169,6 +178,13 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+    /**
+     * adds where clause on $this->currentQueryString
+     *
+     * @throws \Exception
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseWhere()
     {
         $part = '';
@@ -212,6 +228,11 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+    /**
+     * adds group by clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseGroup()
     {
         $part = 'GROUP BY ';
@@ -231,8 +252,11 @@ class MySQL extends Eloquent implements EloquentInterface
 
 
     /**
-     * @return $this|EloquentInterface
+     * adds group by clause on $this->currentQueryString
+     *
      * @throws \Exception
+     *
+     * @return $this|EloquentInterface
      */
     public function parseHaving()
     {
@@ -277,6 +301,12 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+
+    /**
+     * adds order by clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseOrder()
     {
         $part = 'ORDER BY ';
@@ -290,6 +320,11 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+    /**
+     * adds set clause for update queries on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseSet()
     {
         $part = 'SET ';
@@ -303,16 +338,72 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+    /**
+     * adds group by clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseValues()
     {
+        $part = '';
+        $masterKey = 'values';
+        foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
+            $part .= $fieldName . ',';
+        }
+        $part = Chord::factory($part);
+        $part->endReplace(',');
+        $part = $part->get() . ') VALUES(';
+        foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
+            $part .= '%s,';
+        }
+        $part = Chord::factory($part);
+        $part->endReplace(',');
+        $this->currentQueryString .= $part->get() . ')';
         return $this;
     }
 
+    /**
+     * adds delete and from clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseDelete()
     {
+        $part = ' ';
+        $masterKey = 'delete';
+        foreach ($this->queryTables[$masterKey] as $key => $value) {
+            if ($this->queryTablesAlias[$masterKey][$key]) {
+                $part .= $this->queryTablesAlias[$masterKey][$key] . ',';
+            }
+        }
+
+        foreach ($this->queryTables['joins'] as $key => $value) {
+            if ($this->queryTablesAlias['joins'][$key]) {
+                $part .= $this->queryTablesAlias['joins'][$key] . ',';
+            }
+        }
+
+        $part = Chord::factory($part);
+        $part->endReplace(',');
+        $part = $part->get() . ' FROM ';
+
+        foreach ($this->queryTables[$masterKey] as $key => $value) {
+            if ($this->queryTablesAlias[$masterKey][$key]) {
+                $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
+            }
+        }
+
+        $part = Chord::factory($part);
+        $part->endReplace(',');
+        $this->currentQueryString .= ' ' . $part->get();
         return $this;
     }
 
+    /**
+     * adds updated tables in update clase on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseUpdate()
     {
         $part = '';
@@ -330,6 +421,11 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
+    /**
+     * adds limit clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseLimit()
     {
         if (!empty($this->limit)) {
@@ -346,12 +442,16 @@ class MySQL extends Eloquent implements EloquentInterface
                 $this->mysqliDataType[] = 'i';
                 $this->mysqliDataType[] = 'i';
                 $this->currentQueryString .= ' LIMIT %s, %s';
-
             }
         }
         return $this;
     }
 
+    /**
+     * adds names of field for select queries on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseSelect()
     {
         $part = '';
@@ -378,6 +478,8 @@ class MySQL extends Eloquent implements EloquentInterface
     }
 
     /**
+     * adds table names for select queries on $this->currentQueryString
+     *
      * @return $this|EloquentInterface
      */
     public function parseFrom()
@@ -386,7 +488,7 @@ class MySQL extends Eloquent implements EloquentInterface
         $masterKey = 'from';
         foreach ($this->queryTables[$masterKey] as $key => $value) {
             if ($this->queryTablesAlias[$masterKey][$key]) {
-                $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
+                $part .= $value . ' AS ' . $this->queryTablesAlias[$masterKey][$key] . ',';
             } else {
                 $part .= $value . ',';
             }
@@ -398,15 +500,34 @@ class MySQL extends Eloquent implements EloquentInterface
     }
 
     /**
+     * adds values for insert queries on $this->currentQueryString
+     *
      * @return $this|EloquentInterface
+     */
+    public function parseInto()
+    {
+        $part = 'INTO ';
+        $masterKey = 'into';
+        foreach ($this->queryTables[$masterKey] as $key => $value) {
+            $part .= $value . ',';
+        }
+        $part = Chord::factory($part);
+        $part->endReplace(',');
+        $this->currentQueryString .= ' ' . $part->get() . '(';
+        return $this;
+    }
+
+
+    /**
+     * prepare any query for after build query and execute then
+     *
      * @throws \Exception
+     *
+     * @return $this|EloquentInterface
      */
     public function prepare()
     {
-        if ($this->builded) {
-            $this->resetAll();
-        }
-        if ($this->prepared) {
+        if ($this->builded || $this->prepared) {
             $this->reset();
         }
         $this->prepared = true;
@@ -414,8 +535,42 @@ class MySQL extends Eloquent implements EloquentInterface
         switch ($this->command) {
             case Eloquent::COMMAND_INSERT:
 
+                try {
+                    $this->parseTables('into');
+                } catch (\Exception $exception) {
+                    return $this;
+                }
+
+                try {
+                    $this->parseFields('values');
+                } catch (\Exception $exception) {
+                    return $this;
+                }
+
+                $this->parseInto()
+                    ->parseValues();
+
                 break;
             case Eloquent::COMMAND_DELETE:
+                try {
+                    $this->parseTables('delete')
+                        ->parseTables('joins');
+                } catch (\Exception $exception) {
+                    return $this;
+                }
+
+                try {
+                    $this->parseFields('where')
+                        ->parseFields('having');
+                } catch (\Exception $exception) {
+                    return $this;
+                }
+
+                $this->parseDelete()
+                    ->parseJoin()
+                    ->parseWhere()
+                    ->parseHaving()
+                    ->parseLimit();
 
                 break;
             case Eloquent::COMMAND_UPDATE:
@@ -423,13 +578,13 @@ class MySQL extends Eloquent implements EloquentInterface
                     $this->parseTables('update')
                         ->parseTables('joins');
                 } catch (\Exception $exception) {
-                    pre_clear_buffer_die($exception->getMessage());
                     return $this;
                 }
 
                 try {
-                    $this->parseFields('set');
-                    $this->parseFields('where');
+                    $this->parseFields('set')
+                        ->parseFields('where')
+                        ->parseFields('having');
                 } catch (\Exception $exception) {
                     return $this;
                 }
@@ -437,7 +592,10 @@ class MySQL extends Eloquent implements EloquentInterface
                 $this->parseUpdate()
                     ->parseSet()
                     ->parseJoin()
-                    ->parseWhere();
+                    ->parseWhere()
+                    ->parseHaving()
+                    ->parseLimit();
+
                 break;
             case Eloquent::COMMAND_SELECT:
                 try {
@@ -455,6 +613,7 @@ class MySQL extends Eloquent implements EloquentInterface
                 } catch (\Exception $exception) {
                     return $this;
                 }
+
                 $this->parseSelect()
                     ->parseFrom()
                     ->parseJoin()
@@ -463,6 +622,7 @@ class MySQL extends Eloquent implements EloquentInterface
                     ->parseHaving()
                     ->parseOrder()
                     ->parseLimit();
+
                 break;
             default:
                 break;
@@ -473,13 +633,5 @@ class MySQL extends Eloquent implements EloquentInterface
         return $this;
     }
 
-    /**
-     * @return void|EloquentInterface
-     * @throws \Exception
-     */
-    public function build()
-    {
-        $this->prepared = false;
-        $this->builded = true;
-    }
+
 }

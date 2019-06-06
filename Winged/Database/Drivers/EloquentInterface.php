@@ -77,11 +77,11 @@ interface EloquentInterface
     /**
      * @return $this
      */
-    public function prepare();
+    public function parseInto();
 
     /**
      * @return $this
      */
-    public function build();
+    public function prepare();
 
 }

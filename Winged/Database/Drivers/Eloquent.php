@@ -13,6 +13,8 @@ use Winged\Model\Model;
  */
 abstract class Eloquent
 {
+    abstract public function prepare();
+
     const COMMAND_DELETE = 'delete';
 
     const COMMAND_UPDATE = 'update';
@@ -80,14 +82,14 @@ abstract class Eloquent
     /**
      * @var $database null | Database
      */
-    protected $database = null;
+    public $database = null;
 
     /**
      * store an model, if an models is stored here, the intire behavior of this class change
      *
      * @var $model null | Model
      */
-    protected $model = null;
+    public $model = null;
 
     /**
      * store fields for select statement
@@ -317,15 +319,13 @@ abstract class Eloquent
     }
 
     /**
-     * Example: ['alias' => 'table_name', 'alias' => 'table_name', 'table_name', 'table_name']
-     *
-     * @param array $tables
+     * @param string $table
      *
      * @return $this
      */
-    public function into($tables = [])
+    public function into($table)
     {
-        $this->storeArray($tables, 'into');
+        $this->storeArray([$table], 'into');
         return $this;
     }
 
@@ -1183,6 +1183,8 @@ abstract class Eloquent
         $this->prepared = false;
 
         $this->queryAlias = false;
+        $this->aliasUsed = [];
+        $this->tablesUsed = [];
         $this->currentQueryString = '';
         $this->queryTables = [];
         $this->queryFields = [];
@@ -1224,6 +1226,70 @@ abstract class Eloquent
         $this->values = [];
         $this->where = [];
         $this->command = false;
+        return $this;
+    }
+
+    /**
+     * finally build query, return the final query and all values registred in eloquent
+     *
+     * @throws \Exception
+     *
+     * @return $this|EloquentInterface|array
+     */
+    public function build()
+    {
+        if (in_array(get_class($this), [
+            'Winged\Database\Drivers\Cubrid',
+            'Winged\Database\Drivers\MySQL',
+            'Winged\Database\Drivers\PostgreSQL',
+            'Winged\Database\Drivers\Sqlite',
+            'Winged\Database\Drivers\SQLServer'
+        ])) {
+            /**
+             * @var $this Cubrid|MySQL|PostgreSQL|Sqlite|SQLServer
+             */
+            $return = [];
+            if (!$this->prepared) {
+                $this->prepare();
+            }
+            $this->prepared = false;
+            //build prepared mysqli query type
+            $return['mysqli_query'] = str_replace('%s', '?', $this->currentQueryString);
+            $return['mysqli'] = array_merge([
+                join('', $this->mysqliDataType)
+            ], $this->queryValues);
+            //build prepared pdo query type
+            $return['pdo_query'] = call_user_func_array('sprintf', array_merge([$this->currentQueryString], $this->pdoDataType));
+            $pdoParamsAndValues = [];
+            foreach ($this->pdoDataType as $key => $field) {
+                $pdoParamsAndValues[$field] = $this->queryValues[$key];
+            }
+            $return['pdo'] = $pdoParamsAndValues;
+            //build normal query type
+            $normalValues = [];
+            foreach ($this->mysqliDataType as $key => $field) {
+                if (in_array($field, ['s', 'b'])) {
+                    $normalValues[] = '"' . $this->queryValues[$key] . '"';
+                } else {
+                    $normalValues[] = $this->queryValues[$key];
+                }
+            }
+            $return['query'] = call_user_func_array('sprintf', array_merge([$this->currentQueryString], $normalValues));
+
+            $this->resetAll();
+            $this->builded = $return;
+        }
+        return $this;
+    }
+
+    /**
+     * after execute the final query, this object is entire reseted
+     *
+     * @return $this
+     */
+    public function unbuild()
+    {
+        $this->builded = false;
         return $this;
     }
 
