@@ -6,6 +6,8 @@ use Winged\Database\DbDict;
 use Winged\Database\CurrentDB;
 use Winged\Database\AbstractEloquent;
 use Winged\Error\Error;
+use Winged\Winged;
+use WingedConfig;
 
 /**
  * Class Model
@@ -34,9 +36,15 @@ abstract class Model extends AbstractEloquent
 
     protected static $cached_info = [];
 
+    /**
+     * Model constructor.
+     *
+     * @throws \Exception
+     */
     public function __construct()
     {
         parent::__construct();
+        echo $j;
         $this->tableFields();
         if (!$this->extras) {
             $this->extras = new \stdClass();
@@ -45,6 +53,8 @@ abstract class Model extends AbstractEloquent
 
     /**
      * get table fields and fields informations
+     *
+     * @throws \Exception
      *
      * @return mixed
      */
@@ -56,6 +66,18 @@ abstract class Model extends AbstractEloquent
             $this->tableInfo = self::$cached_info[$class_name]->table_info;
             return self::$cached_info[$class_name]->table_fields;
         } else {
+            if (WingedConfig::$config->db()->VALIDATE_MODELS) {
+                if (!array_key_exists($this->_tableName(), $this->eloquent->database->db_tables)) {
+                    throw new \Exception('table ' . $this->_tableName() . ' no exists in database ' . $this->eloquent->database->dbname);
+                }
+            }
+            if (WingedConfig::$config->db()->VALIDATE_MODELS) {
+                foreach ($this->eloquent->database->db_tables[$this->_tableName()]['fields'] as $key => $value) {
+                    if (!property_exists($this, $key)) {
+                        throw new \Exception('property ' . $key . ' no exists in Model ' . get_class($this));
+                    }
+                }
+            }
             if (empty($this->table_fields) && $this->_tableName() != '' && array_key_exists($this->_tableName(), CurrentDB::$current->db_tables)) {
                 $all = CurrentDB::$current->db_tables[$this->_tableName()]['fields'];
                 foreach ($all as $key => $field) {

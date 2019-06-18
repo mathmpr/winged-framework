@@ -27,6 +27,12 @@ class WingedDatabaseConfigDefaults
     public $USE_DATABASE = false;
 
     /**
+     * @property $USE_DATABASE bool
+     * on | off validate model with table fields
+     */
+    public $VALIDATE_MODELS = true;
+
+    /**
      * @property $USE_PREPARED_STMT bool
      * on | off prepared statements
      * view more of prepared statements in

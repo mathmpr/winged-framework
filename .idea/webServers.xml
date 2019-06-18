@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="47223ff1-7fec-4a27-901b-514ba64e894e" name="wingedframework.com.br" url="http://wingedframework-com-br.umbler.net">
+        <fileTransfer host="wingedframework-com-br.umbler.net" port="21" rootFolder="/public/">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

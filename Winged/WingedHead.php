@@ -30,6 +30,10 @@ class WingedHead
 
         include_once CLASS_PATH . 'Configs/Functions.php';
         include_once CLASS_PATH . 'Utils/FileTree.php';
+        include_once CLASS_PATH . 'Buffer/Buffer.php';
+        include_once CLASS_PATH . 'Error/ShutdownCallback.php';
+        include_once CLASS_PATH . 'Error/SilencedErrors.php';
+        include_once CLASS_PATH . 'Error/Error.php';
 
         if (file_exists(CLASS_PATH . 'Autoload.Cache.php')) {
             include_once CLASS_PATH . 'Autoload.Cache.php';

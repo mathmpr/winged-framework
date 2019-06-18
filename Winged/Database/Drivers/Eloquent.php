@@ -1293,4 +1293,58 @@ abstract class Eloquent
         return $this;
     }
 
+    /**
+     * execute query, unbuild and unprepare query
+     *
+     * @return array|bool|mixed|string
+     */
+    public function execute(){
+        $returnedValue = false;
+        if ($this->builded) {
+            switch ($this->builded['command']) {
+                case Eloquent::COMMAND_INSERT:
+                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->insert($this->builded['pdo_query'], $this->builded['pdo']);
+                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->insert($this->builded['mysqli_query'], $this->builded['mysqli']);
+                    } else {
+                        $returnedValue = $this->database->insert($this->builded['query']);
+                    }
+                    break;
+                case Eloquent::COMMAND_DELETE:
+                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
+                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
+                    } else {
+                        $returnedValue = $this->database->execute($this->builded['query']);
+                    }
+                    break;
+                case Eloquent::COMMAND_UPDATE:
+                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
+                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
+                    } else {
+                        $returnedValue = $this->database->execute($this->builded['query']);
+                    }
+                    break;
+                case Eloquent::COMMAND_SELECT:
+                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->fetch($this->builded['pdo_query'], $this->builded['pdo']);
+                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                        $returnedValue = $this->database->fetch($this->builded['mysqli_query'], $this->builded['mysqli']);
+                    } else {
+                        $returnedValue = $this->database->fetch($this->builded['query']);
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
+        }
+        $this->unbuild();
+        return $returnedValue;
+    }
+
 }

@@ -9,6 +9,7 @@ register_shutdown_function(["Winged\Error\ShutdownCallback", "shutdownHandler"])
 
 set_error_handler(["Winged\Error\ShutdownCallback", "errorHandler"], E_ALL);
 
+
 /**
  * Class Error
  * @package Winged\Error

@@ -1,5 +1,4 @@
 <?php global $__autoload__cache; $__autoload__cache = [
-    "./Winged/Autoload.Cache.php",
     "./Winged/Buffer/Buffer.php",
     "./Winged/Components/ComponentParser.php",
     "./Winged/Components/Components.php",
@@ -12,7 +11,6 @@
     "./Winged/Database/Connections.php",
     "./Winged/Database/CurrentDB.php",
     "./Winged/Database/Database.php",
-    "./Winged/Database/DbDict.php",
     "./Winged/Database/DelegateQuery.php",
     "./Winged/Database/Drivers/Cubrid.php",
     "./Winged/Database/Drivers/Eloquent.php",
@@ -21,6 +19,7 @@
     "./Winged/Database/Drivers/PostgreSQL.php",
     "./Winged/Database/Drivers/SQLServer.php",
     "./Winged/Database/Drivers/Sqlite.php",
+    "./Winged/Database/TheQueryBuilderOld.php",
     "./Winged/Database/Types/NormalMysqli.php",
     "./Winged/Database/Types/NormalPDO.php",
     "./Winged/Database/Types/PreparedMysqli.php",

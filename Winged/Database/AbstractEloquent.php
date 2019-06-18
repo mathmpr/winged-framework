@@ -7,8 +7,7 @@ use Winged\Database\Drivers\MySQL;
 use Winged\Database\Drivers\PostgreSQL;
 use Winged\Database\Drivers\Sqlite;
 use Winged\Database\Drivers\SQLServer;
-use Winged\External\PHPMailer\PHPMailer\Exception;
-use Winged\WingedConfig;
+use WingedConfig;
 
 /**
  * Class AbstractEloquent
@@ -387,51 +386,6 @@ class AbstractEloquent
      */
     public function execute()
     {
-        $returnedValue = false;
-        if ($this->eloquent->builded) {
-            switch ($this->eloquent->builded['command']) {
-                case Eloquent::COMMAND_INSERT:
-                    if ($this->eloquent->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->insert($this->eloquent->builded['pdo_query'], $this->eloquent->builded['pdo']);
-                    } else if ($this->eloquent->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->insert($this->eloquent->builded['mysqli_query'], $this->eloquent->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->eloquent->database->insert($this->eloquent->builded['query']);
-                    }
-                    break;
-                case Eloquent::COMMAND_DELETE:
-                    if ($this->eloquent->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->execute($this->eloquent->builded['pdo_query'], $this->eloquent->builded['pdo']);
-                    } else if ($this->eloquent->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->execute($this->eloquent->builded['mysqli_query'], $this->eloquent->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->eloquent->database->execute($this->eloquent->builded['query']);
-                    }
-                    break;
-                case Eloquent::COMMAND_UPDATE:
-                    if ($this->eloquent->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->execute($this->eloquent->builded['pdo_query'], $this->eloquent->builded['pdo']);
-                    } else if ($this->eloquent->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->execute($this->eloquent->builded['mysqli_query'], $this->eloquent->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->eloquent->database->execute($this->eloquent->builded['query']);
-                    }
-                    break;
-                case Eloquent::COMMAND_SELECT:
-                    if ($this->eloquent->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->fetch($this->eloquent->builded['pdo_query'], $this->eloquent->builded['pdo']);
-                    } else if ($this->eloquent->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->eloquent->database->fetch($this->eloquent->builded['mysqli_query'], $this->eloquent->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->eloquent->database->fetch($this->eloquent->builded['query']);
-                    }
-                    break;
-                default:
-                    return false;
-                    break;
-            }
-        }
-        $this->eloquent->unbuild();
-        return $returnedValue;
+        return $this->eloquent->execute();
     }
 }

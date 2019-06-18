@@ -1,0 +1,1224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0f1e6d2c-aaab-4ce1-aa04-3bbcaf76dff4" name="Default" comment="">
+      <change beforePath="$USER_HOME$/Documents/GitHub/winged-framework/winged-framework" beforeDir="true" afterPath="$USER_HOME$/Documents/GitHub/winged-framework/winged-framework" afterDir="true" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+      <option value="module" />
+    </option>
+  </component>
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/projects/composer.json</pharConfigPath>
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="test@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="test@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="databases" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="test@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="databases" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="test: database" type="162271b6:PgImplModel$Database" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="test@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="databases" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="test: database" type="162271b6:PgImplModel$Database" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="test@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="databases" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="test: database" type="162271b6:PgImplModel$Database" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="public: schema" type="983ebcf7:PgImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="test@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="databases" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="test: database" type="162271b6:PgImplModel$Database" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="public: schema" type="983ebcf7:PgImplModel$Schema" />
+        <item name="tables" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="test@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="databases" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="test: database" type="162271b6:PgImplModel$Database" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="public: schema" type="983ebcf7:PgImplModel$Schema" />
+        <item name="tables" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="test: table" type="69fad909:PgImplModel$LocalTable" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="winged" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="winged" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="winged" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="main: schema" type="981a47c2:SqliteImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="winged" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="main: schema" type="981a47c2:SqliteImplModel$Schema" />
+        <item name="sqlite_master: table" type="3d80ac25:SqliteImplModel$Table" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="winged" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="main: schema" type="981a47c2:SqliteImplModel$Schema" />
+        <item name="sqlite_sequence: table" type="3d80ac25:SqliteImplModel$Table" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="winged" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="main: schema" type="981a47c2:SqliteImplModel$Schema" />
+        <item name="test: table" type="3d80ac25:SqliteImplModel$Table" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="winged" type="feb32156:DbDataSourceImpl" />
+        <item name="collations" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Winged/Utils/WingedDatabaseConfigDefaults.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="30" column="48" selection-start-line="30" selection-start-column="48" selection-end-line="30" selection-end-column="48" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Winged/Model/Model.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="601">
+              <caret line="46" column="16" lean-forward="true" selection-start-line="46" selection-start-column="16" selection-end-line="46" selection-end-column="16" />
+              <folding>
+                <element signature="e#32#59#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Winged/Error/Error.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="7" column="26" selection-start-line="7" selection-end-line="7" selection-end-column="26" />
+              <folding>
+                <element signature="e#32#57#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Winged/Error/ShutdownCallback.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="664">
+              <caret line="100" column="33" lean-forward="true" selection-start-line="100" selection-start-column="33" selection-end-line="100" selection-end-column="33" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/controllers/HomeController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="28" selection-start-line="28" selection-end-line="28" />
+              <folding>
+                <element signature="e#7#28#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Winged/WingedHead.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="30" column="49" selection-start-line="30" selection-start-column="49" selection-end-line="30" selection-end-column="49" />
+              <folding>
+                <element signature="e#26#52#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Winged/Winged.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="578">
+              <caret line="34" selection-start-line="34" selection-end-line="34" />
+              <folding>
+                <element signature="e#26#51#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/index.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="5" column="39" lean-forward="true" selection-start-line="5" selection-start-column="39" selection-end-line="5" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="CSS File" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>select</find>
+      <find>asdasd</find>
+      <find>eloquent::</find>
+      <find>join</find>
+      <find>inner</find>
+      <find>db_tables</find>
+      <find>storeArray($tables</find>
+      <find>queryInfo</find>
+      <find>queryTableInfo</find>
+      <find>xml</find>
+      <find>times</find>
+      <find>time</find>
+      <find>having</find>
+      <find>limit</find>
+      <find>pre_cle</find>
+      <find>order</find>
+      <find>$masterKey</find>
+      <find>pre</find>
+      <find>table name or alias not registred</find>
+      <find>$tableName</find>
+      <find>$insert</find>
+      <find>where</find>
+      <find>AS</find>
+      <find>build</find>
+      <find>database</find>
+      <find>prepared</find>
+      <find>insert</find>
+      <find>ussin</find>
+      <find>delete</find>
+      <find>trigger</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>Winged::clear();</replace>
+      <replace>CoreError::clear();</replace>
+      <replace />
+      <replace>CoreError::display</replace>
+      <replace>CoreError::exists()</replace>
+      <replace>push</replace>
+      <replace>CoreError::exists</replace>
+      <replace>CoreValidator::</replace>
+      <replace>\n</replace>
+      <replace>$this-&gt;dynamic</replace>
+      <replace>99.999-99</replace>
+      <replace>&quot;99.999-999&quot;</replace>
+      <replace>parser</replace>
+      <replace>public function parser\($inputOptions, $elementOptions, $isArray)\{\n\n    \}</replace>
+      <replace>public function parser\(\$inputOptions, $elementOptions, $isArray)\{\n\n    \}</replace>
+      <replace>$elementOptions</replace>
+      <replace>assets($this);</replace>
+      <replace>$this-&gt;assets-&gt;admin();</replace>
+      <replace>tion setEncoding(</replace>
+      <replace>EXTRAS</replace>
+      <replace>WingedConfig::$config</replace>
+      <replace>USE_DATABASE</replace>
+      <replace>\WingedConfig</replace>
+      <replace>WingedHead.php</replace>
+      <replace>use WingedConfig</replace>
+      <replace>::exists</replace>
+      <replace>Eloquent</replace>
+      <replace>AbstractEloquent</replace>
+      <replace>queryTableInfo</replace>
+      <replace>queryTablesInfo</replace>
+    </replaceStrings>
+    <dirStrings>
+      <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\admin\assets\js\pages</dir>
+      <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\Winged</dir>
+      <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\Winged\External\pQuery</dir>
+      <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\projects\Modules</dir>
+      <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\projects\admin\controllers</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$/Documents/GitHub/winged-framework" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/BeginnerStructure/routes/routes.php" />
+        <option value="$PROJECT_DIR$/BeginnerStructure/README.md" />
+        <option value="$USER_HOME$/Desktop/head.php" />
+        <option value="$PROJECT_DIR$/models/Example.php" />
+        <option value="$PROJECT_DIR$/BeginnerStructure/controllers/HomeController.php" />
+        <option value="$PROJECT_DIR$/config.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/DbDict.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/Firebird.php" />
+        <option value="E:/CUBRID/conf/cm.conf" />
+        <option value="E:/CUBRID/log/manager/cub_manager.err" />
+        <option value="$PROJECT_DIR$/extra.config.php" />
+        <option value="$PROJECT_DIR$/Winged/Http/HttpResponseHandler.php" />
+        <option value="$PROJECT_DIR$/Winged/Utils/Functions.php" />
+        <option value="$PROJECT_DIR$/Winged/Http/Request.php" />
+        <option value="$PROJECT_DIR$/Winged/Utils/Defines.php" />
+        <option value="$PROJECT_DIR$/Winged/Configs/IniSets.php" />
+        <option value="$PROJECT_DIR$/index.php" />
+        <option value="$PROJECT_DIR$/Winged/Utils/WingedConfigDefaults.php" />
+        <option value="$PROJECT_DIR$/Winged/Winged.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/CurrentDB.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Types/PreparedPDO.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Types/PreparedMysqli.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Types/NormalMysqli.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Types/NormalPDO.php" />
+        <option value="$PROJECT_DIR$/WingedConfig.php" />
+        <option value="$PROJECT_DIR$/Extras.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/DriverMiddleware.php" />
+        <option value="$PROJECT_DIR$/Winged/Model/ModelInterface.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/Cubrid.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/SQLServer.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/Sqlite.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/PostgreSQL.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/QueryBuilder.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/TheQueryBuilderOld.php" />
+        <option value="$PROJECT_DIR$/Winged/Configs/Defines.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Database.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/DelegateQuery.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/MySQL.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/EloquentInterface.php" />
+        <option value="$USER_HOME$/Desktop/test.sql" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/Eloquent.php" />
+        <option value="$PROJECT_DIR$/WingedDatabaseConfig.php" />
+        <option value="$PROJECT_DIR$/Winged/Utils/WingedDatabaseConfigDefaults.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/AbstractEloquent.php" />
+        <option value="$PROJECT_DIR$/models/Test.php" />
+        <option value="$PROJECT_DIR$/Winged/Model/Model.php" />
+        <option value="$PROJECT_DIR$/controllers/HomeController.php" />
+        <option value="$PROJECT_DIR$/Winged/Error/Error.php" />
+        <option value="$PROJECT_DIR$/Winged/WingedHead.php" />
+        <option value="$PROJECT_DIR$/Winged/Error/ShutdownCallback.php" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+      </list>
+    </option>
+  </component>
+  <component name="JsFlowSettings">
+    <service-enabled>false</service-enabled>
+    <exe-path />
+    <annotation-enable>false</annotation-enable>
+    <other-services-enabled>false</other-services-enabled>
+  </component>
+  <component name="PhpServers">
+    <servers />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration">
+    <include_path>
+      <path value="$PROJECT_DIR$/projects/vendor/composer" />
+    </include_path>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="controllers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="Winged" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="Winged" type="462c0819:PsiDirectoryNode" />
+              <item name="Configs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="Winged" type="462c0819:PsiDirectoryNode" />
+              <item name="Error" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="Winged" type="462c0819:PsiDirectoryNode" />
+              <item name="Utils" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="postgresql&#10;sqlite" />
+    <property name="SearchEverywhereHistoryKey" value="route&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Route/Route.php&#10;rout&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Route/RouteExec.php&#10;winged&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/WingedHead.php&#10;ass&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Controller/Assets.php&#10;assets&#9;null&#9;null&#10;model&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Model/Model.php&#10;winge&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/WingedHead.php&#10;wingedcon&#9;null&#9;null&#10;database&#9;null&#9;null&#10;data&#9;ACTION&#9;ActivateDatabaseToolWindow&#10;control&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/controllers/HomeController.php&#10;form&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Form/Form.php&#10;mode&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Model/Model.php&#10;win&#9;null&#9;null&#10;clie&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/models/Clientes.php&#10;def&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/admin/controllers/DefaultController.php&#10;Active&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Form/ActiveForm.php&#10;core&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/admin/assets/css/core/core.css&#10;html&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Form/HtmlHelper.php&#10;usu&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/models/Usuarios.php&#10;C&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/admin/controllers/ClientesController.php&#10;core.c&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/admin/assets/css/core/core.css&#10;compo&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Components/ComponentParser.php&#10;Model&#9;null&#9;null&#10;Fun&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Utils/Functions.php&#10;re&#9;null&#9;null&#10;new&#9;null&#9;null&#10;do&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/External/pQuery/DomNode.php&#10;D&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/External/pQuery/DomNode.php&#10;iQue&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/External/pQuery/IQuery.php&#10;Dom&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/External/pQuery/DomNode.php&#10;php&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/External/phpQuery.php&#10;da&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Date/Date.php&#10;date&#9;null&#9;null&#10;fak&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/models/FakeGa.php&#10;news&#9;null&#9;null&#10;delega&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Database/DelegateQuery.php&#10;rew&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/Winged/Rewrite/Rewrite.php&#10;winged.c&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/winged/winged.class.php&#10;winged.cl&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/winged/winged.class.php&#10;vali&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/winged/validator/winged.validator.php&#10;va&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/winged/validator/winged.validator.php&#10;uplo&#9;null&#9;null&#10;upl&#9;null&#9;null&#10;down&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/winged/file/winged.download.php&#10;Reque&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/winged/http/winged.request.php&#10;CoreD&#9;null&#9;null&#10;coreS&#9;null&#9;null&#10;cores&#9;null&#9;null&#10;home&#9;FILE&#9;file://C:/xampp/htdocs/MISCELANEA/wingedframework.com.br/views/home.php" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
+    <property name="com.jetbrains.php.phpunit.codeGeneration.PhpNewTestDialog.defaultLibrary" value="PHPUnit" />
+    <property name="database.console.LAST_STATE" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../grameasy.com.br" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.jscs" value="true" />
+    <property name="node.js.detected.package.standard" value="true" />
+    <property name="node.js.detected.package.stylelint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.jscs" value="project" />
+    <property name="node.js.path.for.package.standard" value="project" />
+    <property name="node.js.path.for.package.stylelint" value="project" />
+    <property name="node.js.selected.package.eslint" value="" />
+    <property name="node.js.selected.package.jscs" value="" />
+    <property name="node.js.selected.package.standard" value="" />
+    <property name="node.js.selected.package.stylelint" value="" />
+    <property name="nodejs_interpreter_path" value="node" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\Winged\Config" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\BeginnerStructure\controllers" />
+      <recent name="C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\projects" />
+      <recent name="C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\Winged\Database\Drivers" />
+      <recent name="C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\Winged\Route" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\Winged\Database" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\controllers" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\BeginnerStructure" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\BeginnerStructure\models" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="js.build_tools.gulp">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0f1e6d2c-aaab-4ce1-aa04-3bbcaf76dff4" name="Default" comment="" />
+      <created>1499372103052</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1499372103052</updated>
+      <workItem from="1499372104524" duration="3943000" />
+      <workItem from="1499429703877" duration="6285000" />
+      <workItem from="1499450318959" duration="2182000" />
+      <workItem from="1499455347036" duration="1496000" />
+      <workItem from="1499458009986" duration="4439000" />
+      <workItem from="1499685786539" duration="609000" />
+      <workItem from="1499718782067" duration="1697000" />
+      <workItem from="1499772715794" duration="610000" />
+      <workItem from="1499778292413" duration="1062000" />
+      <workItem from="1504898739189" duration="1543000" />
+      <workItem from="1505157363696" duration="146000" />
+      <workItem from="1505157511389" duration="6112000" />
+      <workItem from="1505215819798" duration="642000" />
+      <workItem from="1505235618192" duration="606000" />
+      <workItem from="1505246429454" duration="1958000" />
+      <workItem from="1505303471609" duration="621000" />
+      <workItem from="1505330260174" duration="609000" />
+      <workItem from="1506107349083" duration="1437000" />
+      <workItem from="1506360127846" duration="9448000" />
+      <workItem from="1506427037453" duration="777000" />
+      <workItem from="1506448881068" duration="8622000" />
+      <workItem from="1506512406667" duration="1174000" />
+      <workItem from="1509455077517" duration="214000" />
+      <workItem from="1509465274024" duration="15519000" />
+      <workItem from="1509553712429" duration="801000" />
+      <workItem from="1509561174778" duration="626000" />
+      <workItem from="1509562230510" duration="3805000" />
+      <workItem from="1509987302076" duration="10987000" />
+      <workItem from="1510051219281" duration="1032000" />
+      <workItem from="1510057186960" duration="9953000" />
+      <workItem from="1510073966657" duration="9105000" />
+      <workItem from="1510225577198" duration="14426000" />
+      <workItem from="1510248505107" duration="6360000" />
+      <workItem from="1510254986576" duration="3823000" />
+      <workItem from="1510310785539" duration="563000" />
+      <workItem from="1510311350386" duration="18463000" />
+      <workItem from="1510339628731" duration="1057000" />
+      <workItem from="1510344408922" duration="1348000" />
+      <workItem from="1510658817305" duration="3570000" />
+      <workItem from="1510665218815" duration="31000" />
+      <workItem from="1510675628400" duration="22000" />
+      <workItem from="1511434887001" duration="1762000" />
+      <workItem from="1511520185972" duration="672000" />
+      <workItem from="1511529501931" duration="2104000" />
+      <workItem from="1511540987168" duration="32000" />
+      <workItem from="1511546356763" duration="2321000" />
+      <workItem from="1511553261389" duration="2098000" />
+      <workItem from="1511778556912" duration="9409000" />
+      <workItem from="1511789296204" duration="1969000" />
+      <workItem from="1511795068501" duration="15618000" />
+      <workItem from="1511865707820" duration="4138000" />
+      <workItem from="1511888707649" duration="10832000" />
+      <workItem from="1511952723866" duration="634000" />
+      <workItem from="1511954000614" duration="23300000" />
+      <workItem from="1512038707429" duration="20637000" />
+      <workItem from="1512125003603" duration="3837000" />
+      <workItem from="1512410260697" duration="9022000" />
+      <workItem from="1512469806694" duration="826000" />
+      <workItem from="1512737331957" duration="13791000" />
+      <workItem from="1512988659877" duration="852000" />
+      <workItem from="1513095763998" duration="8077000" />
+      <workItem from="1513170270578" duration="849000" />
+      <workItem from="1513248443411" duration="283000" />
+      <workItem from="1513251678154" duration="659000" />
+      <workItem from="1513363428879" duration="604000" />
+      <workItem from="1513593351467" duration="617000" />
+      <workItem from="1515495100273" duration="742000" />
+      <workItem from="1515589312682" duration="1160000" />
+      <workItem from="1516099668635" duration="2749000" />
+      <workItem from="1516126716896" duration="4028000" />
+      <workItem from="1516185703536" duration="9930000" />
+      <workItem from="1516206682689" duration="4838000" />
+      <workItem from="1516214004262" duration="6356000" />
+      <workItem from="1516223486254" duration="177000" />
+      <workItem from="1516272358745" duration="610000" />
+      <workItem from="1516276422418" duration="14118000" />
+      <workItem from="1516358681811" duration="3848000" />
+      <workItem from="1516704603399" duration="2891000" />
+      <workItem from="1517395943079" duration="217000" />
+      <workItem from="1517575477277" duration="2766000" />
+      <workItem from="1518009445472" duration="78000" />
+      <workItem from="1519224923044" duration="12824000" />
+      <workItem from="1519324863728" duration="33000" />
+      <workItem from="1519329168614" duration="19000" />
+      <workItem from="1519393477943" duration="937000" />
+      <workItem from="1519395970918" duration="4516000" />
+      <workItem from="1519406113544" duration="811000" />
+      <workItem from="1519418072467" duration="1502000" />
+      <workItem from="1519419769404" duration="1595000" />
+      <workItem from="1519647431021" duration="762000" />
+      <workItem from="1519648377425" duration="814000" />
+      <workItem from="1519649657197" duration="4382000" />
+      <workItem from="1519663200679" duration="5138000" />
+      <workItem from="1519668554068" duration="6357000" />
+      <workItem from="1519677916664" duration="1350000" />
+      <workItem from="1519731080577" duration="7782000" />
+      <workItem from="1519740901239" duration="4746000" />
+      <workItem from="1519753471634" duration="2316000" />
+      <workItem from="1519758808260" duration="8000" />
+      <workItem from="1519758989532" duration="5429000" />
+      <workItem from="1519817914047" duration="336000" />
+      <workItem from="1519818949457" duration="75000" />
+      <workItem from="1519827466950" duration="91000" />
+      <workItem from="1519844755704" duration="784000" />
+      <workItem from="1519906187677" duration="195000" />
+      <workItem from="1519906407280" duration="4537000" />
+      <workItem from="1519912647225" duration="191000" />
+      <workItem from="1519928736964" duration="10000" />
+      <workItem from="1519991335225" duration="272000" />
+      <workItem from="1520008911987" duration="991000" />
+      <workItem from="1520011360689" duration="1336000" />
+      <workItem from="1520510730459" duration="674000" />
+      <workItem from="1521033222957" duration="18149000" />
+      <workItem from="1521114339067" duration="14928000" />
+      <workItem from="1521146772866" duration="1408000" />
+      <workItem from="1521200539747" duration="641000" />
+      <workItem from="1521204050622" duration="4120000" />
+      <workItem from="1521217098102" duration="2889000" />
+      <workItem from="1521230980158" duration="2169000" />
+      <workItem from="1521459272897" duration="957000" />
+      <workItem from="1521460333864" duration="6609000" />
+      <workItem from="1521487453603" duration="6170000" />
+      <workItem from="1521666207263" duration="1577000" />
+      <workItem from="1521719081782" duration="121000" />
+      <workItem from="1521719210805" duration="658000" />
+      <workItem from="1521728943964" duration="2341000" />
+      <workItem from="1524674730213" duration="631000" />
+      <workItem from="1524770999328" duration="19000" />
+      <workItem from="1526412310893" duration="1420000" />
+      <workItem from="1526415051091" duration="3087000" />
+      <workItem from="1526418571222" duration="2183000" />
+      <workItem from="1526470557367" duration="95000" />
+      <workItem from="1526475723021" duration="15447000" />
+      <workItem from="1526499465828" duration="2464000" />
+      <workItem from="1526503101385" duration="3108000" />
+      <workItem from="1526556361203" duration="609000" />
+      <workItem from="1526576372316" duration="14521000" />
+      <workItem from="1526642620851" duration="295000" />
+      <workItem from="1526647220281" duration="1036000" />
+      <workItem from="1527601919211" duration="1487000" />
+      <workItem from="1527615683473" duration="12741000" />
+      <workItem from="1527679144685" duration="17795000" />
+      <workItem from="1527709712212" duration="5706000" />
+      <workItem from="1527851387852" duration="18714000" />
+      <workItem from="1527885235642" duration="639000" />
+      <workItem from="1528200263692" duration="1469000" />
+      <workItem from="1528913272846" duration="9504000" />
+      <workItem from="1528976102972" duration="1808000" />
+      <workItem from="1529439829881" duration="3602000" />
+      <workItem from="1529494752695" duration="2035000" />
+      <workItem from="1529521287366" duration="7846000" />
+      <workItem from="1529530160221" duration="77000" />
+      <workItem from="1529530262743" duration="67000" />
+      <workItem from="1529530492669" duration="260000" />
+      <workItem from="1529587349185" duration="17604000" />
+      <workItem from="1529681280311" duration="11145000" />
+      <workItem from="1529925917635" duration="11681000" />
+      <workItem from="1529946252383" duration="5349000" />
+      <workItem from="1529954772081" duration="4522000" />
+      <workItem from="1530012451501" duration="15000000" />
+      <workItem from="1530046957471" duration="1817000" />
+      <workItem from="1530098032568" duration="12845000" />
+      <workItem from="1530119479817" duration="1092000" />
+      <workItem from="1530184890504" duration="657000" />
+      <workItem from="1530193183687" duration="2853000" />
+      <workItem from="1530215015290" duration="1328000" />
+      <workItem from="1530272655475" duration="4385000" />
+      <workItem from="1530527793203" duration="8953000" />
+      <workItem from="1530560698783" duration="3013000" />
+      <workItem from="1530564647690" duration="1278000" />
+      <workItem from="1530617078612" duration="605000" />
+      <workItem from="1530640397353" duration="682000" />
+      <workItem from="1530642480207" duration="8589000" />
+      <workItem from="1530703543368" duration="5467000" />
+      <workItem from="1530730069135" duration="9017000" />
+      <workItem from="1530785603113" duration="7946000" />
+      <workItem from="1530820779521" duration="5609000" />
+      <workItem from="1530876145959" duration="7228000" />
+      <workItem from="1530887531357" duration="10482000" />
+      <workItem from="1531135951449" duration="7455000" />
+      <workItem from="1531154758413" duration="7960000" />
+      <workItem from="1531164728181" duration="167000" />
+      <workItem from="1531165698143" duration="2457000" />
+      <workItem from="1531220732756" duration="7513000" />
+      <workItem from="1531245402553" duration="9414000" />
+      <workItem from="1531255923802" duration="1591000" />
+      <workItem from="1531308631050" duration="6448000" />
+      <workItem from="1531326213188" duration="8140000" />
+      <workItem from="1531395234094" duration="24000000" />
+      <workItem from="1531480556087" duration="9490000" />
+      <workItem from="1531740180423" duration="4835000" />
+      <workItem from="1531766923220" duration="9333000" />
+      <workItem from="1531826911928" duration="5829000" />
+      <workItem from="1531913136598" duration="402000" />
+      <workItem from="1531938705220" duration="524000" />
+      <workItem from="1532006408717" duration="940000" />
+      <workItem from="1532030999911" duration="611000" />
+      <workItem from="1532113936446" duration="5460000" />
+      <workItem from="1532343910500" duration="14270000" />
+      <workItem from="1532431979367" duration="1205000" />
+      <workItem from="1532452099508" duration="74000" />
+      <workItem from="1532529891431" duration="724000" />
+      <workItem from="1532615838408" duration="601000" />
+      <workItem from="1536760539282" duration="671000" />
+      <workItem from="1536764451240" duration="1696000" />
+      <workItem from="1536774199925" duration="137000" />
+      <workItem from="1536865246633" duration="42000" />
+      <workItem from="1538418950933" duration="3926000" />
+      <workItem from="1538423294596" duration="4715000" />
+      <workItem from="1538479579533" duration="1095000" />
+      <workItem from="1538498556759" duration="24000" />
+      <workItem from="1538500529538" duration="62000" />
+      <workItem from="1538510501729" duration="345000" />
+      <workItem from="1538512726103" duration="1762000" />
+      <workItem from="1538569258462" duration="25000" />
+      <workItem from="1538578748113" duration="17000" />
+      <workItem from="1538586514895" duration="45000" />
+      <workItem from="1538660923219" duration="44000" />
+      <workItem from="1538660990096" duration="1842000" />
+      <workItem from="1539608763915" duration="21000" />
+      <workItem from="1539609058993" duration="15000" />
+      <workItem from="1539611615721" duration="5000" />
+      <workItem from="1554233418814" duration="870000" />
+      <workItem from="1554407722395" duration="16000" />
+      <workItem from="1554464801164" duration="2306000" />
+      <workItem from="1554844923119" duration="645000" />
+      <workItem from="1554898380851" duration="580000" />
+      <workItem from="1556225586505" duration="5428000" />
+      <workItem from="1556566003161" duration="98000" />
+      <workItem from="1556566256474" duration="605000" />
+      <workItem from="1556893728012" duration="8820000" />
+      <workItem from="1556912602373" duration="4407000" />
+      <workItem from="1557144125965" duration="12373000" />
+      <workItem from="1557239064602" duration="757000" />
+      <workItem from="1557249722891" duration="10944000" />
+      <workItem from="1557262487597" duration="2004000" />
+      <workItem from="1557316161061" duration="1353000" />
+      <workItem from="1557325840887" duration="2914000" />
+      <workItem from="1557855834265" duration="36196000" />
+      <workItem from="1558007817224" duration="13383000" />
+      <workItem from="1558093705146" duration="20172000" />
+      <workItem from="1559218972466" duration="17834000" />
+      <workItem from="1559327913618" duration="1203000" />
+      <workItem from="1559336869208" duration="320000" />
+      <workItem from="1559649083095" duration="9432000" />
+      <workItem from="1559677119351" duration="9467000" />
+      <workItem from="1559829075112" duration="2217000" />
+      <workItem from="1559846719869" duration="11150000" />
+      <workItem from="1560199343261" duration="1348000" />
+      <workItem from="1560861941077" duration="1306000" />
+      <workItem from="1560883382315" duration="9105000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="1101721000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20628998" />
+      <window_info id="Structure" order="1" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32980973" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.3290461" />
+      <window_info anchor="bottom" id="File Transfer" order="8" weight="0.3290461" />
+      <window_info anchor="bottom" id="Inspection Results" order="9" weight="0.32980973" />
+      <window_info anchor="bottom" id="Terminal" order="10" />
+      <window_info anchor="bottom" id="Version Control" order="11" show_stripe_button="false" weight="0.32980973" />
+      <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Docker" order="13" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Console" order="14" weight="0.3290461" />
+      <window_info active="true" anchor="bottom" id="REST Client" order="15" weight="0.3290461" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Remote Host" order="3" weight="0.20469083" />
+      <window_info anchor="right" id="Database" order="4" weight="0.26012793" />
+      <window_info anchor="right" x="99" y="143" width="1736" height="856" id="Documentation" order="5" type="FLOATING" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/views/home.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Types/NormalPDO.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="341">
+          <caret line="43" column="5" selection-start-line="43" selection-start-column="5" selection-end-line="43" selection-end-column="5" />
+          <folding>
+            <element signature="e#41#64#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://c8304c24-6bb4-41f7-b6e7-4ae0eb7ee866/collation/BINARY">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="das://c8304c24-6bb4-41f7-b6e7-4ae0eb7ee866/collation/RTRIM">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="das://c8304c24-6bb4-41f7-b6e7-4ae0eb7ee866/collation/NOCASE">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="das://c8304c24-6bb4-41f7-b6e7-4ae0eb7ee866/schema/main/table/test">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://c8304c24-6bb4-41f7-b6e7-4ae0eb7ee866/schema/main/table/sqlite_master">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/f51bc173-d1be-49b4-8983-357b93308ae1/console.sql">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Extras.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="3" lean-forward="true" selection-start-line="8" selection-start-column="3" selection-end-line="8" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/win32service/win32service.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9121" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/DbDict.php" />
+    <entry file="file://$PROJECT_DIR$/Winged/Database/CurrentDB.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="25" selection-start-line="9" selection-start-column="25" selection-end-line="9" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/SQLServer.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="25" column="5" lean-forward="true" selection-start-line="25" selection-start-column="5" selection-end-line="25" selection-end-column="5" />
+          <folding>
+            <element signature="e#43#73#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/Sqlite.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="137">
+          <caret line="12" column="58" selection-start-line="12" selection-start-column="58" selection-end-line="12" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/PostgreSQL.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="749">
+          <caret line="63" column="10" selection-start-line="63" selection-start-column="10" selection-end-line="63" selection-end-column="10" />
+          <caret line="67" column="10" selection-start-line="67" selection-start-column="10" selection-end-line="67" selection-end-column="10" />
+          <caret line="71" column="10" selection-start-line="71" selection-start-column="10" selection-end-line="71" selection-end-column="10" />
+          <caret line="75" column="10" selection-start-line="75" selection-start-column="10" selection-end-line="75" selection-end-column="10" />
+          <caret line="79" column="10" selection-start-line="79" selection-start-column="10" selection-end-line="79" selection-end-column="10" />
+          <caret line="83" column="10" selection-start-line="83" selection-start-column="10" selection-end-line="83" selection-end-column="10" />
+          <caret line="87" column="10" selection-start-line="87" selection-start-column="10" selection-end-line="87" selection-end-column="10" />
+          <caret line="91" column="10" selection-start-line="91" selection-start-column="10" selection-end-line="91" selection-end-column="10" />
+          <folding>
+            <element signature="e#43#73#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard/standard_9.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="73" column="9" selection-start-line="73" selection-start-column="9" selection-end-line="73" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Utils/Chord.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="279" column="7" lean-forward="true" selection-start-line="279" selection-start-column="7" selection-end-line="279" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../grameasy.com.br/application/models/desktop.ini">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Model/ModelInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="23" column="7" lean-forward="true" selection-start-line="23" selection-start-column="7" selection-end-line="23" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/TheQueryBuilderOld.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-10454">
+          <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/DelegateQuery.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="851">
+          <caret line="719" column="69" selection-start-line="719" selection-start-column="16" selection-end-line="719" selection-end-column="69" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/Cubrid.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="33" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="33" />
+          <folding>
+            <element signature="e#43#73#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/test.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="670">
+          <caret line="243" lean-forward="true" selection-start-line="243" selection-end-line="243" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Types/PreparedMysqli.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2856">
+          <caret line="171" column="5" selection-start-line="171" selection-start-column="5" selection-end-line="171" selection-end-column="5" />
+          <folding>
+            <element signature="e#41#64#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/EloquentInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1428">
+          <caret line="84" column="30" selection-start-line="84" selection-start-column="30" selection-end-line="84" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Database.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1122">
+          <caret line="77" column="33" selection-start-line="77" selection-start-column="16" selection-end-line="77" selection-end-column="33" />
+          <folding>
+            <element signature="e#35#70#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Types/PreparedPDO.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="851">
+          <caret line="142" column="32" selection-start-line="142" selection-start-column="23" selection-end-line="142" selection-end-column="32" />
+          <folding>
+            <element signature="e#41#71#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Types/NormalMysqli.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/MySQL.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="66" column="5" lean-forward="true" selection-start-line="66" selection-start-column="5" selection-end-line="66" selection-end-column="5" />
+          <folding>
+            <element signature="e#43#73#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WingedDatabaseConfig.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" column="35" lean-forward="true" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WingedConfig.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="4" lean-forward="true" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/AbstractEloquent.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="533">
+          <caret line="192" column="32" selection-start-line="192" selection-start-column="32" selection-end-line="192" selection-end-column="32" />
+          <folding>
+            <element signature="e#35#70#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/Eloquent.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="448">
+          <caret line="621" column="163" lean-forward="true" selection-start-line="621" selection-start-column="22" selection-end-line="621" selection-end-column="163" />
+          <folding>
+            <element signature="e#43#73#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/Test.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="23" column="5" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Error/SilencedErrors.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-271" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Utils/WingedDatabaseConfigDefaults.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="30" column="48" selection-start-line="30" selection-start-column="48" selection-end-line="30" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Model/Model.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="601">
+          <caret line="46" column="16" lean-forward="true" selection-start-line="46" selection-start-column="16" selection-end-line="46" selection-end-column="16" />
+          <folding>
+            <element signature="e#32#59#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Translate/Translate.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Configs/Defines.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="35">
+          <caret line="20" column="5" lean-forward="true" selection-start-line="20" selection-start-column="5" selection-end-line="20" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Configs/Functions.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="22" column="1" lean-forward="true" selection-start-line="22" selection-start-column="1" selection-end-line="22" selection-end-column="1" />
+          <folding>
+            <element signature="e#7#32#0#PHP" expanded="true" />
+            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Configs/IniSets.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="17" lean-forward="true" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Utils/WingedLib.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Winged.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="34" selection-start-line="34" selection-end-line="34" />
+          <folding>
+            <element signature="e#26#51#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/HomeController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="28" selection-start-line="28" selection-end-line="28" />
+          <folding>
+            <element signature="e#7#28#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Buffer/Buffer.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="721">
+          <caret line="103" column="27" selection-start-line="103" selection-start-column="27" selection-end-line="103" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/WingedHead.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="30" column="49" selection-start-line="30" selection-start-column="49" selection-end-line="30" selection-end-column="49" />
+          <folding>
+            <element signature="e#26#52#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Autoload.Cache.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="29" column="31" lean-forward="true" selection-start-line="29" selection-start-column="31" selection-end-line="29" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="39" lean-forward="true" selection-start-line="5" selection-start-column="39" selection-end-line="5" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Error/Error.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="26" selection-start-line="7" selection-end-line="7" selection-end-column="26" />
+          <folding>
+            <element signature="e#32#57#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Error/ShutdownCallback.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="664">
+          <caret line="100" column="33" lean-forward="true" selection-start-line="100" selection-start-column="33" selection-end-line="100" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+  </component>
+</project>

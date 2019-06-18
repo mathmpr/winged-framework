@@ -45,11 +45,11 @@ class ShutdownCallback
             }
         }
         if (!$_config) {
-            Error::push($errors[$errno], $errstr, $errfile, $errline, $errcontext);
+            Error::push($errors[$errno], $errstr, $errfile, $errline, self::getTrace());
             return true;
         }
         if ($_config['fatal']) {
-            Error::push($errors[$errno], $errstr, $errfile, $errline, $errcontext);
+            Error::push($errors[$errno], $errstr, $errfile, $errline, self::getTrace());
         }
         return true;
     }
@@ -95,5 +95,16 @@ class ShutdownCallback
             }
         }
         return true;
+    }
+
+    public static function getTrace(){
+        $trace = debug_backtrace();
+        pre_clear_buffer_die($trace);
+        if($trace){
+            unset($trace[0]);
+            unset($trace[1]);
+            $trace = array_values($trace);
+        }
+        pre_clear_buffer_die($trace);
     }
 }
