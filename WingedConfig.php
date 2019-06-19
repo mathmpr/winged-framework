@@ -22,4 +22,7 @@ class WingedConfig extends WingedConfigDefaults
     public $AUTO_MINIFY = 1;
     public $USE_GZENCODE = true;
     public $ADD_CACHE_CONTROL = true;
+    public $IGNORE_ERRORS = [
+        E_DEPRECATED,
+    ];
 }

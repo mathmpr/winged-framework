@@ -169,6 +169,14 @@ class WingedConfigDefaults
     public $INCLUDES = [];
 
     /**
+     * @property $IGNORE_ERRORS array
+     * type of ignored errors
+     */
+    public $IGNORE_ERRORS = [
+        E_DEPRECATED,
+    ];
+
+    /**
      * @var $vars array
      */
     private $vars = [];

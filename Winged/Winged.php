@@ -30,7 +30,6 @@ class Winged
     public static $standard_controller;
     public static $controller_page;
     public static $controller_action;
-    public static $controller_debug = true;
 
     public static $http;
     public static $https;
@@ -86,7 +85,7 @@ class Winged
         if (is_null(WingedConfig::$config->NOTFOUND) || !WingedConfig::$config->NOTFOUND) {
             WingedConfig::$config->NOTFOUND = "./winged/class/rewrite/error/404.php";
         }
-        self::$controller_debug = (WingedConfig::$config->CONTROLLER_DEBUG !== null) ? WingedConfig::$config->CONTROLLER_DEBUG : true;
+
         if (is_null(WingedConfig::$config->STANDARD)) {
             self::$standard = WingedConfig::$config->STANDARD;
             self::$notfound = WingedConfig::$config->NOTFOUND;

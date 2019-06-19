@@ -22,6 +22,7 @@ class Controller
     public static $CONTROLLERS_PATH = './controllers/';
     public static $MODELS_PATH = './models/';
     public static $VIEWS_PATH = './views/';
+
     public $controller_path = false;
     public $controller_name = false;
     public $action_name = false;
@@ -129,7 +130,7 @@ class Controller
                     ];
                 } else {
                     if (WingedConfig::$config->CONTROLLER_DEBUG) {
-                        Error::push(__CLASS__, "Controller class '" . $controller_name . "' no exists in file '" . $controller->file_path . "'", __FILE__, __LINE__);
+                        trigger_error("Controller class '" . $controller_name . "' no exists in file '" . $controller->file_path . "'", E_USER_WARNING);
                     }
                 }
             }
@@ -239,9 +240,6 @@ class Controller
                         }
                     }
                 }
-                if (Error::exists() && WingedConfig::$config->CONTROLLER_DEBUG) {
-                    Error::display(__LINE__, __FILE__);
-                }
                 return $observer;
             }
             return $observer;
@@ -299,50 +297,9 @@ class Controller
         return false;
     }
 
-    public function allExists($vect)
+    public static function getControllerName($name = false)
     {
-        $controller = false;
-        if (array_key_exists('name', $vect)) {
-            $controller = $this->getControllerName($vect['name']);
-        }
-        $action = false;
-        if (array_key_exists('action', $vect)) {
-            $action = $this->getActionName($vect['action']);
-        }
-        if ($action && $controller) {
-            if (file_exists(self::$CONTROLLERS_PATH . $controller . '.php') && !is_directory(self::$CONTROLLERS_PATH . $controller . '.php')) {
-                include_once self::$CONTROLLERS_PATH . $controller . '.php';
-                $obj = new $controller();
-                if (method_exists($obj, $action)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public function loadModel($model = "", $root = false)
-    {
-        $model_str = $model;
-        $model = explode('.', $model_str);
-        if (end($model) != 'php') {
-            $model_str .= '.php';
-        }
-        if ($root) {
-            $path = './models/' . $model_str;
-        } else {
-            $path = self::$MODELS_PATH . $model_str;
-        }
-        if (file_exists($path)) {
-            include_once($path);
-        } else {
-            Error::push(__CLASS__, "model in " . $path . " can't included because file not found.", __FILE__, __LINE__);
-        }
-    }
-
-    private static function getControllerName($name = '')
-    {
-        if ($name == '') {
+        if (!$name) {
             $name = Winged::$controller_page;
         }
         $exp = explode("-", str_replace(['.', '_'], '-', $name));
@@ -352,9 +309,9 @@ class Controller
         return trim(implode('', $exp) . 'Controller');
     }
 
-    private static function getActionName($name = '')
+    public static function getActionName($name = false)
     {
-        if ($name == '') {
+        if (!$name) {
             $name = Winged::$controller_action;
         }
         $exp = explode("-", str_replace(['.', '_'], '-', $name));
@@ -383,7 +340,7 @@ class Controller
         header('Location: ' . $path);
     }
 
-    public function redirectTo($path = '', $keep_args = true, $simulate_post = '')
+    public function redirectTo($path = '', $keep_args = true)
     {
         $args_path = explode('?', $path);
         $path = $args_path[0];
@@ -465,20 +422,6 @@ class Controller
         Winged::$controller_params = $narr;
     }
 
-    public function afterThis($callable)
-    {
-        return $this->afterAction($callable);
-    }
-
-    public function afterAction($callable)
-    {
-        if (is_callable($callable)) {
-            $this->callable = $callable;
-            return true;
-        }
-        return false;
-    }
-
     public function copy()
     {
         if (Winged::$controller !== null) {
@@ -539,7 +482,7 @@ class Controller
                 } else {
                     $read = "\n?>\n" . trim($read);
                 }
-                if($read[strlen($read) - 1] != ';'){
+                if ($read[strlen($read) - 1] != ';') {
                     $read = $read . "\n<?php\n";
                 }
                 eval($read);
@@ -738,7 +681,7 @@ class Controller
                 } else {
                     $read = "\n?>\n" . trim($read);
                 }
-                if($read[strlen($read) - 1] != ';'){
+                if ($read[strlen($read) - 1] != ';') {
                     $read = $read . "\n<?php\n";
                 }
                 eval($read);
@@ -949,7 +892,7 @@ class Controller
         function __recursiveCheck__($matches, $_file, $pattern, $minify)
         {
             /**
-             * @var $_file File
+             * @var $_file  File
              * @var $minify CSS
              */
             $full_string = $matches[0];

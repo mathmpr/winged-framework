@@ -111,17 +111,52 @@ table {
     border-spacing: 0px;
 }
 
+td, th {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
 table tr td, table tr th {
-    padding: 5px 10px;
+    padding: 5px 10px 0;
     text-align: left;
     line-height: 20px;
     border: 1px solid #e8e8e8;
 }
 
-table tr th{
+table tr td.pad {
+    padding: 5px 10px 5px;
+}
+
+table tr th {
     font-weight: 600;
     padding: 15px 10px;
     border: none;
+}
+
+table tr td table {
+    width: calc(100% + 21px);
+    position: relative;
+    left: -11px;
+    margin-top: 5px;
+    background: #ffffff;
+    top: 1px;
+}
+
+table tr td table td, table tr td table th {
+    padding: 5px 10px;
+}
+
+table tr td table th {
+    padding: 15px 10px;
+}
+
+table tr td table th {
+    background: #ffce2d;
+    color: #000;
+}
+
+table tr td p b {
+    font-weight: 700;
 }
 
 .no-display {
@@ -142,8 +177,8 @@ table tbody tr td .view {
     transition: 0.3s all;
 }
 
-table tbody tr td.amp{
-    width: 33%;
+table tbody tr td.amp {
+    width: calc(100% - 500px);
 }
 
 table tbody tr td:hover .view {
@@ -172,4 +207,80 @@ table tbody tr td:hover .view {
 ::-moz-selection {
     background: rgba(0, 198, 178, 0.4);
     color: #323232;
+}
+
+p.showing {
+    padding: 10px 30%;
+    background: #333;
+    text-align: center;
+    font-weight: 500;
+    color: #e9e9e9;
+    line-height: 30px;
+}
+
+@media (max-width: 1367px) {
+    p.showing {
+        padding: 10px 20%;
+    }
+}
+
+@media (max-width: 991px) {
+    p.showing {
+        padding: 10px 10%;
+    }
+}
+
+@media (max-width: 767px) {
+    p.showing {
+        padding: 10px 15px;
+    }
+}
+
+p.showing span {
+    display: inline-block;
+    padding: 5px 10px;
+    position: relative;
+    font-family: monospace;
+    border: 1px solid #ffda91;
+    line-height: 20px;
+    margin: 3px 6px 0 2px;
+    border-radius: 3px;
+}
+
+p.showing .o {
+    color: #e96d0f;
+}
+
+p.showing .p_ {
+    color: #a61de9;
+}
+
+p.showing::selection {
+    background: #235295;
+    color: #e9e9e9;
+}
+
+p.showing::-moz-selection {
+    background: #235295;
+    color: #e9e9e9;
+}
+
+p.showing span::selection {
+    background: #235295;
+    color: #e9e9e9;
+}
+
+p.showing span::-moz-selection {
+    background: #235295;
+    color: #e9e9e9;
+}
+
+p.showing span .o::selection {
+    background: #235295 !important;
+    color: #e96d0f !important;
+}
+
+p.showing span .p_::-moz-selection {
+    background: #235295 !important;
+    color: #a61de9 !important;
 }
