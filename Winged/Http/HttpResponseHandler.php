@@ -6,8 +6,14 @@ use Winged\Date\Date;
 use Winged\File\File;
 use Winged\Route\Route;
 use WingedConfig;
-use Winged\WingedConfigDefaults;
 
+/**
+ * manage http response
+ *
+ * Class HttpResponseHandler
+ *
+ * @package Winged\Http
+ */
 class HttpResponseHandler
 {
     protected $ages = [
@@ -963,6 +969,11 @@ class HttpResponseHandler
     public $connection = 'Keep-Alive';
     public $vary = 'Accept-Encoding';
 
+    /**
+     * HttpResponseHandler constructor.
+     *
+     * @param array $options overwirtes default properties if key have same name inside HttpResponseHandler object
+     */
     public function __construct($options = [])
     {
         if (is_array($options)) {
@@ -974,56 +985,67 @@ class HttpResponseHandler
         }
     }
 
+    /**
+     * abstraction to aplly configs into http response
+     *
+     * @param string $content
+     * @param string $type
+     * @param bool   $exit
+     */
+    private function applyContentType($content = '', $type = 'html', $exit = true)
+    {
+        header_remove();
+        header("Vary: " . $this->vary);
+        header("Connection: " . $this->connection);
+        header("Access-Control-Allow-Origin: " . $this->origin);
+        if ($this->ages[$type]['charset']) {
+            header("Content-Type: " . HttpResponseHandler::$mime_types[$type] . "; charset=" . WingedConfig::$config->HTML_CHARSET);
+        } else {
+            header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
+        }
+        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
+            header("Content-Encoding: gzip");
+            echo $content ? gzencode($content, 9) : gzencode('', 9);
+        } else {
+            echo $content ? $content : $content;
+        }
+        if ($exit) {
+            exit;
+        }
+    }
+
+    /**
+     * dispatch responsa has json
+     *
+     * @param string $content
+     * @param bool   $exit
+     */
     public function dispatchJson($content = '', $exit = true)
     {
         $json = false;
-        if(is_array($content)){
+        if (is_array($content)) {
             $json = json_encode($content);
         }
-        $type = 'json';
-        header_remove();
-        header("Vary: " . $this->vary);
-        header("Connection: " . $this->connection);
-        header("Access-Control-Allow-Origin: " . $this->origin);
-        if ($this->ages[$type]['charset']) {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type] . "; charset=" . WingedConfig::$config->HTML_CHARSET);
-        } else {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
-        }
-        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
-            header("Content-Encoding: gzip");
-            echo $json ? gzencode($json, 9) : gzencode($content, 9);
-        } else {
-            echo $json ? $json : $content;
-        }
-        if ($exit) {
-            exit;
-        }
+        $this->applyContentType($json, 'json', $exit);
     }
 
+    /**
+     * dispatch responsa has html
+     *
+     * @param string $content
+     * @param bool   $exit
+     */
     public function dispatchHtml($content = '', $exit = true)
     {
-        $type = 'html';
-        header_remove();
-        header("Vary: " . $this->vary);
-        header("Connection: " . $this->connection);
-        header("Access-Control-Allow-Origin: " . $this->origin);
-        if ($this->ages[$type]['charset']) {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type] . "; charset=" . WingedConfig::$config->HTML_CHARSET);
-        } else {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
-        }
-        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
-            header("Content-Encoding: gzip");
-            echo gzencode($content, 9);
-        } else {
-            echo $content;
-        }
-        if ($exit) {
-            exit;
-        }
+        $this->applyContentType($content, 'html', $exit);
     }
 
+    /**
+     * dispatch responsa has xml
+     *
+     * @param string $content
+     * @param bool   $exit
+     */
     public function dispatchXml($content = '', $exit = true)
     {
         $xml = false;
@@ -1031,75 +1053,33 @@ class HttpResponseHandler
             $xml = new \SimpleXMLElement('<response/>');
             Route::arrayToXml($content, $xml);
         }
-        $type = 'xml';
-        header_remove();
-        header("Vary: " . $this->vary);
-        header("Connection: " . $this->connection);
-        header("Access-Control-Allow-Origin: " . $this->origin);
-        if ($this->ages[$type]['charset']) {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type] . "; charset=" . WingedConfig::$config->HTML_CHARSET);
-        } else {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
-        }
-        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
-            header("Content-Encoding: gzip");
-            echo $xml ? gzencode($xml->asXML(), 9) : gzencode($content, 9);
-        } else {
-            echo $xml ? $xml->asXML() : $content;
-        }
-        if ($exit) {
-            exit;
-        }
+        $this->applyContentType($xml, 'xml', $exit);
     }
 
+    /**
+     * dispatch responsa has yaml
+     *
+     * @param string $content
+     * @param bool   $exit
+     */
     public function dispatchYaml($content = '', $exit = true)
     {
         $yaml = false;
-        if(is_array($content)){
+        if (is_array($content)) {
             $yaml = yaml_emit($content);
         }
-        $type = 'yaml';
-        header_remove();
-        header("Vary: " . $this->vary);
-        header("Connection: " . $this->connection);
-        header("Access-Control-Allow-Origin: " . $this->origin);
-        if ($this->ages[$type]['charset']) {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type] . "; charset=" . WingedConfig::$config->HTML_CHARSET);
-        } else {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
-        }
-        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
-            header("Content-Encoding: gzip");
-            echo $yaml ? gzencode($yaml, 9) : gzencode($content, 9);
-        } else {
-            echo $yaml ? $yaml : $content;
-        }
-        if ($exit) {
-            exit;
-        }
+        $this->applyContentType($yaml, 'yaml', $exit);
     }
 
+    /**
+     * dispatch responsa has text
+     *
+     * @param string $content
+     * @param bool   $exit
+     */
     public function dispatchTxt($content = '', $exit = true)
     {
-        $type = 'txt';
-        header_remove();
-        header("Vary: " . $this->vary);
-        header("Connection: " . $this->connection);
-        header("Access-Control-Allow-Origin: " . $this->origin);
-        if ($this->ages[$type]['charset']) {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type] . "; charset=" . WingedConfig::$config->HTML_CHARSET);
-        } else {
-            header("Content-Type: " . HttpResponseHandler::$mime_types[$type]);
-        }
-        if ($this->ages[$type]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
-            header("Content-Encoding: gzip");
-            echo gzencode($content, 9);
-        } else {
-            echo $content;
-        }
-        if ($exit) {
-            exit;
-        }
+        $this->applyContentType($content, 'txt', $exit);
     }
 
     /**
@@ -1137,7 +1117,7 @@ class HttpResponseHandler
                     if ($exit) {
                         exit;
                     }
-                }else{
+                } else {
                     header('Content-Type: application/octet-stream');
                     header("Content-Transfer-Encoding: Binary");
                     header("Content-disposition: attachment; filename=\"" . basename($file->file_path) . "\"");

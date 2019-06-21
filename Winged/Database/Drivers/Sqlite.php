@@ -13,6 +13,9 @@ use Winged\Database\CurrentDB;
 class Sqlite extends Eloquent implements EloquentInterface
 {
 
+    /**
+     * set default encoding to client conection
+     */
     public function setEncoding()
     {
     }
@@ -84,36 +87,205 @@ class Sqlite extends Eloquent implements EloquentInterface
         return $clear_fields;
     }
 
+    /**
+     * get initial query for the selected command
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseQuery()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
+    /**
+     * adds join clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseJoin()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
+    /**
+     * adds where clause on $this->currentQueryString
+     *
+     * @throws \Exception
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseWhere()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
+    /**
+     * adds group by clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseGroup()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
+    /**
+     * adds group by clause on $this->currentQueryString
+     *
+     * @throws \Exception
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseHaving()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
+    /**
+     * adds order by clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseOrder()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
+    /**
+     * adds set clause for update queries on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseSet()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
+    /**
+     * adds group by clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
     public function parseValues()
     {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
+    }
+
+    /**
+     * adds limit clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
+    public function parseLimit()
+    {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
+    }
+
+    /**
+     * adds table names for select queries on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
+    public function parseFrom()
+    {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
+    }
+
+    /**
+     * adds names of field for select queries on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
+    public function parseSelect()
+    {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
+    }
+
+    /**
+     * adds delete and from clause on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
+    public function parseDelete()
+    {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
+    }
+
+    /**
+     * adds updated tables in update clase on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
+    public function parseUpdate()
+    {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
+    }
+
+    /**
+     * adds values for insert queries on $this->currentQueryString
+     *
+     * @return $this|EloquentInterface
+     */
+    public function parseInto()
+    {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
+    }
+
+    /**
+     * prepare any query for after build query and execute then
+     *
+     * @throws \Exception
+     *
+     * @return $this|EloquentInterface
+     */
+    public function prepare()
+    {
+        /*
+         * @TODO content of this function for Sqlite driver
+         */
+        return $this;
     }
 
 }

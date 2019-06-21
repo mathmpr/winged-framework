@@ -41,6 +41,9 @@ class MySQL extends Eloquent implements EloquentInterface
         ELOQUENT_IS_NOT_NULL => 'IS NOT NULL'
     ];
 
+    /**
+     * set default encoding to client conection
+     */
     public function setEncoding()
     {
         CurrentDB::execute('SET NAMES ' . WingedConfig::$config->db()->DATABASE_CHARSET);

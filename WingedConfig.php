@@ -23,6 +23,6 @@ class WingedConfig extends WingedConfigDefaults
     public $USE_GZENCODE = true;
     public $ADD_CACHE_CONTROL = true;
     public $IGNORE_ERRORS = [
-        E_DEPRECATED,
+
     ];
 }

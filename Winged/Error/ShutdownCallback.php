@@ -99,6 +99,10 @@ class ShutdownCallback
     public static function parseTrace($error)
     {
         $message = explode("\n", $error['message']);
+        if(strlen($error['message']) >= 1024){
+            array_pop($message);
+            $message[] = '#90 [error have more than 1024 chars](n\a): [error have more than 1024 chars]->[error have more than 1024 chars]()';
+        }
         $messageString = trim(explode('\' in ', $message[0])[0] . "'");
         unset($message[0]);
         unset($message[1]);
@@ -111,25 +115,28 @@ class ShutdownCallback
         foreach ($message as $key => $value) {
             $line = false;
             $file = false;
-            $value = explode(': ', $value);
-            if (count($value) >= 2) {
-                preg_match('#\((.*?)\)#', $value[0], $matchs);
+            $mExp = explode(': ', $value);
+            if (count($mExp) >= 2) {
+                preg_match('#\((.*?)\)#', $mExp[0], $matchs);
                 if (!empty($matchs)) {
                     $line = trim($matchs[1]);
-                    $file = $value[0];
-                    $value[0] = str_replace('(' . $matchs[1] . ')', '', $value[0]);
+                    $mExp[0] = str_replace('(' . $matchs[1] . ')', '', $mExp[0]);
+                    $file = $mExp[0];
                 } else {
-                    $file = $value[0];
+                    $file = $mExp[0];
                     $line = 'internal';
                 }
             }
-            $value[1] = explode('->', $value[1]);
-            if (count($value[1]) >= 2) {
+            if($mExp[1] === 'Winged\Controller\Con'){
+                pre_clear_buffer_die($message);
+            }
+            $exp = explode('->', $mExp[1]);
+            if (count($exp) >= 2) {
                 $type = '->';
-                $class = $value[1][0];
-                preg_match('#\((.*?)\)#', $value[1][1], $matchs);
+                $class = $exp[0];
+                preg_match('#\((.*?)\)#', $exp[1], $matchs);
                 if (!empty($matchs)) {
-                    $function = str_replace('(' . $matchs[1] . ')', '(', $value[1][1]);
+                    $function = str_replace('(' . $matchs[1] . ')', '(', $exp[1]);
                     if (is_int(stripos($function, '(')) && is_int(stripos($function, ')'))) {
                         while (is_int(stripos($function, '(')) && is_int(stripos($function, ')'))) {
                             preg_match('#\((.*?)\)#', $function, $matchs);
@@ -140,19 +147,19 @@ class ShutdownCallback
                         }
                         $function = str_replace('(', '', $function);
                     } else {
-                        $function = str_replace('(' . $matchs[1] . ')', '', $value[1][1]);
+                        $function = str_replace('(' . $matchs[1] . ')', '', $exp[1]);
                     }
                 } else {
-                    $function = str_replace('()', '', $value[1][1]);
+                    $function = str_replace('()', '', $exp[1]);
                 }
             } else {
-                $value[1] = explode('::', join('', $value[1]));
-                if (count($value[1]) >= 2) {
+                $exp = explode('::', $mExp[1]);
+                if (count($exp) >= 2) {
                     $type = '::';
-                    $class = $value[1][0];
-                    preg_match('#\((.*?)\)#', $value[1][1], $matchs);
+                    $class = $exp[0];
+                    preg_match('#\((.*?)\)#', $exp[1], $matchs);
                     if (!empty($matchs)) {
-                        $function = str_replace('(' . $matchs[1] . ')', '(', $value[1][1]);
+                        $function = str_replace('(' . $matchs[1] . ')', '(', $exp[1]);
                         if (is_int(stripos($function, '(')) && is_int(stripos($function, ')'))) {
                             while (is_int(stripos($function, '(')) && is_int(stripos($function, ')'))) {
                                 preg_match('#\((.*?)\)#', $function, $matchs);
@@ -163,14 +170,15 @@ class ShutdownCallback
                             }
                             $function = str_replace('(', '', $function);
                         } else {
-                            $function = str_replace('(' . $matchs[1] . ')', '', $value[1][1]);
+                            $function = str_replace('(' . $matchs[1] . ')', '', $exp[1]);
                         }
                     } else {
-                        $function = str_replace('()', '', $value[1][1]);
+                        $function = str_replace('()', '', $exp[1]);
                     }
                 } else {
                     $type = 'procedural call';
                     $class = 'procedural call';
+                    pre_clear_buffer_die($exp);
                     $function = $value[1][1];
                 }
             }

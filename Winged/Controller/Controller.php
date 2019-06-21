@@ -4,10 +4,11 @@ namespace Winged\Controller;
 
 use Winged\External\MatthiasMullie\Minify\Minify\CSS;
 use Winged\External\MatthiasMullie\Minify\Minify\JS;
-use Winged\Assets\Assets;
+use Winged\Frontend\Assets;
 use Winged\Date\Date;
 use Winged\Directory\Directory;
 use Winged\File\File;
+use Winged\Frontend\Render;
 use Winged\Http\HttpResponseHandler;
 use Winged\Utils\Container;
 use Winged\Utils\RandomName;
@@ -31,27 +32,16 @@ class Controller
     public $controller_reset = false;
     public $body_class = null;
     public $html_class = null;
-    public $js = [];
-    public $css = [];
-    private $first_render = true;
-    private $remove_css = [];
-    private $remove_js = [];
-    private $tojson = [];
-    private $callable = null;
-    private $head_path = false;
+    private $render = null;
     public $error_level = 0;
     public $vect = [];
     public $assets = null;
-    public $appended_abstract_head_content = [];
     public $vitual_success = false;
-    /**
-     * @var $minify_cache null | File
-     */
-    public $minify_cache = null;
 
     public function __construct()
     {
         $this->assets = new Assets($this);
+        $this->render = new Render();
         $this->copy();
     }
 
@@ -85,7 +75,7 @@ class Controller
         return $find;
     }
 
-    public function virtual($controller, $action = false, $uri = false)
+    public function virtual($controller, $action = false, $uri = [])
     {
         Winged::$controller_page = $controller;
         if ($action === false) {
@@ -138,6 +128,10 @@ class Controller
         return false;
     }
 
+    /**
+     * @return array|bool
+     * @throws \ReflectionException
+     */
     public function find()
     {
         if (!$this->reset()) {
@@ -181,9 +175,6 @@ class Controller
                             } catch (\Exception $error) {
                                 return true;
                             }
-                        }
-                        if (Error::exists() && WingedConfig::$config->CONTROLLER_DEBUG) {
-                            Error::display(__LINE__, __FILE__);
                         }
                         return true;
                     }
@@ -455,208 +446,171 @@ class Controller
         $this->head_path = null;
     }
 
-    public function renderHtml($path, $vars = [], $loads = [])
+    public function html($path, $vars = [])
     {
-        $path = $this->getViewFile($path);
-        if (file_exists($path) && !is_directory($path)) {
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($loads as $key => $value) {
-                if (file_exists($value) && !is_directory($value)) {
-                    include_once $value;
-                }
-            }
-            if ($this->first_render) {
-                $this->first_render = false;
-                Buffer::reset();
-                $file = new File($path, false);
-                $read = $file->read();
-                $_pos = stripos($read, '?>');
-                if (is_int($_pos)) {
-                    if ($_pos > 0) {
-                        $read = "\n?>\n" . trim($read);
-                    }
-                } else {
-                    $read = "\n?>\n" . trim($read);
-                }
-                if ($read[strlen($read) - 1] != ';') {
-                    $read = $read . "\n<?php\n";
-                }
-                eval($read);
-                $content = Buffer::getKill();
-                Buffer::reset();
-                ?>
-                <!doctype html>
-                <html>
-                <?php
-                $created = $this->pureHtml($content);
-                ?>
-                </html>
-                <?php
-                $content = Buffer::getKill();
-                $rep = [];
-                $match = false;
-                $matchs = null;
-                if (is_int(stripos($content, '<textarea'))) {
-                    $match = preg_match_all('#<textarea(.*?)>(.*?)</textarea>#is', $content, $matchs);
-                    if ($match) {
-                        foreach ($matchs[0] as $match) {
-                            $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
-                        }
-                        $content = str_replace($matchs[0], $rep, $content);
-                    }
-                }
-                $match_code = false;
-                $matchs_code = null;
-                if (is_int(stripos($content, '<code'))) {
-                    $match_code = preg_match_all('#<code(.*?)>(.*?)</code>#is', $content, $matchs_code);
-                    if ($match_code) {
-                        foreach ($matchs_code[0] as $match_code) {
-                            $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
-                        }
-                        $content = str_replace($matchs_code[0], $rep, $content);
-                    }
-                }
-                $content = preg_replace('#> <#', '><', preg_replace('# {2,}#', ' ', preg_replace('/[\n\r]|/', '', $content)));
+        $content = $this->render->_render($this->view($path), $vars);
+        if ($content) {
+            //$content = $this->pureHtml($content);
+            $rep = [];
+            $match = false;
+            $matchs = null;
+            if (is_int(stripos($content, '<textarea'))) {
+                $match = preg_match_all('#<textarea(.*?)>(.*?)</textarea>#is', $content, $matchs);
                 if ($match) {
-                    $content = str_replace($rep, $matchs[0], $content);
+                    foreach ($matchs[0] as $match) {
+                        $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                    }
+                    $content = str_replace($matchs[0], $rep, $content);
                 }
+            }
+            $match_code = false;
+            $matchs_code = null;
+            if (is_int(stripos($content, '<code'))) {
+                $match_code = preg_match_all('#<code(.*?)>(.*?)</code>#is', $content, $matchs_code);
                 if ($match_code) {
-                    $content = str_replace($rep, $matchs_code[0], $content);
+                    foreach ($matchs_code[0] as $match_code) {
+                        $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                    }
+                    $content = str_replace($matchs_code[0], $rep, $content);
                 }
+            }
+            $content = preg_replace('#> <#', '><', preg_replace('# {2,}#', ' ', preg_replace('/[\n\r]|/', '', $content)));
+            if ($match) {
+                $content = str_replace($rep, $matchs[0], $content);
+            }
+            if ($match_code) {
+                $content = str_replace($rep, $matchs_code[0], $content);
+            }
 
+            global $__base__;
+            $__base__ = false;
+
+            preg_replace_callback('#<base.+?href="([^"]*)".*?/?>#i', function ($found) {
                 global $__base__;
-                $__base__ = false;
+                $__base__ = $found[1];
+                if ($__base__ == "") {
+                    $__base__ = false;
+                }
+            }, $content);
 
-                preg_replace_callback('#<base.+?href="([^"]*)".*?/?>#i', function ($found) {
-                    global $__base__;
-                    $__base__ = $found[1];
-                    if ($__base__ == "") {
-                        $__base__ = false;
-                    }
-                }, $content);
+            $perms_tags = [
+                'script' => '#<script.+?src="([^"]*)".*?/?>#i',
+                'img' => '#<img.+?src="([^"]*)".*?/?>#i',
+                'source' => '#<source.+?src="([^"]*)".*?/?>#i',
+                'link' => '#<link.+?href="([^"]*)".*?/?>#i',
+            ];
 
-                $perms_tags = [
-                    'script' => '#<script.+?src="([^"]*)".*?/?>#i',
-                    'img' => '#<img.+?src="([^"]*)".*?/?>#i',
-                    'source' => '#<source.+?src="([^"]*)".*?/?>#i',
-                    'link' => '#<link.+?href="([^"]*)".*?/?>#i',
-                ];
+            $unicid_assets = [];
 
-                $unicid_assets = [];
+            Container::$self->attach('__resolve_pattern_parser___', function ($matches) {
+                $full_string = $matches[0];
+                $only_match = $matches[1];
+                $base = false;
 
-                Container::$self->attach('__resolve_pattern_parser___', function ($matches) {
-                    $full_string = $matches[0];
-                    $only_match = $matches[1];
-                    $base = false;
-
-                    if (is_string(Container::$self->__base__)) {
-                        $base = str_replace(
-                            [
-                                Winged::$protocol,
-                                Winged::$http,
-                                Winged::$https,
-                            ],
-                            '',
-                            Container::$self->__base__
-                        );
-                    }
-
-                    $copy_match = WingedLib::clearPath($only_match);
-                    $copy_match = str_replace(
+                if (is_string(Container::$self->__base__)) {
+                    $base = str_replace(
                         [
                             Winged::$protocol,
                             Winged::$http,
                             Winged::$https,
                         ],
                         '',
-                        $copy_match
+                        Container::$self->__base__
                     );
-                    if (is_string($base)) {
-                        $file = new File(WingedLib::normalizePath($base) . $copy_match, false);
-                        $mime = explode('/', $file->getMimeType());
-                        $mime = $mime[0];
-                        if (($file->exists() && in_array($file->getExtension(), [
-                                    'json',
-                                    'html',
-                                    'xml',
-                                    'css',
-                                    'htm',
-                                    'js',
-                                    'svg'
-                                ])) || (($file->exists() && $mime == 'image'))) {
-                            if (
-                                (!is_int(stripos($copy_match, 'https://')) &&
-                                    !is_int(stripos($copy_match, 'http://')) &&
-                                    !is_int(stripos($copy_match, '//'))) ||
-                                (is_int(stripos($copy_match, Winged::$http)) ||
-                                    is_int(stripos($copy_match, Winged::$https))
-                                )
-                            ) {
-                                $copy_match = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode(WingedLib::normalizePath($base) . $copy_match);
-                                $full_string = str_replace($only_match, $copy_match, $full_string);
-                                $only_match = $copy_match;
-                            }
-                        }
-                    }
-
-
-                    if (in_array(Container::$self->__tag__, Container::$self->unicid_assets)) {
-                        if (is_int(stripos($only_match, '?'))) {
-                            $full_string = str_replace($only_match, $only_match . '&get=' . RandomName::generate('sisisi'), $full_string);
-                        } else {
-                            $full_string = str_replace($only_match, $only_match . '?get=' . RandomName::generate('sisisi'), $full_string);
-                        }
-                    }
-
-                    return $full_string;
-
-                });
-
-                if (is_array(WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS)) {
-                    $unicid_assets = WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS;
                 }
 
-                if (!empty($unicid_assets) || WingedConfig::$config->ADD_CACHE_CONTROL) {
-
-                    Container::$self->unicid_assets = $unicid_assets;
-                    Container::$self->__base__ = $__base__;
-
-                    foreach ($perms_tags as $tag => $pattern) {
-                        Container::$self->__tag__ = $tag;
-                        $content = preg_replace_callback($pattern, [Container::$self, '__resolve_pattern_parser___'], $content);
+                $copy_match = WingedLib::clearPath($only_match);
+                $copy_match = str_replace(
+                    [
+                        Winged::$protocol,
+                        Winged::$http,
+                        Winged::$https,
+                    ],
+                    '',
+                    $copy_match
+                );
+                if (is_string($base)) {
+                    $file = new File(WingedLib::normalizePath($base) . $copy_match, false);
+                    $mime = explode('/', $file->getMimeType());
+                    $mime = $mime[0];
+                    if (($file->exists() && in_array($file->getExtension(), [
+                                'json',
+                                'html',
+                                'xml',
+                                'css',
+                                'htm',
+                                'js',
+                                'svg'
+                            ])) || (($file->exists() && $mime == 'image'))) {
+                        if (
+                            (!is_int(stripos($copy_match, 'https://')) &&
+                                !is_int(stripos($copy_match, 'http://')) &&
+                                !is_int(stripos($copy_match, '//'))) ||
+                            (is_int(stripos($copy_match, Winged::$http)) ||
+                                is_int(stripos($copy_match, Winged::$https))
+                            )
+                        ) {
+                            $copy_match = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode(WingedLib::normalizePath($base) . $copy_match);
+                            $full_string = str_replace($only_match, $copy_match, $full_string);
+                            $only_match = $copy_match;
+                        }
                     }
                 }
 
-                if ($created) {
-                    $minified = array_shift($this->css);
-                    $file = new File($minified['string'], false);
-                    $file_content = $file->read();
-                    $originals = [];
-                    $replaces = [];
-                    $trades = [];
-                    if ($file->exists()) {
-                        if (Container::$self->__css_paths__) {
-                            foreach (Container::$self->__css_paths__ as $path => $paths) {
-                                $path = new File($path, false);
-                                if ($path->exists()) {
-                                    foreach ($paths as $files) {
-                                        if (!empty($files)) {
-                                            $target_original = str_replace(['"', "'"], '', $files['file']);
-                                            $target = new File($path->folder->folder . $target_original, false);
-                                            if ($target->exists()) {
-                                                $originals[] = $files['file'];
+
+                if (in_array(Container::$self->__tag__, Container::$self->unicid_assets)) {
+                    if (is_int(stripos($only_match, '?'))) {
+                        $full_string = str_replace($only_match, $only_match . '&get=' . RandomName::generate('sisisi'), $full_string);
+                    } else {
+                        $full_string = str_replace($only_match, $only_match . '?get=' . RandomName::generate('sisisi'), $full_string);
+                    }
+                }
+
+                return $full_string;
+
+            });
+
+            if (is_array(WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS)) {
+                $unicid_assets = WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS;
+            }
+
+            if (!empty($unicid_assets) || WingedConfig::$config->ADD_CACHE_CONTROL) {
+
+                Container::$self->unicid_assets = $unicid_assets;
+                Container::$self->__base__ = $__base__;
+
+                foreach ($perms_tags as $tag => $pattern) {
+                    Container::$self->__tag__ = $tag;
+                    $content = preg_replace_callback($pattern, [Container::$self, '__resolve_pattern_parser___'], $content);
+                }
+            }
+
+            /*
+            if ($content) {
+                $minified = array_shift($this->css);
+                $file = new File($minified['string'], false);
+                $file_content = $file->read();
+                $originals = [];
+                $replaces = [];
+                $trades = [];
+                if ($file->exists()) {
+                    if (Container::$self->__css_paths__) {
+                        foreach (Container::$self->__css_paths__ as $path => $paths) {
+                            $path = new File($path, false);
+                            if ($path->exists()) {
+                                foreach ($paths as $files) {
+                                    if (!empty($files)) {
+                                        $target_original = str_replace(['"', "'"], '', $files['file']);
+                                        $target = new File($path->folder->folder . $target_original, false);
+                                        if ($target->exists()) {
+                                            $originals[] = $files['file'];
+                                            $replaces[] = RandomName::generate('sisis', false, false);
+                                            $trades[] = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($target->file_path);
+
+                                            if ($target_original != $files['file']) {
+                                                $originals[] = $target_original;
                                                 $replaces[] = RandomName::generate('sisis', false, false);
-                                                $trades[] = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($target->file_path);
-
-                                                if ($target_original != $files['file']) {
-                                                    $originals[] = $target_original;
-                                                    $replaces[] = RandomName::generate('sisis', false, false);
-                                                    $trades[] = end($trades);
-                                                }
+                                                $trades[] = end($trades);
                                             }
                                         }
                                     }
@@ -664,34 +618,24 @@ class Controller
                             }
                         }
                     }
-                    $file_content = str_replace($originals, $replaces, $file_content);
-                    $file_content = str_replace($replaces, $trades, $file_content);
-                    $file->write($file_content);
                 }
-                $response = new HttpResponseHandler();
-                $response->dispatchHtml($content, true);
-            } else {
-                $file = new File($path, false);
-                $read = $file->read();
-                $_pos = stripos($read, '?>');
-                if (is_int($_pos)) {
-                    if ($_pos > 0) {
-                        $read = "\n?>\n" . trim($read);
-                    }
-                } else {
-                    $read = "\n?>\n" . trim($read);
-                }
-                if ($read[strlen($read) - 1] != ';') {
-                    $read = $read . "\n<?php\n";
-                }
-                eval($read);
-            }
-        } else {
-            Error::push(__CLASS__, "file " . $path . " can't rendred because file not found.", __FILE__, __LINE__);
+                $file_content = str_replace($originals, $replaces, $file_content);
+                $file_content = str_replace($replaces, $trades, $file_content);
+                $file->write($file_content);
+            }*/
+            return $this->channelingRender($content, 'html');
         }
+        return false;
     }
 
-    private function getViewFile($path)
+    /**
+     * return view path has file path
+     *
+     * @param $path
+     *
+     * @return string
+     */
+    private function view($path)
     {
         $path .= '.php';
         return self::$VIEWS_PATH . $path;
@@ -1054,323 +998,69 @@ class Controller
         return $this->head_path;
     }
 
-    public function returnContent($path, $vars = [], $loads = [])
-    {
-        $path = $this->getViewFile($path);
-        if (file_exists($path) && !is_directory($path)) {
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($loads as $key => $value) {
-                if (file_exists($value) && !is_directory($value)) {
-                    include_once $value;
-                }
-            }
-            if (Winged::$controller_debug) {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    if (Error::exists()) {
-                        Error::display(__LINE__, __FILE__);
-                    }
-                    $content = Buffer::get();
-                    Buffer::kill();
-                    return $content;
-                } else {
-                    include_once $path;
-                }
-            } else {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    $content = Buffer::get();
-                    Buffer::kill();
-                    return $content;
-                } else {
-                    include_once $path;
-                }
-            }
-            if ($this->callable !== null) {
-                call_user_func($this->callable);
-            }
-        } else {
-            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
-        }
-    }
 
-    public function renderAnyFile($path, $vars = [], $loads = [])
+    public function file($path, $vars = [])
     {
-        if (file_exists($path) && !is_directory($path)) {
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($loads as $key => $value) {
-                if (file_exists($value) && !is_directory($value)) {
-                    include_once $value;
-                }
-            }
-            if (Winged::$controller_debug) {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    if (Error::exists()) {
-                        Error::display(__LINE__, __FILE__);
-                    }
-                    $content = Buffer::get();
-                    Buffer::kill();
-                    echo $content;
-                } else {
-                    include_once $path;
-                }
-            } else {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    $content = Buffer::get();
-                    Buffer::kill();
-                    echo $content;
-                } else {
-                    include_once $path;
-                }
-            }
-            if ($this->callable !== null) {
-                call_user_func($this->callable);
-            }
-        } else {
-            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
-        }
-    }
-
-    public function renderPartial($path, $vars = [], $loads = [], $return = false)
-    {
-        $path = $this->getViewFile($path);
-        if (file_exists($path) && !is_directory($path)) {
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($loads as $key => $value) {
-                if (file_exists($value) && !is_directory($value)) {
-                    include_once $value;
-                }
-            }
-            if (Winged::$controller_debug) {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    if (Error::exists()) {
-                        Error::display(__LINE__, __FILE__);
-                    }
-                    $content = Buffer::get();
-                    Buffer::kill();
-                    if ($return) {
-                        return $content;
-                    }
-                    echo $content;
-                } else {
-                    include_once $path;
-                }
-            } else {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    $content = Buffer::get();
-                    Buffer::kill();
-                    if ($return) {
-                        return $content;
-                    }
-                    echo $content;
-                } else {
-                    include_once $path;
-                }
-            }
-            if ($this->callable !== null) {
-                call_user_func($this->callable);
-            }
-        } else {
-            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
+        $content = $this->render->_render($path, $vars);
+        if ($content) {
+            return $this->channelingRender($content, 'html');
         }
         return false;
     }
 
-    public function renderJson($path, $vars = [], $loads = [])
+    public function partial($path, $vars = [], $return = false)
     {
-        $path = $this->getViewFile($path);
-        if (file_exists($path) && !is_directory($path)) {
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
+        $content = $this->render->_render($this->view($path), $vars);
+        if ($content) {
+            if($return){
+                return $content;
             }
-            foreach ($vars as $key => $value) {
-                if (!is_int($key) && is_string($key)) {
-                    ${$key} = $value;
-                }
-            }
-            foreach ($loads as $key => $value) {
-                if (file_exists($value) && !is_directory($value)) {
-                    include_once $value;
-                }
-            }
-            if (Winged::$controller_debug) {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    if (Error::exists()) {
-                        Error::display(__LINE__, __FILE__);
-                    }
-                    Buffer::kill();
-                    $this->array2json();
-                } else {
-                    include_once $path;
-                }
-            } else {
-                if ($this->first_render) {
-                    $this->first_render = false;
-                    Buffer::reset();
-                    include_once $path;
-                    Buffer::kill();
-                    $this->array2json();
-                } else {
-                    include_once $path;
-                }
-            }
-            if ($this->callable !== null) {
-                call_user_func($this->callable);
-            }
-        } else {
-            Error::push(__CLASS__, "file {$path} can't rendred because file not found.", __FILE__, __LINE__);
+            return $this->channelingRender($content, 'html');
         }
+        return false;
     }
 
-    private function array2json()
+    public function json($path, $vars = [], $return = false)
     {
-        echo json_encode($this->tojson);
-    }
-
-    public function addToJsonResponse($value, $index_name = '')
-    {
-        if (!array_key_exists($index_name, $this->tojson) && gettype($index_name) === 'string') {
-            $this->tojson[$index_name] = $value;
-        } else {
-            if (array_key_exists($index_name, $this->tojson)) {
-                array_push($this->tojson, $value);
-            } else {
-                $this->tojson[$index_name] = $value;
+        $content = $this->render->_render($this->view($path), $vars);
+        if ($content) {
+            if($return){
+                return $content;
             }
+            return $this->channelingRender($content, 'json');
         }
-        return true;
+        return false;
     }
 
-    public function removeJs($identifier)
+    /**
+     * channel all final render calls to this function, check if an error exists and if not, dispatch http response with content
+     *
+     * @param        $content
+     * @param string $type
+     *
+     * @return bool
+     */
+    private function channelingRender($content, $type = 'html')
     {
-        array_push($this->remove_js, $identifier);
-        return;
-    }
-
-    public function removeCss($identifier)
-    {
-        array_push($this->remove_css, $identifier);
-        return;
-    }
-
-    public function addJs($identifier, $string, $options = [], $url = false)
-    {
-        if (file_exists($string) && !is_directory($string) && !$url) {
-            if (array_key_exists($identifier, $this->js)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, js file '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->js[$identifier] = [];
-            $this->js[$identifier]['string'] = $string;
-            $this->js[$identifier]['type'] = 'file';
-            $this->js[$identifier]['options'] = $options;
-        } else if (!$url) {
-            if (array_key_exists($identifier, $this->js)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->js[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
-            }
-            $this->js[$identifier] = [];
-            $this->js[$identifier]['string'] = $string;
-            $this->js[$identifier]['type'] = 'script';
-            $this->js[$identifier]['options'] = $options;
-        } else if ($url) {
-            if (array_key_exists($identifier, $this->js)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->js[$identifier] = [];
-            $this->js[$identifier]['string'] = $string;
-            $this->js[$identifier]['type'] = 'url';
-            $this->js[$identifier]['options'] = $options;
+        if (Error::exists()) {
+            Error::display();
         }
-        return;
-    }
-
-    public function addCss($identifier, $string, $options = [], $url = false)
-    {
-        if (file_exists($string) && !is_directory($string) && !$url) {
-            if (array_key_exists($identifier, $this->css)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script file '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->css[$identifier] = [];
-            $this->css[$identifier]['string'] = $string;
-            $this->css[$identifier]['type'] = 'file';
-            $this->css[$identifier]['options'] = $options;
-        } else if (!$url) {
-            if (array_key_exists($identifier, $this->css)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css '" . htmlspecialchars($this->css[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
-            }
-            $this->css[$identifier] = [];
-            $this->css[$identifier]['string'] = $string;
-            $this->css[$identifier]['type'] = 'script';
-            $this->css[$identifier]['options'] = $options;
-        } else if ($url) {
-            if (array_key_exists($identifier, $this->css)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css url '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->css[$identifier] = [];
-            $this->css[$identifier]['string'] = $string;
-            $this->css[$identifier]['type'] = 'url';
-            $this->css[$identifier]['options'] = $options;
+        $response = new HttpResponseHandler();
+        switch ($type) {
+            case 'html':
+                $response->dispatchHtml($content, false);
+                return true;
+                break;
+            case 'json':
+                $response->dispatchJson($content, false);
+                return true;
+                break;
+            case 'xml':
+                $response->dispatchXml($content, false);
+                return true;
+                break;
         }
-        return;
-    }
-
-    public function pushAbstractHead($identifier, $string)
-    {
-        $this->appended_abstract_head_content[$identifier] = $string;
-    }
-
-    public function removeAbstractHead($identifier)
-    {
-        if (array_key_exists($identifier, $this->appended_abstract_head_content)) {
-            unset($this->appended_abstract_head_content[$identifier]);
-        }
+        return false;
     }
 
 }

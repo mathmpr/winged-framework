@@ -44,8 +44,6 @@ abstract class Model extends AbstractEloquent
     public function __construct()
     {
         parent::__construct();
-        trigger_error('fodase', E_USER_ERROR);
-        echo $j;
         $this->tableFields();
         if (!$this->extras) {
             $this->extras = new \stdClass();

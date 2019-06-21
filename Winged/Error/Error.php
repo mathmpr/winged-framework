@@ -225,6 +225,7 @@ class Error
             </html>
             <?php
             Buffer::flush();
+            Error::clear();
             if ($exit) {
                 exit;
             }

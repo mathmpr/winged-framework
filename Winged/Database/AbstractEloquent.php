@@ -25,7 +25,7 @@ class AbstractEloquent
     {
         try {
             $reflection = new \ReflectionClass(get_class(CurrentDB::$current->queryStringHandler));
-            $this->eloquent = $reflection->newInstanceArgs([CurrentDB::$current, $this]);
+            $this->eloquent = $reflection->newInstanceArgs([&CurrentDB::$current, &$this]);
         } catch (\ReflectionException $exception) {
             return false;
         }
