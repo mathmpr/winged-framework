@@ -18,9 +18,10 @@ WingedHead::init();
 
 /**
  * This class its a main class of Winged
- * @version 1.8.3.5
- * @access public static object
- * @author Matheus Prado Rodrigues
+ *
+ * @version       1.8.3.5
+ * @access        public static object
+ * @author        Matheus Prado Rodrigues
  * @copyright (c) 2017, Winged Framework
  */
 class Winged
@@ -69,13 +70,12 @@ class Winged
     public static $ob_buffer = false;
 
     /**
-     * @access public
+     * @access  public
      * @example Winged::start() this method starts all of winged, don't call this method again.
      * @return void
      */
     public static function start()
     {
-
         self::$have_https_protocol_in_request = false;
         self::$have_www_in_request = false;
 
@@ -166,7 +166,7 @@ class Winged
             } else {
                 $location = str_replace('http://', 'http://www.', self::$full_url_provider);
             }
-            if($location[strlen($location) - 2] === '/' && $location[strlen($location) - 1] === '/'){
+            if ($location[strlen($location) - 2] === '/' && $location[strlen($location) - 1] === '/') {
                 $location = substr_replace($location, '', (strlen($location) - 1), 1);
             }
         }
@@ -212,7 +212,7 @@ class Winged
                 Buffer::kill();
                 $response = new HttpResponseHandler();
                 $response->dispatchFile($file);
-            }else{
+            } else {
                 header('HTTP/1.0 404 Not Found');
             }
             exit;
@@ -363,6 +363,7 @@ class Winged
 
     /**
      * return page name or controler name, current dir of application and params founded in uri
+     *
      * @return array
      */
     private static function getdir()

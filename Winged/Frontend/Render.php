@@ -2,6 +2,7 @@
 
 namespace Winged\Frontend;
 
+use Winged\Controller\Controller;
 use Winged\File\File;
 use Winged\Buffer\Buffer;
 
@@ -12,7 +13,7 @@ use Winged\Buffer\Buffer;
  *
  * @package Winged\Frontend
  */
-class Render
+class Render extends Assets
 {
 
     /**
@@ -20,6 +21,11 @@ class Render
      */
     public $first_render = true;
 
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     /**
      * abstraction for render
@@ -29,7 +35,7 @@ class Render
      *
      * @return bool|string
      */
-    public function _render($path, $vars = [])
+    protected function _render($path, $vars = [])
     {
         if (file_exists($path) && !is_directory($path)) {
             return $this->_include($path, $vars);
@@ -47,7 +53,7 @@ class Render
      *
      * @return bool|string
      */
-    public function _include($path, $vars = [])
+    private function _include($path, $vars = [])
     {
         if (is_array($vars)) {
             foreach ($vars as $key => $value) {

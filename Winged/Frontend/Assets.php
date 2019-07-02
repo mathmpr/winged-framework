@@ -3,7 +3,9 @@
 namespace Winged\Frontend;
 
 use Winged\Controller\Controller;
+use Winged\File\File;
 use Winged\Winged;
+use \WingedConfig;
 
 /**
  * Class Assets
@@ -13,147 +15,182 @@ use Winged\Winged;
 class Assets
 {
     /**
-     * @var $controller Controller
-     */
-    private $controller = null;
-
-    /**
      * @var $js array store path and options for js files
      */
-    public $js = [];
+    private $js = [];
 
     /**
      * @var $css array store path and options for css files
      */
-    public $css = [];
-
-    /**
-     * @var $remove_css array store path and options for css files
-     */
-    private $remove_css = [];
-
-    /**
-     * @var $remove_js array store path and options for css files
-     */
-    private $remove_js = [];
-
-    /**
-     * @var $head_path null | string store real path to file with head content
-     */
-    private $head_path = null;
+    private $css = [];
 
     /**
      * @var $appended_abstract_head_content array store any content for append inside <head></head>
      */
-    public $appended_abstract_head_content = [];
-    /**
-     * @var $minify_cache null | File
-     */
-    public $minify_cache = null;
+    private $appended_abstract_head_content = [];
 
     /**
-     * @var $minifyJs MinifyJS
+     * @var $minifyJs MinifyMasterJS
      */
-    public $minifyJs;
+    private $minifyJs;
 
     /**
-     * @var $minifyCss MinifyCSS
+     * @var $minifyCss MinifyMasterCSS
      */
-    public $minifyCss;
+    private $minifyCss;
 
     /**
      * Assets constructor.
-     *
-     * @param Controller|null $controller
      */
-    public function __construct(Controller $controller = null)
+    public function __construct()
     {
-        $this->minifyJs = new MinifyJS();
-        $this->minifyCss = new MinifyCSS();
-        $this->controller = $controller;
+        $this->minifyJs = new MinifyJS($this);
+        $this->minifyCss = new MinifyCSS($this);
     }
 
+    /**
+     * remove js from assets stack
+     *
+     * @param $identifier
+     *
+     * @return bool
+     */
     public function removeJs($identifier)
     {
-        array_push($this->remove_js, $identifier);
-        return;
+        if (array_key_exists($identifier, $this->js)) {
+            unset($this->js[$identifier]);
+            return true;
+        }
+        return false;
     }
 
+    /**
+     * remove css from assets stack
+     *
+     * @param $identifier
+     *
+     * @return bool
+     */
     public function removeCss($identifier)
     {
-        array_push($this->remove_css, $identifier);
-        return;
-    }
-
-    public function addJs($identifier, $string, $options = [], $url = false)
-    {
-        if (file_exists($string) && !is_directory($string) && !$url) {
-            if (array_key_exists($identifier, $this->js)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, js file '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->js[$identifier] = [];
-            $this->js[$identifier]['string'] = $string;
-            $this->js[$identifier]['type'] = 'file';
-            $this->js[$identifier]['options'] = $options;
-        } else if (!$url) {
-            if (array_key_exists($identifier, $this->js)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->js[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
-            }
-            $this->js[$identifier] = [];
-            $this->js[$identifier]['string'] = $string;
-            $this->js[$identifier]['type'] = 'script';
-            $this->js[$identifier]['options'] = $options;
-        } else if ($url) {
-            if (array_key_exists($identifier, $this->js)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->js[$identifier] = [];
-            $this->js[$identifier]['string'] = $string;
-            $this->js[$identifier]['type'] = 'url';
-            $this->js[$identifier]['options'] = $options;
+        if (array_key_exists($identifier, $this->css)) {
+            unset($this->css[$identifier]);
+            return true;
         }
-        return;
+        return false;
     }
 
-    public function addCss($identifier, $string, $options = [], $url = false)
+    /**
+     * append an abstract head content from head content stack
+     *
+     * @param string $identifier
+     * @param string $contentOrFilePath
+     *
+     * @return bool
+     */
+    public function appendAbstractHead($identifier, $contentOrFilePath)
     {
-        if (file_exists($string) && !is_directory($string) && !$url) {
-            if (array_key_exists($identifier, $this->css)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script file '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->css[$identifier] = [];
-            $this->css[$identifier]['string'] = $string;
-            $this->css[$identifier]['type'] = 'file';
-            $this->css[$identifier]['options'] = $options;
-        } else if (!$url) {
-            if (array_key_exists($identifier, $this->css)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css '" . htmlspecialchars($this->css[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
-            }
-            $this->css[$identifier] = [];
-            $this->css[$identifier]['string'] = $string;
-            $this->css[$identifier]['type'] = 'script';
-            $this->css[$identifier]['options'] = $options;
-        } else if ($url) {
-            if (array_key_exists($identifier, $this->css)) {
-                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, css url '" . $this->css[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
-            }
-            $this->css[$identifier] = [];
-            $this->css[$identifier]['string'] = $string;
-            $this->css[$identifier]['type'] = 'url';
-            $this->css[$identifier]['options'] = $options;
+        $file = new File($contentOrFilePath, false);
+        if ($file->exists()) {
+            $this->appended_abstract_head_content[$identifier] = $file->read();
         }
-        return;
+        $this->appended_abstract_head_content[$identifier] = $contentOrFilePath;
+        return true;
     }
 
-    public function pushAbstractHead($identifier, $string)
-    {
-        $this->appended_abstract_head_content[$identifier] = $string;
-    }
-
+    /**
+     * remove an abstract head content from head content stack
+     *
+     * @param string $identifier
+     *
+     * @return bool
+     */
     public function removeAbstractHead($identifier)
     {
         if (array_key_exists($identifier, $this->appended_abstract_head_content)) {
             unset($this->appended_abstract_head_content[$identifier]);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * append js path or content into assets stack
+     *
+     * @param       $identifier
+     * @param       $contentOrFilePath
+     * @param array $options
+     * @param bool  $url
+     *
+     * @return bool
+     */
+    public function appendJs($identifier, $contentOrFilePath, $options = [], $url = false)
+    {
+        return $this->append('js', $identifier, $contentOrFilePath, $options, $url);
+    }
+
+    /**
+     * append css path or content into assets stack
+     *
+     * @param string $identifier
+     * @param string $contentOrFilePath
+     * @param array  $options
+     * @param bool   $url
+     *
+     * @return bool
+     */
+    public function appendCss($identifier, $contentOrFilePath, $options = [], $url = false)
+    {
+        return $this->append('css', $identifier, $contentOrFilePath, $options, $url);
+    }
+
+    /**
+     *
+     *
+     * @param string $property
+     * @param string $identifier
+     * @param string $contentOrFilePath
+     * @param array  $options
+     * @param bool   $url
+     *
+     * @return bool
+     */
+    private function append($property, $identifier, $contentOrFilePath, $options = [], $url = false)
+    {
+        if (file_exists($contentOrFilePath) && !is_directory($contentOrFilePath) && !$url) {
+            if (array_key_exists($identifier, $this->js)) {
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, js file '" . $this->js[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
+            }
+            $this->{$property}[$identifier] = [];
+            $this->{$property}[$identifier]['string'] = $contentOrFilePath;
+            $this->{$property}[$identifier]['type'] = 'file';
+            $this->{$property}[$identifier]['options'] = $options;
+            return true;
+        } else if (!$url) {
+            if (array_key_exists($identifier, $this->{$property})) {
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script '" . htmlspecialchars($this->{$property}[$identifier]['string']) . "' never load.", __FILE__, __LINE__);
+            }
+            $this->{$property}[$identifier] = [];
+            $this->{$property}[$identifier]['string'] = $contentOrFilePath;
+            $this->{$property}[$identifier]['type'] = 'script';
+            $this->{$property}[$identifier]['options'] = $options;
+            return true;
+        } else if ($url) {
+            if (array_key_exists($identifier, $this->{$property})) {
+                Error::push(__CLASS__, "Index '" . $identifier . "' was doubled, script url '" . $this->{$property}[$identifier]['string'] . "' never load.", __FILE__, __LINE__);
+            }
+            $this->{$property}[$identifier] = [];
+            $this->{$property}[$identifier]['string'] = $contentOrFilePath;
+            $this->{$property}[$identifier]['type'] = 'url';
+            $this->{$property}[$identifier]['options'] = $options;
+            return true;
+        }
+        return false;
+    }
+
+    protected function activeMinify(){
+        if(WingedConfig::$config->AUTO_MINIFY !== false){
+
         }
     }
 

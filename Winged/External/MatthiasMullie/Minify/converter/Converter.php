@@ -72,9 +72,9 @@ class Converter implements ConverterInterface
 
         /*
          * Example:
-         *     /home/forkcms/frontend/cache/compiled_templates/../../core/layout/css/../images/img.gif
+         *     /home/forkcms/queryTablesInfo/cache/compiled_templates/../../core/layout/css/../images/img.gif
          * to
-         *     /home/forkcms/frontend/core/layout/images/img.gif
+         *     /home/forkcms/queryTablesInfo/core/layout/images/img.gif
          */
         do {
             $path = preg_replace('/[^\/]+(?<!\.\.)\/\.\.\//', '', $path, -1, $count);
@@ -87,7 +87,7 @@ class Converter implements ConverterInterface
      * Figure out the shared path of 2 locations.
      *
      * Example:
-     *     /home/forkcms/frontend/core/layout/images/img.gif
+     *     /home/forkcms/queryTablesInfo/core/layout/images/img.gif
      * and
      *     /home/forkcms/frontend/cache/minified_css
      * share

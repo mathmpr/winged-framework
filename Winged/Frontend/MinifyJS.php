@@ -10,9 +10,23 @@ use Winged\Buffer\Buffer;
  *
  * Class MinifyJS
  *
- * @package Winged\Frontwnd
+ * @package Winged\Frontend
  */
-class MinifyJS
+class MinifyJS extends MinifyMaster
 {
+
+    /**
+     * MinifyJS constructor.
+     *
+     * @param null $controller
+     */
+    public function __construct($controller = null)
+    {
+        $this->controller = $controller;
+        parent::__construct();
+    }
+
+
+
 
 }

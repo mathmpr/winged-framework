@@ -18,31 +18,32 @@ use WingedConfig;
 use Winged\Error\Error;
 use Winged\Buffer\Buffer;
 
-class Controller
+/**
+ * Class Controller
+ *
+ * @package Winged\Controller
+ */
+class Controller extends Render
 {
     public static $CONTROLLERS_PATH = './controllers/';
     public static $MODELS_PATH = './models/';
     public static $VIEWS_PATH = './views/';
 
-    public $controller_path = false;
-    public $controller_name = false;
-    public $action_name = false;
-    public $query_params = [];
-    public $method_args = [];
-    public $controller_reset = false;
-    public $body_class = null;
-    public $html_class = null;
-    private $render = null;
-    public $error_level = 0;
-    public $vect = [];
-    public $assets = null;
-    public $vitual_success = false;
+    private $controller_path = false;
+    private $controller_name = false;
+    private $action_name = false;
+    private $query_params = [];
+    private $method_args = [];
+    private $controller_reset = false;
+    private $body_class = null;
+    private $html_class = null;
+    private $error_level = 0;
+    private $vitual_success = false;
 
     public function __construct()
     {
-        $this->assets = new Assets($this);
-        $this->render = new Render();
         $this->copy();
+        parent::__construct();
     }
 
     public function dynamic($key, $value)
@@ -448,7 +449,10 @@ class Controller
 
     public function html($path, $vars = [])
     {
-        $content = $this->render->_render($this->view($path), $vars);
+        $content = $this->_render($this->view($path), $vars);
+
+        return $this->channelingRender($content, 'html');
+
         if ($content) {
             //$content = $this->pureHtml($content);
             $rep = [];
@@ -983,25 +987,9 @@ class Controller
         return json_decode($this->minify_cache->read(), true);
     }
 
-    private function makeAssetsSrc($src = '')
-    {
-        return Winged::$protocol . $src;
-    }
-
-    public function rewriteHeadContentPath($path)
-    {
-        $this->head_path = $path;
-    }
-
-    public function getHeadContentPath()
-    {
-        return $this->head_path;
-    }
-
-
     public function file($path, $vars = [])
     {
-        $content = $this->render->_render($path, $vars);
+        $content = $this->_render($path, $vars);
         if ($content) {
             return $this->channelingRender($content, 'html');
         }
@@ -1010,9 +998,9 @@ class Controller
 
     public function partial($path, $vars = [], $return = false)
     {
-        $content = $this->render->_render($this->view($path), $vars);
+        $content = $this->_render($this->view($path), $vars);
         if ($content) {
-            if($return){
+            if ($return) {
                 return $content;
             }
             return $this->channelingRender($content, 'html');
@@ -1022,9 +1010,9 @@ class Controller
 
     public function json($path, $vars = [], $return = false)
     {
-        $content = $this->render->_render($this->view($path), $vars);
+        $content = $this->_render($this->view($path), $vars);
         if ($content) {
-            if($return){
+            if ($return) {
                 return $content;
             }
             return $this->channelingRender($content, 'json');
@@ -1035,7 +1023,7 @@ class Controller
     /**
      * channel all final render calls to this function, check if an error exists and if not, dispatch http response with content
      *
-     * @param        $content
+     * @param string $content
      * @param string $type
      *
      * @return bool

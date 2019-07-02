@@ -111,6 +111,7 @@
     "./Winged/Frontend/Assets.php",
     "./Winged/Frontend/MinifyCSS.php",
     "./Winged/Frontend/MinifyJS.php",
+    "./Winged/Frontend/MinifyMaster.php",
     "./Winged/Frontend/Render.php",
     "./Winged/Http/Cookie.php",
     "./Winged/Http/HttpResponseHandler.php",

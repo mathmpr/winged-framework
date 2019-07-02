@@ -25,7 +25,8 @@ class File
 
     /**
      * File constructor.
-     * @param $file
+     *
+     * @param      $file
      * @param bool $forceCreate
      */
     public function __construct($file, $forceCreate = true)
@@ -119,7 +120,9 @@ class File
 
     /**
      * Attempts to rename the file if it exists. If the file exists, try to use the native rename and if it succeeds the file path will change.
+     *
      * @param $name
+     *
      * @return $this
      */
     public function rename($name)
@@ -153,7 +156,9 @@ class File
 
     /**
      * Cut the file to the specified location, if the location does not exist, the location will be created dynamically.
+     *
      * @param string $to
+     *
      * @return $this|File
      */
     public function crop($to = '')
@@ -171,7 +176,9 @@ class File
     /**
      * Copies the file to the specified location and returns a new File object with the path of that copied file.
      * If it fails in this process, the return of the method is the very object that made the call.
+     *
      * @param string $to
+     *
      * @return File
      */
     public function copy($to = '')
@@ -192,6 +199,7 @@ class File
 
     /**
      * Delete file if possible
+     *
      * @return bool
      */
     public function delete()
@@ -206,7 +214,9 @@ class File
 
     /**
      * Clear file and writes any content within a file.
+     *
      * @param string $content
+     *
      * @return $this|bool
      */
     public function write($content = '')
@@ -225,7 +235,9 @@ class File
 
     /**
      * Append any content within a file.
+     *
      * @param string $content
+     *
      * @return $this|bool
      */
     public function append($content = '')
@@ -244,6 +256,7 @@ class File
 
     /**
      * Returns a handler off a empty file
+     *
      * @return bool
      */
     public function getWriteHandler()
@@ -256,6 +269,7 @@ class File
 
     /**
      * Returns a handler a file with pointer in the EOF
+     *
      * @return bool
      */
     public function getAppendHandler()
@@ -268,6 +282,7 @@ class File
 
     /**
      * Read and return content of file
+     *
      * @return $this|bool|string
      */
     public function read()
@@ -280,7 +295,9 @@ class File
 
     /**
      * Change extension of file.
+     *
      * @param string $ext
+     *
      * @return $this
      */
     public function changeExtension($ext = '')
@@ -305,6 +322,7 @@ class File
 
     /**
      * Returns the file extension
+     *
      * @return string
      */
     public function getExtension()
@@ -317,10 +335,11 @@ class File
         return false;
     }
 
-    public function getMimeType(){
-        if($this->getExtension()){
+    public function getMimeType()
+    {
+        if ($this->getExtension()) {
             $ext = $this->getExtension();
-            if(array_key_exists($ext, $this->mime_types)){
+            if (array_key_exists($ext, $this->mime_types)) {
                 return $this->mime_types[$ext];
             }
         }
@@ -339,12 +358,13 @@ class File
 
     /**
      * Checks whether the file exists
+     *
      * @return $this|bool
      */
     public function exists()
     {
-        if ($this->folder != null) {
-            return $this;
+        if ($this->file_path != null) {
+            if (file_exists($this->file_path) && !is_dir($this->file_path)) return $this;
         }
         return false;
     }
