@@ -156,10 +156,29 @@ class WingedConfigDefaults
     public $USE_GZENCODE = false;
 
     /**
-     * @var bool
+     * @var $ADD_CACHE_CONTROL bool
      * this property tries to enable cache constrol for static files.
      */
     public $ADD_CACHE_CONTROL = true;
+
+    /**
+     * @var $USE_WINGED_FILE_HANDLER bool
+     * this property allow $ADD_CACHE_CONTROL and $USE_GZENCODE because for use gzencode and cache controll
+     * the system needs get content of the requested file and chanelling this content to a buffer for apply
+     * right http headers and convert content into valid gzencoded string
+     */
+    public $USE_WINGED_FILE_HANDLER = true;
+
+    /**
+     * @var $USE_CACHE_SYSTEM bool | int
+     * this property allow cache system, the logic is
+     * catch final buffer and save has a html associated at entire URI
+     * 1) @todo if auto minify assets ocurred, replace cached file with new cache file + new assets
+     * 2) @todo if an URI use command update or insert store affected models names into a json information,
+     * when other URI that use affected models names by update or insert remake cache file with new data fetched from database
+     * and replace old cached file with this new cache file
+     */
+    public $USE_CACHE_SYSTEM = true;
 
     /**
      * @property $INCLUDES array

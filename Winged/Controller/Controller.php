@@ -907,15 +907,16 @@ class Controller extends Render
         $this->createMinifiedCacheFileInformation();
         $read = $this->readMinifiedCacheFileInformation();
         $path = '';
-        foreach ($this->css as $identifier => $content) {
-            if (!in_array($identifier, $this->remove_css)) {
-                if ($content['type'] === 'file') {
-                    $path .= $content['string'];
-                }
-            }
-            $path = md5($path);
-        }
+
         if (WingedConfig::$config->AUTO_MINIFY) {
+            foreach ($this->css as $identifier => $content) {
+                if (!in_array($identifier, $this->remove_css)) {
+                    if ($content['type'] === 'file') {
+                        $path .= $content['string'];
+                    }
+                }
+                $path = md5($path);
+            }
             if (!array_key_exists($path, $read) && $path !== '') {
                 return $this->createCssMinifyNew($path, $read);
             } else {

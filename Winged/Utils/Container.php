@@ -4,6 +4,7 @@ namespace Winged\Utils;
 
 /**
  * Class Container
+ *
  * @package Winged\Container
  */
 class Container
@@ -32,13 +33,15 @@ class Container
         $this->methods[$name] = $binded;
     }
 
-    public function __set($name = '', $value = false){
-        if(is_string($name) && $name != ''){
+    public function __set($name = '', $value = false)
+    {
+        if (is_string($name) && $name != '') {
             $this->vars[$name] = $value;
         }
     }
 
-    public function __get($name){
+    public function __get($name)
+    {
         if (array_key_exists($name, $this->vars)) {
             return $this->vars[$name];
         }
@@ -53,7 +56,7 @@ class Container
 
         if (method_exists($this->target, $name)) {
             return call_user_func_array(
-                array($this->target, $name),
+                [$this->target, $name],
                 $arguments
             );
         }

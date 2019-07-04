@@ -17,12 +17,12 @@ class Assets
     /**
      * @var $js array store path and options for js files
      */
-    private $js = [];
+    public $js = [];
 
     /**
      * @var $css array store path and options for css files
      */
-    private $css = [];
+    public $css = [];
 
     /**
      * @var $appended_abstract_head_content array store any content for append inside <head></head>
@@ -46,6 +46,24 @@ class Assets
     {
         $this->minifyJs = new MinifyJS($this);
         $this->minifyCss = new MinifyCSS($this);
+    }
+
+    /**
+     * return js stack
+     *
+     * @return array
+     */
+    public function getJs(){
+        return $this->js;
+    }
+
+    /**
+     * return css stack
+     *
+     * @return array
+     */
+    public function getCss(){
+        return $this->css;
     }
 
     /**
