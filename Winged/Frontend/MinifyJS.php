@@ -2,6 +2,7 @@
 
 namespace Winged\Frontend;
 
+use Winged\Controller\Controller;
 use Winged\File\File;
 use Winged\Buffer\Buffer;
 
@@ -22,8 +23,16 @@ class MinifyJS extends MinifyMaster
      */
     public function __construct($controller = null)
     {
+        /**
+         * @var $controller null | Controller | Assets | Render
+         */
         $this->controller = $controller;
         parent::__construct();
+    }
+
+    public function activeMinify($path, $read)
+    {
+
     }
 
 

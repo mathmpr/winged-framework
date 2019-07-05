@@ -2,7 +2,8 @@
 
 namespace Winged\Frontend;
 
-use mysql_xdevapi\Exception;
+use \Exception;
+use Winged\Controller\Controller;
 use Winged\Date\Date;
 use Winged\File\File;
 use \WingedConfig;
@@ -14,20 +15,19 @@ use \WingedConfig;
  *
  * @package Winged\Frontend
  */
-class MinifyMaster
+abstract class MinifyMaster
 {
 
     /**
-     * @var null | Controller | Assets | Render $controller
+     * @var $controller null | Controller | Assets | Render
      */
     public $controller = null;
 
     /**
-     * @var null | File
+     * @var $minify_info null | File
      */
     public $minify_info = null;
 
-    abstract public function activeMinify($path, $read);
 
     /**
      * MinifyMaster constructor.
@@ -38,7 +38,17 @@ class MinifyMaster
     }
 
     /**
-     * @param bool $content
+     * @param $path string
+     * @param $read string
+     *
+     * @return mixed
+     */
+    abstract public function activeMinify($path, $read);
+
+    /**
+     * @param $content bool | string
+     *
+     * @return bool|File
      */
     protected function createMinify($content = false)
     {
@@ -47,9 +57,13 @@ class MinifyMaster
             $minify = new File('./minify.json');
         }
         if ($content) {
-            $minify->write($content);
+            if (is_array($content)) {
+                $content = json_encode($content);
+            }
+            return $minify->write($content);
         }
         $this->minify_info = $minify;
+        return false;
     }
 
     /**
@@ -70,7 +84,7 @@ class MinifyMaster
         return $read;
     }
 
-    protected function minify($property = null)
+    public function minify($property = null)
     {
         if (!$property || !is_string($property) || !($property !== 'css' || $property !== 'js')) {
             throw new Exception('minify method accept onde string with "css" or "js" values');
@@ -100,7 +114,7 @@ class MinifyMaster
                                     $renew = true;
                                 }
                             }
-                            if (!array_key_exists($former['identifier'], $this->controller{$property})) {
+                            if (!array_key_exists($former['identifier'], $this->controller->{$property})) {
                                 $renew = true;
                             }
                         }

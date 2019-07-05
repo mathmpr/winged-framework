@@ -2,15 +2,14 @@
 
 namespace Winged\Frontend;
 
-use Winged\Controller\Controller;
 use Winged\File\File;
-use Winged\Winged;
 use \WingedConfig;
+use \Exception;
 
 /**
  * Class Assets
  *
- * @package Winged\Assets
+ * @package Winged\Frontend
  */
 class Assets
 {
@@ -206,9 +205,13 @@ class Assets
         return false;
     }
 
+    /**
+     * @throws Exception
+     */
     protected function activeMinify(){
         if(WingedConfig::$config->AUTO_MINIFY !== false){
-
+            $this->minifyCss->minify('css');
+            $this->minifyJs->minify('js');
         }
     }
 

@@ -451,6 +451,8 @@ class Controller extends Render
     {
         $content = $this->_render($this->view($path), $vars);
 
+        $this->activeMinify();
+
         return $this->channelingRender($content, 'html');
 
         if ($content) {
