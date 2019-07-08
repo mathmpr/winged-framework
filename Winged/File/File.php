@@ -53,7 +53,7 @@ class File
                     $file = './' . $file;
                 }
             }
-            $file = str_replace(['//', './.'], ['/', './'], $file);
+            $file = str_replace(['//'], ['/'], $file);
         }
 
         $file_accent = $file;

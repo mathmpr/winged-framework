@@ -1,5 +1,5 @@
 @import url("other-import.css");
 
 body{
-    color: gray;
+    font-family: monospace;
 }

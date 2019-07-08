@@ -4,7 +4,6 @@ namespace Winged\Controller;
 
 use Winged\External\MatthiasMullie\Minify\Minify\CSS;
 use Winged\External\MatthiasMullie\Minify\Minify\JS;
-use Winged\Frontend\Assets;
 use Winged\Date\Date;
 use Winged\Directory\Directory;
 use Winged\File\File;
@@ -17,6 +16,7 @@ use Winged\Winged;
 use WingedConfig;
 use Winged\Error\Error;
 use Winged\Buffer\Buffer;
+use \Exception;
 
 /**
  * Class Controller
@@ -447,13 +447,22 @@ class Controller extends Render
         $this->head_path = null;
     }
 
+    /**
+     * render view/controller response as html, add head tag with js and css files, and raw headers
+     *
+     * @param string $path
+     * @param array  $vars
+     *
+     * @return bool
+     * @throws Exception
+     */
     public function html($path, $vars = [])
     {
         $content = $this->_render($this->view($path), $vars);
-
-        $this->activeMinify();
-
-        return $this->channelingRender($content, 'html');
+        if ($content && $this->checkCalls()) {
+            $this->activeMinify();
+            return $this->channelingRender($content, 'html');
+        }
 
         if ($content) {
             //$content = $this->pureHtml($content);
@@ -990,19 +999,37 @@ class Controller extends Render
         return json_decode($this->minify_cache->read(), true);
     }
 
+    /**
+     * render any file with extensions *.html, *.json, *.php, *.yaml and *.json
+     *
+     * @param string $path
+     * @param array  $vars
+     *
+     * @return bool
+     */
     public function file($path, $vars = [])
     {
         $content = $this->_render($path, $vars);
-        if ($content) {
-            return $this->channelingRender($content, 'html');
+        $file = new File($path, false);
+        if ($content && $this->checkCalls()) {
+            return $this->channelingRender($content, ($file->getExtension() === 'php' ? 'html' : $file->getExtension()));
         }
         return false;
     }
 
+    /**
+     * render view/controller response as html without any included html
+     *
+     * @param string $path
+     * @param array  $vars
+     * @param bool   $return
+     *
+     * @return bool|string
+     */
     public function partial($path, $vars = [], $return = false)
     {
         $content = $this->_render($this->view($path), $vars);
-        if ($content) {
+        if ($content && $this->checkCalls()) {
             if ($return) {
                 return $content;
             }
@@ -1011,10 +1038,19 @@ class Controller extends Render
         return false;
     }
 
+    /**
+     * render view/controller response as json
+     *
+     * @param string $path
+     * @param array  $vars
+     * @param bool   $return
+     *
+     * @return bool|string
+     */
     public function json($path, $vars = [], $return = false)
     {
         $content = $this->_render($this->view($path), $vars);
-        if ($content) {
+        if ($content && $this->checkCalls()) {
             if ($return) {
                 return $content;
             }

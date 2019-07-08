@@ -1,5 +1,8 @@
 @import url("../css/imported.css#ie-fix");
 
 body{
-    background: #1f1f1f;
+    background: #333;
+    background-image: url('../../Winged/Error/assets/favicon.png#huedor');
 }
+
+@import url("../css/imported-after.css#ie-fix");

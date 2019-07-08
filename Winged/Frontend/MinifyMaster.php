@@ -39,13 +39,15 @@ abstract class MinifyMaster
 
     /**
      * @param $path string
-     * @param $read string
+     * @param $read array
      *
      * @return mixed
      */
     abstract public function activeMinify($path, $read);
 
     /**
+     * write ./minify.json, if $content as passed for this function, content was converted into an json encoded string and writed into ./minify.json
+     *
      * @param $content bool | string
      *
      * @return bool|File
@@ -67,6 +69,8 @@ abstract class MinifyMaster
     }
 
     /**
+     * read ./minify.json and get info as array
+     *
      * @return array
      */
     protected function readMinify()
@@ -84,6 +88,15 @@ abstract class MinifyMaster
         return $read;
     }
 
+    /**
+     * execute minify on an property of this class (css or js property)
+     * execute the specific minify method for css and js types
+     *
+     * @param null $property
+     *
+     * @return bool|mixed
+     * @throws Exception
+     */
     public function minify($property = null)
     {
         if (!$property || !is_string($property) || !($property !== 'css' || $property !== 'js')) {

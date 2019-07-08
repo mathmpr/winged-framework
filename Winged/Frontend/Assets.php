@@ -206,6 +206,8 @@ class Assets
     }
 
     /**
+     * active minify for JS and CSS files in Assets files stack
+     *
      * @throws Exception
      */
     protected function activeMinify(){

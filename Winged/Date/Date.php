@@ -2,6 +2,8 @@
 
 namespace Winged\Date;
 
+use \Exception;
+
 /**
  * Example:
  * <code>
@@ -18,8 +20,10 @@ namespace Winged\Date;
  * $date = Date(time());
  * $date = Date(strtotime($date));
  * </code>
+ *
  * @param string | bool $date
- * @param bool $hours
+ * @param bool          $hours
+ *
  * @return Date
  */
 class Date
@@ -30,10 +34,26 @@ class Date
     private $gregorian;
     private $infos = false;
 
-    public static function now($hours = true){
+    /**
+     * get time() as Date object
+     *
+     * @param bool $hours
+     *
+     * @return Date
+     */
+    public static function now($hours = true)
+    {
         return new Date(time(), $hours);
     }
 
+    /**
+     * check if string have a valid date string format
+     * aaaa/mm/dd, dd/mm/aaaa or mm/dd/aaaa
+     *
+     * @param string $date
+     *
+     * @return bool
+     */
     public static function valid($date = '')
     {
         $date = trim($date);
@@ -63,19 +83,25 @@ class Date
     }
 
     /**
-     * @param string | bool $date
+     * Date constructor.
+     *
+     * @param bool $date
      * @param bool $hours
-     * @return Date
+     *
+     * @throws Exception
      */
     public function __construct($date = false, $hours = true)
     {
         $this->rebuild($date, $hours);
+        return $this;
     }
 
     /**
-     * @param string | bool $date
+     * @param bool $date
      * @param bool $hours
-     * @return Date
+     *
+     * @return $this
+     * @throws Exception
      */
     public function rebuild($date = false, $hours = true)
     {
@@ -90,6 +116,8 @@ class Date
     }
 
     /**
+     * get infos from Date object
+     *
      * @return bool | array
      */
     public function getInfo()
@@ -98,7 +126,10 @@ class Date
     }
 
     /**
+     * check if Date object have gregorian date format
+     *
      * @param $exp
+     *
      * @return bool
      */
     private function isGregorian($exp)
@@ -110,7 +141,10 @@ class Date
     }
 
     /**
+     * return Date object as string with aaaa/mm/dd format
+     *
      * @param bool $hours
+     *
      * @return string
      */
     public function ymd($hours = true)
@@ -123,7 +157,10 @@ class Date
     }
 
     /**
+     * return Date object as string with dd/mm/aaaa format
+     *
      * @param bool $hours
+     *
      * @return string
      */
     public function dmy($hours = true)
@@ -136,7 +173,10 @@ class Date
     }
 
     /**
+     * return Date object as string with mm/dd/aaaa format
+     *
      * @param bool $hours
+     *
      * @return string
      */
     public function mdy($hours = true)
@@ -149,7 +189,10 @@ class Date
     }
 
     /**
+     * return Date object as string with aaaa-mm-dd format
+     *
      * @param bool $hours
+     *
      * @return string
      */
     public function sql($hours = true)
@@ -162,6 +205,8 @@ class Date
     }
 
     /**
+     * get timestamp as int from Date object
+     *
      * @return int
      */
     public function timestamp()
@@ -170,9 +215,12 @@ class Date
     }
 
     /**
+     * pass format like strftime
+     *
      * @param string $format
-     * @param bool $capitalize
-     * @param array $not
+     * @param bool   $capitalize
+     * @param array  $not
+     *
      * @return bool|string
      */
     public function custom($format = '', $capitalize = true, $not = [])
@@ -197,15 +245,12 @@ class Date
     }
 
     /**
-     * Example:
-     * <code>
-     * Date(2016-04-02 12:03:42)->add(['y' => 1, 'd' => 3, 'h' => 6]);
-     * ----- Returns -------
-     * 2017-04-07 18:03:42
-     * ---------------------
-     * </code>
+     * add time inside date object Ex: ['y' => 0, 'm' => 0, 'w' => 0, 'd' => 0, 'h' => 0, 'i' => 0, 's' => 0]
+     *
      * @param array $time
+     *
      * @return $this
+     * @throws Exception
      */
     public function add($time = ['y' => 0, 'm' => 0, 'w' => 0, 'd' => 0, 'h' => 0, 'i' => 0, 's' => 0])
     {
@@ -239,18 +284,13 @@ class Date
     }
 
     /**
-     * Example:
-     * <code>
-     * Date('18/11/2016')->diff('16/10/2016', ['m', 'w', 'd']);
-     * ----- Returns -------
-     * [months] => 1
-     * [weeks] => 0
-     * [days] => 2
-     * ---------------------
-     * </code>
-     * @param bool | string | int $date
+     * get diff between two dates, you can choose the diff with ['y', 'm', 'w', 'd', 'h', 'i', 's']
+     *
+     * @param bool  $date
      * @param array $diffs
-     * @return stdClass
+     *
+     * @return array|bool|int|object|string|null
+     * @throws Exception
      */
     public function diff($date = false, $diffs = ['y', 'm', 'w', 'd', 'h', 'i', 's'])
     {
@@ -345,7 +385,9 @@ class Date
 
     /**
      * Return true for bissextile year and false for nom bissextile year
+     *
      * @param bool | int | string $year
+     *
      * @return bool
      */
     public function bissextile($year = false)
@@ -362,7 +404,9 @@ class Date
     /**
      * Return stdClass with begin date of week in current day of date and end date of week in Saturday
      * If from_first_day $ is true, the first day is always Sunday.
+     *
      * @param bool $from_first_day
+     *
      * @return stdClass
      */
     public function weekInterval($from_first_day = false)
@@ -423,7 +467,9 @@ class Date
     /**
      * Return stdClass with begin date of month in current day of date and last day of month
      * If from_first_day $ is true, the first day is always 01.
+     *
      * @param bool $from_first_day
+     *
      * @return stdClass
      */
     public function monthInterval($from_first_day = true)
@@ -442,8 +488,11 @@ class Date
 
     /**
      * Test if current date in object bigger then $date
+     *
      * @param $date
+     *
      * @return bool
+     * @throws Exception
      */
     public function greater($date)
     {
@@ -455,8 +504,11 @@ class Date
 
     /**
      * Test if current date in object less than $date
+     *
      * @param $date
+     *
      * @return bool
+     * @throws Exception
      */
     public function smaller($date)
     {
@@ -469,13 +521,14 @@ class Date
     /**
      * @param bool $date
      * @param bool $hours
+     *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     private function normalize($date = false, $hours = true)
     {
-        if(is_object($date)){
-            if(get_class($date) == 'Winged\Date\Date'){
+        if (is_object($date)) {
+            if (get_class($date) == 'Winged\Date\Date') {
                 /**
                  * @var $date Date
                  */
@@ -525,7 +578,7 @@ class Date
         $c = str_replace(['-', '/'], ';', $nd[0]);
         $exp = explode(';', $c);
         if (count7($exp) != 3) {
-            throw new \Exception('Invalid date string.');
+            throw new Exception('Invalid date string.');
         }
 
         $gregorian = $this->isGregorian($exp);
@@ -579,6 +632,8 @@ class Date
 }
 
 /**
+ * get current LC_TIME locale
+ *
  * @return string
  */
 function _getlocale()
@@ -587,6 +642,8 @@ function _getlocale()
 }
 
 /**
+ * set LC_TIME locale
+ *
  * @param bool | string $lang_charset
  */
 function _setlocale($lang_charset = false)

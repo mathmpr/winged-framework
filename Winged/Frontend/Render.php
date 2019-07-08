@@ -17,9 +17,11 @@ class Render extends Assets
 {
 
     /**
-     * @var bool
+     * @var $first_render bool
      */
     public $first_render = true;
+
+    public $calls = 0;
 
 
     public function __construct()
@@ -35,14 +37,24 @@ class Render extends Assets
      *
      * @return bool|string
      */
-    protected function _render($path, $vars = [])
+    public function _render($path, $vars = [])
     {
         if (file_exists($path) && !is_directory($path)) {
+            $this->calls++;
             return $this->_include($path, $vars);
         } else {
             trigger_error("File {$path} can't rendred because file not found.", E_USER_WARNING);
         }
         return false;
+    }
+
+    /**
+     * check if all render call are maked
+     *
+     * @return bool
+     */
+    public function checkCalls(){
+        return $this->calls === 0;
     }
 
     /**
@@ -79,6 +91,7 @@ class Render extends Assets
                 $read = $read . "\n<?php\n";
             }
             eval($read);
+            $this->calls--;
             $content = Buffer::getKill();
             return $content;
         } else {
@@ -96,6 +109,7 @@ class Render extends Assets
                 $read = $read . "\n<?php\n";
             }
             eval($read);
+            $this->calls--;
         }
         return false;
     }
