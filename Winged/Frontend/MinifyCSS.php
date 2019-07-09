@@ -96,43 +96,7 @@ class MinifyCSS extends MinifyMaster
                 } else {
                     $cssString .= str_replace('  ', ' ', file_get_contents($file));
                 }
-                if (WingedConfig::$config->USE_WINGED_FILE_HANDLER) {
-                    preg_match_all($pattern, $cssString, $matches);
-                    if (!empty($matches)) {
-                        foreach ($matches[0] as $key => $match) {
-                            $full_string = $match;
-                            $fileImported = str_replace(['"', "'"], '', $matches[1][$key]);
-
-                            $fileImported = explode(')', $fileImported);
-                            $fileImported = array_shift($fileImported);
-
-                            $explodeBar = explode('/', $fileImported);
-                            $fileImportedName = array_pop($explodeBar);
-                            $filePath = join('/', $explodeBar);
-
-                            $explodeExtension = explode('.', $fileImportedName);
-                            $endExtension = end($explodeExtension);
-                            $endExtension = str_replace(['#', '@', '?', '-', '!', '&', '_', '=', '+'], '~', $endExtension);
-                            $endExtension = explode('~', $endExtension);
-                            $cleanedExtension = $endExtension[0];
-                            $fileImportedName = explode('.' . $cleanedExtension, $fileImportedName);
-                            $cleanedFileName = array_shift($fileImportedName) . '.' . $cleanedExtension;
-
-                            $fileImported = $filePath . '/' . $cleanedFileName;
-                            if ($cleanedExtension !== 'css') {
-                                $explodeBar = explode('/', $file);
-                                array_pop($explodeBar);
-                                $fileImported = join('/', $explodeBar) . '/' . $fileImported;
-
-                                $fileObject = new File($fileImported, false);
-                                if ($fileObject->exists()) {
-                                    $cssString = str_replace('  ', ' ', $cssString);
-                                    $cssString = str_replace([$full_string . ' ;', $full_string . ';', $full_string], 'url("./__winged_file_handle_core__/' . base64_encode($fileObject->file_path) . '")', $cssString);
-                                }
-                            }
-                        }
-                    }
-                }
+                $this->replacePathsWithFileHandleCore($pattern, $cssString, $file);
             }
 
             foreach ($this->allCssPaths as $file => $files) {
@@ -142,7 +106,6 @@ class MinifyCSS extends MinifyMaster
             }
         }
 
-
         $cache_file->write($minify->add($cssString)->minify());
         $this->controller->css = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->controller->css);
         return $this->createMinify($read);
@@ -151,7 +114,7 @@ class MinifyCSS extends MinifyMaster
     /**
      * check if $filePath are in any import in other file
      *
-     * @param $filePath
+     * @param string $filePath
      *
      * @return bool|mixed
      */
@@ -168,14 +131,61 @@ class MinifyCSS extends MinifyMaster
     }
 
     /**
+     * replace non css paths inside css files with URL to file handler system
      *
-     *
-     * @param $matches
-     * @param $_file
-     * @param $pattern
-     * @param $read
+     * @param string $pattern
+     * @param string $cssString
+     * @param string $currentFile
      */
-    function minifyFileRunner($matches, $_file, $pattern, $read)
+    function replacePathsWithFileHandleCore($pattern, &$cssString, $currentFile){
+        if (WingedConfig::$config->USE_WINGED_FILE_HANDLER) {
+            preg_match_all($pattern, $cssString, $matches);
+            if (!empty($matches)) {
+                foreach ($matches[0] as $key => $match) {
+                    $full_string = $match;
+                    $fileImported = str_replace(['"', "'"], '', $matches[1][$key]);
+
+                    $fileImported = explode(')', $fileImported);
+                    $fileImported = array_shift($fileImported);
+
+                    $explodeBar = explode('/', $fileImported);
+                    $fileImportedName = array_pop($explodeBar);
+                    $filePath = join('/', $explodeBar);
+
+                    $explodeExtension = explode('.', $fileImportedName);
+                    $endExtension = end($explodeExtension);
+                    $endExtension = str_replace(['#', '@', '?', '-', '!', '&', '_', '=', '+'], '~', $endExtension);
+                    $endExtension = explode('~', $endExtension);
+                    $cleanedExtension = $endExtension[0];
+                    $fileImportedName = explode('.' . $cleanedExtension, $fileImportedName);
+                    $cleanedFileName = array_shift($fileImportedName) . '.' . $cleanedExtension;
+
+                    $fileImported = $filePath . '/' . $cleanedFileName;
+                    if ($cleanedExtension !== 'css') {
+                        $explodeBar = explode('/', $currentFile);
+                        array_pop($explodeBar);
+                        $fileImported = join('/', $explodeBar) . '/' . $fileImported;
+                        $fileObject = new File($fileImported, false);
+                        if ($fileObject->exists()) {
+                            $cssString = str_replace('  ', ' ', $cssString);
+                            $cssString = str_replace([$full_string . ' ;', $full_string . ';', $full_string], 'url("./__winged_file_handle_core__/' . base64_encode($fileObject->file_path) . '")', $cssString);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * check if rule inside url property is an css file, if is css file, run again and again recursively
+     * store all files inside $this->allCssPaths and minify all in one file (suppress css file imports)
+     *
+     * @param array $matches
+     * @param File $_file
+     * @param string $pattern
+     * @param string $fileContent
+     */
+    protected function minifyFileRunner($matches, $_file, $pattern, $fileContent)
     {
         /**
          * @var $_file File
@@ -201,7 +211,7 @@ class MinifyCSS extends MinifyMaster
         $file = $filePath . '/' . $cleanedFileName;
         $import = false;
 
-        preg_match_all("/@import[ ]*['\"]{0,}(url\()*['\"]*([^;'\"\)]*)['\"\)]*/ui", $read, $matches);
+        preg_match_all("/@import[ ]*['\"]{0,}(url\()*['\"]*([^;'\"\)]*)['\"\)]*/ui", $fileContent, $matches);
         if (!empty($matches)) {
             if (isset($matches[0][0])) {
                 foreach ($matches[0] as $match) {
@@ -236,5 +246,4 @@ class MinifyCSS extends MinifyMaster
             $this->currentFileRunner = $now_in;
         }
     }
-
 }

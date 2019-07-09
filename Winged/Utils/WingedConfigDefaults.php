@@ -112,6 +112,35 @@ class WingedConfigDefaults
     public $OUTPUT_ENCODING = "UTF-8";
 
     /**
+     * @var $FORCE_WWW bool
+     * this property force WWW in url with a redirect to same URL of request
+     * redirect throw a 301 Moved Permanently to browser
+     * if this property is true but www was encontred in request, Winged do not make redirect
+     */
+    public $FORCE_WWW = false;
+
+    /**
+     * @var $FORCE_HTTP bool
+     * this property force https protocol in url with a redirect to same URL of request
+     * redirect throw a 301 Moved Permanently to browser
+     * if this property is true but HTTPS was encontred in request, Winged do not make redirect
+     */
+    public $FORCE_HTTPS = false;
+
+    /**
+     * @var $COMPACT_HTML_RESPONSE bool
+     * before dispatch html response in $controller->html(), new lines are removed from HTML
+     * <code> <textarea> and <pre> not affected by this behavior
+     */
+    public $COMPACT_HTML_RESPONSE = true;
+
+    /**
+     * @var $HTML_LANG string
+     * define html tag lang
+     */
+    public $HTML_LANG = 'en-US';
+
+    /**
      * @var $USE_UNICID_ON_INCLUDE_ASSETS bool | array
      * On some servers, especially those of productions, it is very common some cache system exists
      * for files that are always loaded on the page as files with the extension * .js, * .css, * .svg and etc..
@@ -130,22 +159,6 @@ class WingedConfigDefaults
      * on end of project turn this to false
      */
     public $AUTO_MINIFY = false;
-
-    /**
-     * @var $FORCE_WWW bool
-     * this property force WWW in url with a redirect to same URL of request
-     * redirect throw a 301 Moved Permanently to browser
-     * if this property is true but www was encontred in request, Winged do not make redirect
-     */
-    public $FORCE_WWW = false;
-
-    /**
-     * @var $FORCE_HTTP bool
-     * this property force https protocol in url with a redirect to same URL of request
-     * redirect throw a 301 Moved Permanently to browser
-     * if this property is true but HTTPS was encontred in request, Winged do not make redirect
-     */
-    public $FORCE_HTTPS = false;
 
     /**
      * @var $USE_GZENCODE bool

@@ -313,6 +313,9 @@ class Controller extends Render
         return trim('action' . implode('', $exp));
     }
 
+    /**
+     *
+     */
     public function getGetArgs()
     {
         foreach ($_GET as $index => $value) {
@@ -327,11 +330,22 @@ class Controller extends Render
         return;
     }
 
+    /**
+     * redirect to any location, full URL string is required
+     *
+     * @param string $path
+     */
     public function redirectOnly($path = '')
     {
         header('Location: ' . $path);
     }
 
+    /**
+     * redirect to an path
+     *
+     * @param string $path
+     * @param bool   $keep_args
+     */
     public function redirectTo($path = '', $keep_args = true)
     {
         $args_path = explode('?', $path);
@@ -414,6 +428,9 @@ class Controller extends Render
         Winged::$controller_params = $narr;
     }
 
+    /**
+     * copy informations from main controler locate in Winged to new controller
+     */
     public function copy()
     {
         if (Winged::$controller !== null) {
@@ -426,6 +443,13 @@ class Controller extends Render
         }
     }
 
+    /**
+     * get specific
+     *
+     * @param $key
+     *
+     * @return bool|mixed
+     */
     public function get($key)
     {
         if (array_key_exists($key, $this->method_args)) {
@@ -442,11 +466,6 @@ class Controller extends Render
         return false;
     }
 
-    public function ignoreHeadContent()
-    {
-        $this->head_path = null;
-    }
-
     /**
      * render view/controller response as html, add head tag with js and css files, and raw headers
      *
@@ -461,6 +480,11 @@ class Controller extends Render
         $content = $this->_render($this->view($path), $vars);
         if ($content && $this->checkCalls()) {
             $this->activeMinify();
+            if(is_string(WingedConfig::$config->HEAD_CONTENT_PATH)){
+                $this->appendAbstractHead('__first_head_content___', WingedConfig::$config->HEAD_CONTENT_PATH);
+            }
+            $this->configureAssets($content);
+            $this->compactHtml($content);
             return $this->channelingRender($content, 'html');
         }
 
@@ -654,90 +678,6 @@ class Controller extends Render
     {
         $path .= '.php';
         return self::$VIEWS_PATH . $path;
-    }
-
-    private function pureHtml($html_page)
-    {
-
-        $create_css = $this->createCssMinify();
-        $create_js = $this->createJsMinify();
-
-        if ($this->html_class != null) {
-            Buffer::reset();
-            ?>
-            <!doctype html>
-            <html class="<?= $this->html_class ?>">
-            <?php
-        }
-        ?>
-        <head>
-            <?php
-            $head_content_path = WingedConfig::$config->HEAD_CONTENT_PATH;
-            if ($this->head_path !== false) {
-                $head_content_path = $this->head_path;
-            }
-            if ($head_content_path !== null) {
-                if (file_exists($head_content_path) && !is_directory($head_content_path)) {
-                    include_once $head_content_path;
-                }
-                foreach ($this->appended_abstract_head_content as $head) {
-                    ?>
-                    <?= $head ?>
-                    <?php
-                }
-            } else {
-                ?>
-                <meta charset="utf-8"/>
-                <?php
-            }
-
-            foreach ($this->css as $identifier => $content) {
-                if (!in_array($identifier, $this->remove_css)) {
-                    if ($content['type'] === 'file') {
-                        ?>
-                        <link href="<?= $this->makeAssetsSrc($content['string']) ?>" type="text/css" rel="stylesheet"
-                              charset="utf-8"/>
-                        <?php
-                    } else if ($content['type'] === 'script') {
-                        ?>
-                        <?= $content['string'] ?>
-                        <?php
-                    } else if ($content['type'] === 'url') {
-                        ?>
-                        <link href="<?= $content['string'] ?>" type="text/css" rel="stylesheet"
-                              charset="utf-8"/>
-                        <?php
-                    }
-                }
-            }
-            ?>
-        </head>
-
-        <body <?= $this->body_class !== null && $this->body_class !== false ? 'class="' . $this->body_class . '"' : '' ?>>
-        <?= $html_page ?>
-        </body>
-        <?php
-        foreach ($this->js as $identifier => $content) {
-            if (!in_array($identifier, $this->remove_js)) {
-                if ($content['type'] === 'file') {
-                    ?>
-
-                    <script src="<?= $this->makeAssetsSrc($content['string']) ?>" type="text/javascript"
-                            charset="utf-8"></script>
-                <?php
-                } else if ($content['type'] === 'script') {
-                    ?>
-                    <?= $content['string'] ?>
-                    <?php
-                } else if ($content['type'] === 'url') {
-                ?>
-                    <script src="<?= $content['string'] ?>" type="text/javascript"
-                            charset="utf-8"></script>
-                    <?php
-                }
-            }
-        }
-        return ($create_css || $create_js) ? true : false;
     }
 
     private function createJsMinifyNew($path, $read)

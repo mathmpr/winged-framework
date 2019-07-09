@@ -2,9 +2,11 @@
 
 namespace Winged\Frontend;
 
-use Winged\Controller\Controller;
 use Winged\File\File;
 use Winged\Buffer\Buffer;
+use Winged\Utils\RandomName;
+use Winged\Winged;
+use \WingedConfig;
 
 /**
  * render view files in project
@@ -53,7 +55,8 @@ class Render extends Assets
      *
      * @return bool
      */
-    public function checkCalls(){
+    public function checkCalls()
+    {
         return $this->calls === 0;
     }
 
@@ -112,6 +115,119 @@ class Render extends Assets
             $this->calls--;
         }
         return false;
+    }
+
+    protected function configureAssets(&$content)
+    {
+        ob_start('mb_output_handler');
+        ?>
+        <!DOCTYPE html>
+        <html <?= $this->htmlId() ? 'id="' . $this->htmlId() . '"' : '' ?>
+                lang="<?= WingedConfig::$config->HTML_LANG ?>"
+                class="<?php
+                foreach ($this->htmlTagClasses as $class) {
+                    echo $class;
+                }
+                ?>">
+        <head>
+            <?php
+            foreach ($this->appendedAbstractHeadContent as $head) {
+                $file = new File($head, false);
+                if ($file->exists()) {
+                    echo $file->read();
+                } else {
+                    echo $head;
+                }
+            }
+
+            foreach ($this->css as $identifier => $file) {
+                if ($file['type'] === 'file') {
+                    ?>
+                    <link href="<?= Winged::$protocol . $file['string'] ?>" type="text/css" rel="stylesheet"/>
+                    <?php
+                } else if ($file['type'] === 'script') {
+                    ?>
+                    <?= $file['string'] ?>
+                    <?php
+                } else if ($file['type'] === 'url') {
+                    ?>
+                    <link href="<?= $file['string'] ?>" type="text/css" rel="stylesheet"/>
+                    <?php
+                }
+
+            }
+
+            ?>
+        </head>
+        <body <?= $this->bodyId() ? 'id="' . $this->bodyId() . '"' : '' ?>
+                class="<?php
+                foreach ($this->bodyTagClasses as $class) {
+                    echo $class;
+                }
+                ?>">
+        <?php
+        echo $content;
+        foreach ($this->js as $identifier => $file) {
+            if ($file['type'] === 'file') {
+                ?>
+                <script src="<?= Winged::$protocol . $file['string'] ?>" type="text/javascript"></script>
+            <?php
+            } else if ($file['type'] === 'script') {
+                ?>
+                <?= $file['string'] ?>
+                <?php
+            } else if ($file['type'] === 'url') {
+            ?>
+                <script src="<?= $file['string'] ?>" type="text/javascript"></script>
+                <?php
+            }
+        }
+        ?>
+        </body>
+        </html>
+        <?php
+        $content = ob_get_clean();
+    }
+
+    /**
+     * remove new lines from html
+     *
+     * @param $content
+     */
+    protected function compactHtml(&$content)
+    {
+        if (WingedConfig::$config->COMPACT_HTML_RESPONSE && $content) {
+            $rep = [];
+            $match = false;
+            $matchs = null;
+            if (is_int(stripos($content, '<textarea'))) {
+                $match = preg_match_all('#<textarea(.*?)>(.*?)</textarea>#is', $content, $matchs);
+                if ($match) {
+                    foreach ($matchs[0] as $match) {
+                        $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                    }
+                    $content = str_replace($matchs[0], $rep, $content);
+                }
+            }
+            $match_code = false;
+            $matchs_code = null;
+            if (is_int(stripos($content, '<code'))) {
+                $match_code = preg_match_all('#<code(.*?)>(.*?)</code>#is', $content, $matchs_code);
+                if ($match_code) {
+                    foreach ($matchs_code[0] as $match_code) {
+                        $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                    }
+                    $content = str_replace($matchs_code[0], $rep, $content);
+                }
+            }
+            $content = preg_replace('#> <#', '><', preg_replace('# {2,}#', ' ', preg_replace('/[\n\r]|/', '', $content)));
+            if ($match) {
+                $content = str_replace($rep, $matchs[0], $content);
+            }
+            if ($match_code) {
+                $content = str_replace($rep, $matchs_code[0], $content);
+            }
+        }
     }
 
 }

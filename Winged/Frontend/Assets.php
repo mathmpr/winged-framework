@@ -14,19 +14,39 @@ use \Exception;
 class Assets
 {
     /**
-     * @var $js array store path and options for js files
+     * @var array $js store path and options for js files
      */
     public $js = [];
 
     /**
-     * @var $css array store path and options for css files
+     * @var array $css store path and options for css files
      */
     public $css = [];
 
     /**
-     * @var $appended_abstract_head_content array store any content for append inside <head></head>
+     * @var array $appendedAbstractHeadContent store any content for append inside <head></head>
      */
-    private $appended_abstract_head_content = [];
+    protected $appendedAbstractHeadContent = [];
+
+    /**
+     * @var array $htmlTagClasses store list of classes for insert into html tag
+     */
+    protected $htmlTagClasses = [];
+
+    /**
+     * @var array $bodyTagClasses store list of classes for insert into body tag
+     */
+    protected $bodyTagClasses = [];
+
+    /**
+     * @var null | string $bodyId store id property for body, if it is null, id equal controller / route name
+     */
+    protected $bodyId = null;
+
+    /**
+     * @var null | string $htmlId store id property for html, if it is null, id equal controller / route name
+     */
+    protected $htmlId = null;
 
     /**
      * @var $minifyJs MinifyMasterJS
@@ -52,7 +72,8 @@ class Assets
      *
      * @return array
      */
-    public function getJs(){
+    public function getJs()
+    {
         return $this->js;
     }
 
@@ -61,7 +82,8 @@ class Assets
      *
      * @return array
      */
-    public function getCss(){
+    public function getCss()
+    {
         return $this->css;
     }
 
@@ -98,6 +120,106 @@ class Assets
     }
 
     /**
+     * append class name in body tag
+     *
+     * @param null | string $className
+     *
+     * @return $this
+     */
+    public function appendBodyClass($className = null)
+    {
+        if ($className) {
+            if (!in_array($className, $this->bodyTagClasses)) {
+                $this->bodyTagClasses[] = $className;
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * remove class name from body tag
+     *
+     * @param null | string $className
+     *
+     * @return $this
+     */
+    public function removeBodyClass($className = null)
+    {
+        if ($className) {
+            if (in_array($className, $this->bodyTagClasses)) {
+                unset($this->bodyTagClasses[array_search($className, $this->bodyTagClasses)]);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * ads or get body id
+     *
+     * @param null|string $id
+     *
+     * @return $this|string|null
+     */
+    public function bodyId($id = null)
+    {
+        if (!$id) return $this->bodyId;
+        if (is_string($id)) {
+            $this->bodyId = $id;
+        }
+        return $this;
+    }
+
+    /**
+     * append class name in html tag
+     *
+     * @param null | string $className
+     *
+     * @return $this
+     */
+    public function appendHtmlClass($className = null)
+    {
+        if ($className) {
+            if (!in_array($className, $this->htmlTagClasses)) {
+                $this->htmlTagClasses[] = $className;
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * remove class name from html tag
+     *
+     * @param null | string $className
+     *
+     * @return $this
+     */
+    public function removeHtmlClass($className = null)
+    {
+        if ($className) {
+            if (in_array($className, $this->htmlTagClasses)) {
+                unset($this->htmlTagClasses[array_search($className, $this->htmlTagClasses)]);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * ads or get html id
+     *
+     * @param null|string $id
+     *
+     * @return $this|string|null
+     */
+    public function htmlId($id = null)
+    {
+        if (!$id) return $this->htmlId;
+        if (is_string($id)) {
+            $this->htmlId = $id;
+        }
+        return $this;
+    }
+
+    /**
      * append an abstract head content from head content stack
      *
      * @param string $identifier
@@ -109,9 +231,9 @@ class Assets
     {
         $file = new File($contentOrFilePath, false);
         if ($file->exists()) {
-            $this->appended_abstract_head_content[$identifier] = $file->read();
+            $this->appendedAbstractHeadContent[$identifier] = $file->read();
         }
-        $this->appended_abstract_head_content[$identifier] = $contentOrFilePath;
+        $this->appendedAbstractHeadContent[$identifier] = $contentOrFilePath;
         return true;
     }
 
@@ -124,8 +246,8 @@ class Assets
      */
     public function removeAbstractHead($identifier)
     {
-        if (array_key_exists($identifier, $this->appended_abstract_head_content)) {
-            unset($this->appended_abstract_head_content[$identifier]);
+        if (array_key_exists($identifier, $this->appendedAbstractHeadContent)) {
+            unset($this->appendedAbstractHeadContent[$identifier]);
             return true;
         }
         return false;
@@ -210,8 +332,9 @@ class Assets
      *
      * @throws Exception
      */
-    protected function activeMinify(){
-        if(WingedConfig::$config->AUTO_MINIFY !== false){
+    protected function activeMinify()
+    {
+        if (WingedConfig::$config->AUTO_MINIFY !== false) {
             $this->minifyCss->minify('css');
             $this->minifyJs->minify('js');
         }

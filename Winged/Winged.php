@@ -5,6 +5,7 @@ namespace Winged;
 use Winged\Buffer\Buffer;
 use Winged\Controller\Controller;
 use Winged\Error\Error;
+use \Exception;
 use Winged\File\File;
 use Winged\Http\HttpResponseHandler;
 use Winged\Http\Session;
@@ -14,7 +15,12 @@ use Winged\Utils\WingedLib;
 use Winged\Utils\Container;
 use WingedConfig;
 
-WingedHead::init();
+try {
+    WingedHead::init();
+} catch (Exception $exception) {
+    Error::display();
+}
+
 
 /**
  * This class its a main class of Winged
@@ -98,7 +104,7 @@ class Winged
         self::nosplit();
     }
 
-    public static function clear_urls()
+    public static function clearUrls()
     {
         $refers = [
             & self::$http,
@@ -122,7 +128,7 @@ class Winged
     {
         self::normalize();
         $dirs = self::getdir();
-        self::clear_urls();
+        self::clearUrls();
 
         $page = trim($dirs["page"]);
 
@@ -137,7 +143,7 @@ class Winged
         self::$routed_file = DOCUMENT_ROOT . WingedLib::clearPath($vect["file"]);
         self::$router_dir = DOCUMENT_ROOT . WingedLib::clearPath($vect["dir"]) . '/';
 
-        $controller_info = self::controller_info();
+        $controller_info = self::controllerInfo();
 
         self::$controller_page = $controller_info['controller'];
         self::$controller_action = $controller_info['action'];
@@ -229,6 +235,7 @@ class Winged
         }
 
         $before = false;
+
         if (Container::$self->methodExists('beforeSearchController')) {
             $before = Container::$self->beforeSearchController();
         }
@@ -258,7 +265,7 @@ class Winged
         }
     }
 
-    private static function controller_info()
+    private static function controllerInfo()
     {
         $exploded_parent = WingedLib::explodePath(self::$parent);
         $controller_info = str_replace(self::$parent, '', self::$uri);
@@ -434,8 +441,7 @@ class Winged
         ];
     }
 
-    public
-    static function return_path_route()
+    public static function return_path_route()
     {
         $parent = self::$parent;
         $router = self::$router;

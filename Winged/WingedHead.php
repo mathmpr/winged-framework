@@ -2,6 +2,7 @@
 
 namespace Winged;
 
+use \Exception;
 use Winged\Date\Microtime;
 use Winged\Buffer\Buffer;
 use Winged\Error\Error;
@@ -18,6 +19,16 @@ use WingedConfig;
  */
 class WingedHead
 {
+    /**
+     * #1 - include major files
+     * #2 - init auto load module
+     * #3 - start primary buffer
+     * #4 - setup internal encoding
+     * #5 - include config files
+     *
+     *
+     * @throws Exception
+     */
     public static function init()
     {
         global $_ORIGINAL_POST, $_ORIGINAL_GET;
@@ -48,6 +59,9 @@ class WingedHead
         global $__autoload__cache__memory;
         $__autoload__cache__memory = false;
 
+        /**
+         * @param $className
+         */
         function findClass($className)
         {
             global $__autoload__cache__memory;
@@ -144,24 +158,24 @@ class WingedHead
         Container::$self = new Container(Container::$self);
 
         if (!file_exists(PATH_DATABASE_CONFIG)) {
-            Error::_die('file WingedDatabaseConfig.php do not exists.', 205, 'WingedHead.php', 205);
+            throw new Exception('file WingedDatabaseConfig.php do not exists.');
         } else {
             include_once PATH_DATABASE_CONFIG;
             if (!class_exists('WingedDatabaseConfig')) {
-                Error::_die('class WingedDatabaseConfig do not exists in WingedDatabaseConfig.php', 209, 'WingedHead.php', 209);
+                throw new Exception('class WingedDatabaseConfig do not exists in WingedDatabaseConfig.php');
             }
         }
 
         if (!file_exists(PATH_CONFIG)) {
-            Error::_die('file WingedConfig.php do not exists.', 214, 'WingedHead.php', 214);
+            throw new Exception('file WingedConfig.php do not exists.');
         } else {
             include_once PATH_CONFIG;
 
             if (!class_exists('WingedConfig')) {
-                Error::_die('class WingedConfig do not exists in WingedConfig.php', 219, 'WingedHead.php', 219);
+                throw new Exception('class WingedConfig do not exists in WingedConfig.php');
             } else {
                 if (!property_exists('WingedConfig', 'config')) {
-                    Error::_die('Die | Fatal', 'property self::$config not exists in WingedConfig class', __LINE__, __FILE__, __LINE__);
+                    throw new Exception('property self::$config not exists in WingedConfig class');
                 } else {
                     WingedConfigDefaults::init();
                 }
@@ -210,9 +224,11 @@ class WingedHead
             }
 
             if (WingedConfig::$config->db()->USE_DATABASE) {
-                Connections::init();
-                $_GET = no_injection_array($_ORIGINAL_GET);
-                $_POST = no_injection_array($_ORIGINAL_POST);
+                if (is_bool(stripos(server('request_uri'), '__winged_file_handle_core__'))) {
+                    Connections::init();
+                    $_GET = no_injection_array($_ORIGINAL_GET);
+                    $_POST = no_injection_array($_ORIGINAL_POST);
+                }
             }
 
             if (file_exists(EXTRAS)) {
