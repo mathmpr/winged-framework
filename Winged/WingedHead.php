@@ -7,7 +7,6 @@ use Winged\Date\Microtime;
 use Winged\Buffer\Buffer;
 use Winged\Error\Error;
 use Winged\Http\Session;
-use Winged\Utils\Container;
 use Winged\Database\Connections;
 use Winged\Utils\FileTree;
 use WingedConfig;
@@ -154,8 +153,6 @@ class WingedHead
         Microtime::init();
 
         Buffer::start();
-
-        Container::$self = new Container(Container::$self);
 
         if (!file_exists(PATH_DATABASE_CONFIG)) {
             throw new Exception('file WingedDatabaseConfig.php do not exists.');

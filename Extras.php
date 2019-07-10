@@ -1,9 +1,11 @@
 <?php
 
-\Winged\Utils\Container::$self->attach('whenControllerNotFound', function(){
-    return false;
+use Winged\Controller\Controller;
+
+Controller::whenNotFound(function(){
+
 });
 
-\Winged\Utils\Container::$self->attach('beforeSearchController', function(){
-    return null;
+Controller::beforeSearch(function(){
+
 });

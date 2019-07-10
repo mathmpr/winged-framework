@@ -2,21 +2,14 @@
 
 namespace Winged\Controller;
 
-use Winged\External\MatthiasMullie\Minify\Minify\CSS;
-use Winged\External\MatthiasMullie\Minify\Minify\JS;
-use Winged\Date\Date;
 use Winged\Directory\Directory;
 use Winged\File\File;
 use Winged\Frontend\Render;
 use Winged\Http\HttpResponseHandler;
-use Winged\Utils\Container;
-use Winged\Utils\RandomName;
 use Winged\Utils\WingedLib;
 use Winged\Winged;
 use WingedConfig;
 use Winged\Error\Error;
-use Winged\Buffer\Buffer;
-use \Exception;
 
 /**
  * Class Controller
@@ -35,23 +28,74 @@ class Controller extends Render
     private $query_params = [];
     private $method_args = [];
     private $controller_reset = false;
-    private $body_class = null;
-    private $html_class = null;
     private $error_level = 0;
     private $vitual_success = false;
 
+    /**
+     * @var bool | callable $beforeSearch
+     */
+    public static $beforeSearch = false;
+
+    /**
+     * @var bool | callable $whenNotFound
+     */
+    public static $whenNotFound = false;
+
+    /**
+     * called in all requests before search any controller
+     *
+     * @param null $calback
+     */
+    public static function beforeSearch($calback = null)
+    {
+        if (is_callable($calback)) {
+            self::$beforeSearch = $calback;
+        }
+    }
+
+    /**
+     * called in all requests when any controller not founded
+     *
+     * @param null $calback
+     */
+    public static function whenNotFound($calback = null)
+    {
+        if (is_callable($calback)) {
+            self::$whenNotFound = $calback;
+        }
+    }
+
+    /**
+     * Controller constructor.
+     */
     public function __construct()
     {
         $this->copy();
         parent::__construct();
     }
 
+    /**
+     * create property dynamic inside current controller
+     *
+     * @param $key
+     * @param $value
+     *
+     * @return $this
+     */
     public function dynamic($key, $value)
     {
         $this->{$key} = $value;
         return $this;
     }
 
+    /**
+     * try to find a controller based into string like an URI
+     *
+     * @param string $path
+     *
+     * @return array|bool
+     * @throws \ReflectionException
+     */
     public function virtualString($path = '')
     {
         $exp = explode('/', $path);
@@ -76,6 +120,16 @@ class Controller extends Render
         return $find;
     }
 
+    /**
+     * simulates a call like a request to an controller with explicit call
+     *
+     * @param       $controller
+     * @param bool  $action
+     * @param array $uri
+     *
+     * @return array|bool
+     * @throws \ReflectionException
+     */
     public function virtual($controller, $action = false, $uri = [])
     {
         Winged::$controller_page = $controller;
@@ -95,6 +149,17 @@ class Controller extends Render
         return $find;
     }
 
+    /**
+     * look for all aspects in controller
+     * check if directory <path>/controller exists
+     * check if file controller exists
+     * check if class inside controller exists and match with name founded in URI
+     *
+     * @param string $controller_name
+     * @param string $action_name
+     *
+     * @return array|bool
+     */
     public static function controllerObserver($controller_name = '', $action_name = '')
     {
         if (WingedConfig::$config->PARENT_FOLDER_MVC) {
@@ -121,10 +186,14 @@ class Controller extends Render
                     ];
                 } else {
                     if (WingedConfig::$config->CONTROLLER_DEBUG) {
-                        trigger_error("Controller class '" . $controller_name . "' no exists in file '" . $controller->file_path . "'", E_USER_WARNING);
+                        trigger_error("Controller class '" . $controller_name . "' no exists in file '" . $controller->file_path . "'", E_USER_ERROR);
                     }
                 }
+            } else {
+                trigger_error("File '" . $controller->file_path . "' no exists", E_USER_ERROR);
             }
+        } else {
+            trigger_error("Directory '" . $directory->folder . "' no exists", E_USER_ERROR);
         }
         return false;
     }
@@ -239,6 +308,13 @@ class Controller extends Render
         return false;
     }
 
+    /**
+     * get query string from $_GET + opction $push param
+     *
+     * @param array $push
+     *
+     * @return string
+     */
     public function getQueryStringConcat($push = [])
     {
         $param = '';
@@ -273,6 +349,13 @@ class Controller extends Render
         return $param;
     }
 
+    /**
+     * reset main controller informations
+     * check if other config file exists inside parent dir
+     * rebuild configs and try to find controller again
+     *
+     * @return bool
+     */
     private function reset()
     {
         $parent = Winged::$parent;
@@ -289,6 +372,14 @@ class Controller extends Render
         return false;
     }
 
+    /**
+     * get controller name founded in URI if $name param not passed
+     * if passed convert name into Camel Case format
+     *
+     * @param bool $name
+     *
+     * @return string
+     */
     public static function getControllerName($name = false)
     {
         if (!$name) {
@@ -301,6 +392,14 @@ class Controller extends Render
         return trim(implode('', $exp) . 'Controller');
     }
 
+    /**
+     * get action name founded in URI if $name param not passed
+     * if passed convert name into Camel Case format
+     *
+     * @param bool $name
+     *
+     * @return string
+     */
     public static function getActionName($name = false)
     {
         if (!$name) {
@@ -314,7 +413,7 @@ class Controller extends Render
     }
 
     /**
-     *
+     * put $_GET inside current controller
      */
     public function getGetArgs()
     {
@@ -406,6 +505,15 @@ class Controller extends Render
         exit;
     }
 
+    /**
+     * set nicknames in uri
+     * Ex: /users/edit/1
+     * {controller}/{action}/1
+     * $nicks = ['id']
+     * {controller}/{action}/{id}
+     *
+     * @param array $nicks
+     */
     public function setNicknamesToUri($nicks = [])
     {
         $narr = [];
@@ -458,6 +566,11 @@ class Controller extends Render
         return false;
     }
 
+    /**
+     * @param $key
+     *
+     * @return bool|mixed
+     */
     public function params($key)
     {
         if (array_key_exists($key, $this->query_params)) {
@@ -473,195 +586,22 @@ class Controller extends Render
      * @param array  $vars
      *
      * @return bool
-     * @throws Exception
      */
     public function html($path, $vars = [])
     {
         $content = $this->_render($this->view($path), $vars);
         if ($content && $this->checkCalls()) {
-            $this->activeMinify();
-            if(is_string(WingedConfig::$config->HEAD_CONTENT_PATH)){
+            try {
+                $this->activeMinify();
+            } catch (\Exception $exception) {
+                trigger_error($exception->getMessage(), E_USER_ERROR);
+            }
+            if (is_string(WingedConfig::$config->HEAD_CONTENT_PATH)) {
                 $this->appendAbstractHead('__first_head_content___', WingedConfig::$config->HEAD_CONTENT_PATH);
             }
             $this->configureAssets($content);
             $this->compactHtml($content);
-            return $this->channelingRender($content, 'html');
-        }
-
-        if ($content) {
-            //$content = $this->pureHtml($content);
-            $rep = [];
-            $match = false;
-            $matchs = null;
-            if (is_int(stripos($content, '<textarea'))) {
-                $match = preg_match_all('#<textarea(.*?)>(.*?)</textarea>#is', $content, $matchs);
-                if ($match) {
-                    foreach ($matchs[0] as $match) {
-                        $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
-                    }
-                    $content = str_replace($matchs[0], $rep, $content);
-                }
-            }
-            $match_code = false;
-            $matchs_code = null;
-            if (is_int(stripos($content, '<code'))) {
-                $match_code = preg_match_all('#<code(.*?)>(.*?)</code>#is', $content, $matchs_code);
-                if ($match_code) {
-                    foreach ($matchs_code[0] as $match_code) {
-                        $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
-                    }
-                    $content = str_replace($matchs_code[0], $rep, $content);
-                }
-            }
-            $content = preg_replace('#> <#', '><', preg_replace('# {2,}#', ' ', preg_replace('/[\n\r]|/', '', $content)));
-            if ($match) {
-                $content = str_replace($rep, $matchs[0], $content);
-            }
-            if ($match_code) {
-                $content = str_replace($rep, $matchs_code[0], $content);
-            }
-
-            global $__base__;
-            $__base__ = false;
-
-            preg_replace_callback('#<base.+?href="([^"]*)".*?/?>#i', function ($found) {
-                global $__base__;
-                $__base__ = $found[1];
-                if ($__base__ == "") {
-                    $__base__ = false;
-                }
-            }, $content);
-
-            $perms_tags = [
-                'script' => '#<script.+?src="([^"]*)".*?/?>#i',
-                'img' => '#<img.+?src="([^"]*)".*?/?>#i',
-                'source' => '#<source.+?src="([^"]*)".*?/?>#i',
-                'link' => '#<link.+?href="([^"]*)".*?/?>#i',
-            ];
-
-            $unicid_assets = [];
-
-            Container::$self->attach('__resolve_pattern_parser___', function ($matches) {
-                $full_string = $matches[0];
-                $only_match = $matches[1];
-                $base = false;
-
-                if (is_string(Container::$self->__base__)) {
-                    $base = str_replace(
-                        [
-                            Winged::$protocol,
-                            Winged::$http,
-                            Winged::$https,
-                        ],
-                        '',
-                        Container::$self->__base__
-                    );
-                }
-
-                $copy_match = WingedLib::clearPath($only_match);
-                $copy_match = str_replace(
-                    [
-                        Winged::$protocol,
-                        Winged::$http,
-                        Winged::$https,
-                    ],
-                    '',
-                    $copy_match
-                );
-                if (is_string($base)) {
-                    $file = new File(WingedLib::normalizePath($base) . $copy_match, false);
-                    $mime = explode('/', $file->getMimeType());
-                    $mime = $mime[0];
-                    if (($file->exists() && in_array($file->getExtension(), [
-                                'json',
-                                'html',
-                                'xml',
-                                'css',
-                                'htm',
-                                'js',
-                                'svg'
-                            ])) || (($file->exists() && $mime == 'image'))) {
-                        if (
-                            (!is_int(stripos($copy_match, 'https://')) &&
-                                !is_int(stripos($copy_match, 'http://')) &&
-                                !is_int(stripos($copy_match, '//'))) ||
-                            (is_int(stripos($copy_match, Winged::$http)) ||
-                                is_int(stripos($copy_match, Winged::$https))
-                            )
-                        ) {
-                            $copy_match = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode(WingedLib::normalizePath($base) . $copy_match);
-                            $full_string = str_replace($only_match, $copy_match, $full_string);
-                            $only_match = $copy_match;
-                        }
-                    }
-                }
-
-
-                if (in_array(Container::$self->__tag__, Container::$self->unicid_assets)) {
-                    if (is_int(stripos($only_match, '?'))) {
-                        $full_string = str_replace($only_match, $only_match . '&get=' . RandomName::generate('sisisi'), $full_string);
-                    } else {
-                        $full_string = str_replace($only_match, $only_match . '?get=' . RandomName::generate('sisisi'), $full_string);
-                    }
-                }
-
-                return $full_string;
-
-            });
-
-            if (is_array(WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS)) {
-                $unicid_assets = WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS;
-            }
-
-            if (!empty($unicid_assets) || WingedConfig::$config->ADD_CACHE_CONTROL) {
-
-                Container::$self->unicid_assets = $unicid_assets;
-                Container::$self->__base__ = $__base__;
-
-                foreach ($perms_tags as $tag => $pattern) {
-                    Container::$self->__tag__ = $tag;
-                    $content = preg_replace_callback($pattern, [Container::$self, '__resolve_pattern_parser___'], $content);
-                }
-            }
-
-            /*
-            if ($content) {
-                $minified = array_shift($this->css);
-                $file = new File($minified['string'], false);
-                $file_content = $file->read();
-                $originals = [];
-                $replaces = [];
-                $trades = [];
-                if ($file->exists()) {
-                    if (Container::$self->__css_paths__) {
-                        foreach (Container::$self->__css_paths__ as $path => $paths) {
-                            $path = new File($path, false);
-                            if ($path->exists()) {
-                                foreach ($paths as $files) {
-                                    if (!empty($files)) {
-                                        $target_original = str_replace(['"', "'"], '', $files['file']);
-                                        $target = new File($path->folder->folder . $target_original, false);
-                                        if ($target->exists()) {
-                                            $originals[] = $files['file'];
-                                            $replaces[] = RandomName::generate('sisis', false, false);
-                                            $trades[] = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($target->file_path);
-
-                                            if ($target_original != $files['file']) {
-                                                $originals[] = $target_original;
-                                                $replaces[] = RandomName::generate('sisis', false, false);
-                                                $trades[] = end($trades);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                $file_content = str_replace($originals, $replaces, $file_content);
-                $file_content = str_replace($replaces, $trades, $file_content);
-                $file->write($file_content);
-            }*/
+            $this->reconfigurePaths($content);
             return $this->channelingRender($content, 'html');
         }
         return false;
@@ -678,265 +618,6 @@ class Controller extends Render
     {
         $path .= '.php';
         return self::$VIEWS_PATH . $path;
-    }
-
-    private function createJsMinifyNew($path, $read)
-    {
-        $read[$path] = [
-            'create_at' => Date::now()->timestamp(),
-            'formed_with' => [],
-            'cache_file' => './cache/js/' . RandomName::generate('sisisisi', true, false) . '.js'
-        ];
-        $cache_file = new File($read[$path]['cache_file']);
-        $minify = new JS();
-        foreach ($this->js as $identifier => $content) {
-            if (!in_array($identifier, $this->remove_js)) {
-                if ($content['type'] === 'file') {
-                    $file = new File($content['string'], false);
-                    if ($file->exists()) {
-                        $minify->add($file->read());
-                        $this->removeJs($identifier);
-                        $read[$path]['formed_with'][$content['string']] = [
-                            'time' => $file->modifyTime(),
-                            'path' => $file->file_path,
-                            'name' => $file->file,
-                            'identifier' => $identifier,
-                        ];
-                    }
-                }
-            }
-        }
-
-        $cache_file->write($minify->minify());
-
-        $this->js = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->js);
-        return $this->persistsMinifiedCacheFileInformation($read);
-    }
-
-    private function createJsMinify()
-    {
-        $this->createMinifiedCacheFileInformation();
-        $read = $this->readMinifiedCacheFileInformation();
-        $path = '';
-        foreach ($this->js as $identifier => $content) {
-            if (!in_array($identifier, $this->remove_js)) {
-                if ($content['type'] === 'file') {
-                    $path .= $content['string'];
-                }
-            }
-            $path = md5($path);
-        }
-        if (WingedConfig::$config->AUTO_MINIFY) {
-            if (!array_key_exists($path, $read) && $path !== '') {
-                return $this->createJsMinifyNew($path, $read);
-            } else {
-                if (array_key_exists($path, $read)) {
-                    $check = $read[$path];
-                    $renew = false;
-                    foreach ($check['formed_with'] as $key => $former) {
-                        $file = new File($key, false);
-                        if (!$file->exists()) {
-                            $renew = true;
-                        } else {
-                            if ($former['time'] != $file->modifyTime()) {
-                                $renew = true;
-                            }
-                        }
-                        if (!array_key_exists($former['identifier'], $this->js)) {
-                            $renew = true;
-                        }
-                    }
-                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$config->AUTO_MINIFY) {
-                        $renew = true;
-                    }
-                    if ($renew) {
-                        $old_cache_file = new File($read[$path]['cache_file']);
-                        if ($old_cache_file->exists()) {
-                            $old_cache_file->delete();
-                        }
-                        return $this->createJsMinifyNew($path, $read);
-                    } else {
-                        foreach ($check['formed_with'] as $key => $former) {
-                            $this->removeJs($former['identifier']);
-                        }
-                        $this->js = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->js);
-                    }
-                }
-            }
-        } else {
-            if (array_key_exists($path, $read)) {
-                $check = $read[$path];
-                foreach ($check['formed_with'] as $key => $former) {
-                    $this->removeJs($former['identifier']);
-                }
-                $this->js = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->js);
-            }
-        }
-        return false;
-    }
-
-    private function createCssMinifyNew($path, $read)
-    {
-        //$pattern = '/url\(([\'"]?.[^\'"]*\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|otf|eot|css)[\'"]?)\)/i';
-        $pattern = '/url\((?![\'"]?(?:data|http):)[\'"]?([^\'"\)]*)[\'"]?\)/i';
-        $read[$path] = [
-            'create_at' => Date::now()->timestamp(),
-            'formed_with' => [],
-            'cache_file' => './cache/css/' . RandomName::generate('sisisisi', true, false) . '.css'
-        ];
-        $cache_file = new File($read[$path]['cache_file']);
-        $minify = new CSS();
-        Container::$self->__css_paths__ = [];
-
-        function __recursiveCheck__($matches, $_file, $pattern, $minify)
-        {
-            /**
-             * @var $_file  File
-             * @var $minify CSS
-             */
-            $full_string = $matches[0];
-            $file = str_replace(['"', "'"], '', $matches[1]);
-            //$extension = trim($matches[2]);
-            $now_in = Container::$self->__css_path_now__;
-
-            $file = explode(')', $file);
-            $file = array_shift($file);
-            $exp = explode('.', $file);
-            $extension = end($exp);
-
-            Container::$self->vars['__css_paths__'][Container::$self->__css_path_now__][] =
-                [
-                    'full_string' => $full_string,
-                    'file' => $file,
-                    'extension' => $extension
-                ];
-            if ($extension == 'css') {
-                $_file = new File($_file->folder->folder . $file, false);
-                if ($_file->exists()) {
-                    Container::$self->vars['__css_path_now__'] = $_file->file_path;
-                    Container::$self->vars['__css_paths__'][Container::$self->__css_path_now__] = [];
-                    preg_replace_callback($pattern, function ($matches) use ($file, $pattern, $minify) {
-                        __recursiveCheck__($matches, $file, $pattern, $minify);
-                    }, $_file->read());
-                    $minify->add($_file->read());
-                }
-                Container::$self->vars['__css_path_now__'] = $now_in;
-            }
-        }
-
-        foreach ($this->css as $identifier => $content) {
-            if (!in_array($identifier, $this->remove_css)) {
-                if ($content['type'] === 'file') {
-                    $file = new File($content['string'], false);
-                    if ($file->exists()) {
-                        Container::$self->vars['__css_path_now__'] = $file->file_path;
-                        Container::$self->vars['__css_paths__'][Container::$self->__css_path_now__] = [];
-                        preg_replace_callback($pattern, function ($matches) use ($file, $pattern, $minify) {
-                            __recursiveCheck__($matches, $file, $pattern, $minify);
-                        }, $file->read());
-
-                        $minify->add($file->read());
-                        $this->removeCss($identifier);
-                        $read[$path]['formed_with'][$content['string']] = [
-                            'time' => $file->modifyTime(),
-                            'path' => $file->file_path,
-                            'name' => $file->file,
-                            'identifier' => $identifier,
-                        ];
-                    }
-                }
-            }
-        }
-
-        $cache_file->write($minify->minify());
-        $this->css = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->css);
-        return $this->persistsMinifiedCacheFileInformation($read);
-    }
-
-    private function createCssMinify()
-    {
-        $this->createMinifiedCacheFileInformation();
-        $read = $this->readMinifiedCacheFileInformation();
-        $path = '';
-
-        if (WingedConfig::$config->AUTO_MINIFY) {
-            foreach ($this->css as $identifier => $content) {
-                if (!in_array($identifier, $this->remove_css)) {
-                    if ($content['type'] === 'file') {
-                        $path .= $content['string'];
-                    }
-                }
-                $path = md5($path);
-            }
-            if (!array_key_exists($path, $read) && $path !== '') {
-                return $this->createCssMinifyNew($path, $read);
-            } else {
-                //check and update if need
-                if (array_key_exists($path, $read)) {
-                    $check = $read[$path];
-                    $renew = false;
-                    foreach ($check['formed_with'] as $key => $former) {
-                        $file = new File($key, false);
-                        if (!$file->exists()) {
-                            $renew = true;
-                        } else {
-                            if ($former['time'] != $file->modifyTime()) {
-                                $renew = true;
-                            }
-                        }
-                        if (!array_key_exists($former['identifier'], $this->css)) {
-                            $renew = true;
-                        }
-                    }
-                    if ((int)Date::now()->diff((new Date($check['create_at'])), ['i'])->minutes > (int)WingedConfig::$config->AUTO_MINIFY) {
-                        $renew = true;
-                    }
-                    if ($renew) {
-                        $old_cache_file = new File($read[$path]['cache_file']);
-                        if ($old_cache_file->exists()) {
-                            $old_cache_file->delete();
-                        }
-                        return $this->createCssMinifyNew($path, $read);
-                    } else {
-                        foreach ($check['formed_with'] as $key => $former) {
-                            $this->removeCss($former['identifier']);
-                        }
-                        $this->css = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->css);
-                    }
-                }
-            }
-        } else {
-            if (array_key_exists($path, $read)) {
-                $check = $read[$path];
-                foreach ($check['formed_with'] as $key => $former) {
-                    $this->removeCss($former['identifier']);
-                }
-                $this->css = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->css);
-            }
-        }
-        return false;
-    }
-
-    private function createMinifiedCacheFileInformation()
-    {
-        $file = new File('./minify.cache.json', false);
-        if (!$file->exists()) {
-            $file = new File('./minify.cache.json');
-            $file->write(json_encode([]));
-        } else {
-            $file = new File('./minify.cache.json');
-        }
-        $this->minify_cache = $file;
-    }
-
-    private function persistsMinifiedCacheFileInformation($content)
-    {
-        return ($this->minify_cache->write(json_encode($content)));
-    }
-
-    private function readMinifiedCacheFileInformation()
-    {
-        return json_decode($this->minify_cache->read(), true);
     }
 
     /**

@@ -28,16 +28,10 @@ class WingedConfigDefaults
     public $DEV = true;
 
     /**
-     * @property $STANDARD string
-     * your main and default route for rewrite url
+     * @property $DEFAULT_URI string
+     * defines the name of your primary controller / router when no name for controller was found in the url
      */
-    public $STANDARD = false;
-
-    /**
-     * @property $STANDARD_CONTROLLER string
-     * defines the name of your primary controller when no name for controllador was found in the url
-     */
-    public $STANDARD_CONTROLLER = false;
+    public $DEFAULT_URI = false;
 
     /**
      * @property $CONTROLLER_DEBUG bool
@@ -88,10 +82,10 @@ class WingedConfigDefaults
     public $TIMEZONE = "UTC";
 
     /**
-     * @property $NOTFOUND string
+     * @property $NOT_FOUND_FILE_PATH string
      * defines the path to the page file not found
      */
-    public $NOTFOUND = false;
+    public $NOT_FOUND_FILE_PATH = false;
 
     /**
      * @property $DEBUG bool
@@ -166,7 +160,7 @@ class WingedConfigDefaults
      * It will only be enabled if the PHP instance supports gzencode or gzdefalte. In addition,
      * the response will only be compressed if the client request allows compression.
      */
-    public $USE_GZENCODE = false;
+    public $USE_GZENCODE = true;
 
     /**
      * @var $ADD_CACHE_CONTROL bool

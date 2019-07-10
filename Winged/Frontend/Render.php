@@ -5,6 +5,7 @@ namespace Winged\Frontend;
 use Winged\File\File;
 use Winged\Buffer\Buffer;
 use Winged\Utils\RandomName;
+use Winged\Utils\WingedLib;
 use Winged\Winged;
 use \WingedConfig;
 
@@ -19,10 +20,28 @@ class Render extends Assets
 {
 
     /**
-     * @var $first_render bool
+     * @var bool $first_render
      */
-    public $first_render = true;
+    protected $first_render = true;
 
+    /**
+     * @var string $baseUrl
+     */
+    protected $baseUrl = "./";
+
+    /**
+     * @var null | string $currentTag
+     */
+    protected $currentTag = null;
+
+    /**
+     * @var array $unicidAssets
+     */
+    protected $unicidAssets = [];
+
+    /**
+     * @var int $calls
+     */
     public $calls = 0;
 
 
@@ -117,6 +136,136 @@ class Render extends Assets
         return false;
     }
 
+    /**
+     * run inside CSS files and replace path with corret path
+     * replace src, href with file handle core if it is true in config
+     *
+     * @param $content
+     */
+    protected function reconfigurePaths(&$content)
+    {
+        preg_replace_callback('#<base.+?href="([^"]*)".*?/?>#i', function ($found) {
+            $this->baseUrl = $found[1];
+            if ($this->baseUrl == "") {
+                $this->baseUrl = "./";
+            }
+        }, $content);
+
+        $patterns = [
+            'script' => '#<script.+?src="([^"]*)".*?/?>#i',
+            'img' => '#<img.+?src="([^"]*)".*?/?>#i',
+            'source' => '#<source.+?src="([^"]*)".*?/?>#i',
+            'link' => '#<link.+?href="([^"]*)".*?/?>#i',
+        ];
+
+        if (is_array(WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS)) {
+            $this->unicidAssets = WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS;
+        }
+
+        if (!empty($unicid_assets) || WingedConfig::$config->ADD_CACHE_CONTROL) {
+            foreach ($patterns as $tag => $pattern) {
+                $this->currentTag = $tag;
+                $content = preg_replace_callback($pattern, function ($matches) {
+                    return $this->tradePaths($matches);
+                }, $content);
+            }
+        }
+    }
+
+    /**
+     * modify path to files to file handler core
+     *
+     * @param $matches
+     *
+     * @return mixed
+     */
+    private function tradePaths($matches)
+    {
+        $full_string = $matches[0];
+        $only_match = $matches[1];
+        $base = false;
+
+        if (is_string($this->baseUrl)) {
+            $base = str_replace(
+                [
+                    Winged::$protocol,
+                    Winged::$http,
+                    Winged::$https,
+                ],
+                '',
+                $this->baseUrl
+            );
+        }
+
+        if (WingedConfig::$config->USE_WINGED_FILE_HANDLER) {
+            $copy_match = WingedLib::clearPath($only_match);
+            $copy_match = str_replace(
+                [
+                    Winged::$protocol,
+                    Winged::$http,
+                    Winged::$https,
+                ],
+                '',
+                $copy_match
+            );
+
+            if (is_string($base)) {
+                $cantUseBase = false;
+                $file = new File(WingedLib::normalizePath($base) . $copy_match, false);
+                if (!$file->exists()) {
+                    $file = new File($copy_match, false);
+                    if ($file->exists()) {
+                        $cantUseBase = true;
+                    }
+                }
+                $mime = explode('/', $file->getMimeType());
+                $mime = $mime[0];
+                if (($file->exists() && in_array($file->getExtension(), [
+                            'json',
+                            'html',
+                            'xml',
+                            'css',
+                            'htm',
+                            'js',
+                            'svg'
+                        ])) || (($file->exists() && $mime == 'image'))) {
+                    if (
+                        (!is_int(stripos($copy_match, 'https://')) &&
+                            !is_int(stripos($copy_match, 'http://')) &&
+                            !is_int(stripos($copy_match, '//'))) ||
+                        (is_int(stripos($copy_match, Winged::$http)) ||
+                            is_int(stripos($copy_match, Winged::$https))
+                        )
+                    ) {
+                        if ($cantUseBase) {
+                            $copy_match = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($copy_match);
+                        } else {
+                            $copy_match = Winged::$protocol . '__winged_file_handle_core__/' . base64_encode(WingedLib::normalizePath($base) . $copy_match);
+                        }
+                        $full_string = str_replace($only_match, $copy_match, $full_string);
+                        $only_match = $copy_match;
+                    }
+                }
+            }
+        }
+
+        if (in_array($this->currentTag, $this->unicidAssets)) {
+            if (is_int(stripos($only_match, '?'))) {
+                $full_string = str_replace($only_match, $only_match . '&get=' . RandomName::generate('sisisi'), $full_string);
+            } else {
+                $full_string = str_replace($only_match, $only_match . '?get=' . RandomName::generate('sisisi'), $full_string);
+            }
+        }
+
+        return $full_string;
+    }
+
+    /**
+     * add html, head and body tags
+     * and finally add asset files
+     *
+     * @param $content
+     */
     protected function configureAssets(&$content)
     {
         ob_start('mb_output_handler');
@@ -134,7 +283,11 @@ class Render extends Assets
             foreach ($this->appendedAbstractHeadContent as $head) {
                 $file = new File($head, false);
                 if ($file->exists()) {
-                    echo $file->read();
+                    if (in_array($file->getExtension(), ['php'])) {
+                        include_once $file->file_path;
+                    } else {
+                        echo $file->read();
+                    }
                 } else {
                     echo $head;
                 }

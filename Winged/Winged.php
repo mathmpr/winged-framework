@@ -12,7 +12,6 @@ use Winged\Http\Session;
 use Winged\Route\Route;
 use Winged\Route\RouteExec;
 use Winged\Utils\WingedLib;
-use Winged\Utils\Container;
 use WingedConfig;
 
 try {
@@ -88,23 +87,23 @@ class Winged
         if (!self::$controller) {
             self::$controller = new Controller();
         }
-        if (is_null(WingedConfig::$config->NOTFOUND) || !WingedConfig::$config->NOTFOUND) {
-            WingedConfig::$config->NOTFOUND = "./winged/class/rewrite/error/404.php";
+        if (is_null(WingedConfig::$config->NOT_FOUND_FILE_PATH) || !WingedConfig::$config->NOT_FOUND_FILE_PATH) {
+            WingedConfig::$config->NOT_FOUND_FILE_PATH = "./Winged/Error/404.php";
         }
 
-        if (is_null(WingedConfig::$config->STANDARD)) {
-            self::$standard = WingedConfig::$config->STANDARD;
-            self::$notfound = WingedConfig::$config->NOTFOUND;
+        if (is_null(WingedConfig::$config->DEFAULT_URI)) {
+            self::$standard = WingedConfig::$config->DEFAULT_URI;
+            self::$notfound = WingedConfig::$config->NOT_FOUND_FILE_PATH;
         } else {
-            self::$notfound = WingedConfig::$config->NOTFOUND;
-            self::$standard = WingedConfig::$config->STANDARD;
-            self::$standard_controller = WingedConfig::$config->STANDARD_CONTROLLER;
+            self::$notfound = WingedConfig::$config->NOT_FOUND_FILE_PATH;
+            self::$standard = WingedConfig::$config->DEFAULT_URI;
+            self::$standard_controller = WingedConfig::$config->DEFAULT_URI;
             self::$router = WingedConfig::$config->ROUTER;
         }
         self::nosplit();
     }
 
-    public static function clearUrls()
+    private static function clearUrls()
     {
         $refers = [
             & self::$http,
@@ -124,7 +123,7 @@ class Winged
 
     }
 
-    public static function nosplit()
+    private static function nosplit()
     {
         self::normalize();
         $dirs = self::getdir();
@@ -236,16 +235,22 @@ class Winged
 
         $before = false;
 
-        if (Container::$self->methodExists('beforeSearchController')) {
-            $before = Container::$self->beforeSearchController();
+        if (is_callable(Controller::$beforeSearch)) {
+            $closure = \Closure::bind(Controller::$beforeSearch, null, '\Winged\Controller\Controller');
+            $before = $closure();
         }
 
         if ($before === false || $before === null) {
             $before = false;
-            $found = self::$controller->find();
+            $found = false;
+            try {
+                $found = self::$controller->find();
+            } catch (\Exception $exception) {
+            }
             if (!$found) {
-                if (Container::$self->methodExists('whenControllerNotFound')) {
-                    $before = Container::$self->whenControllerNotFound();
+                if (is_callable(Controller::$whenNotFound)) {
+                    $closure = \Closure::bind(Controller::$whenNotFound, null, '\Winged\Controller\Controller');
+                    $before = $closure();
                 }
                 if ($before === false || $before === null) {
                     RouteExec::sendErrorResponse();
@@ -257,7 +262,8 @@ class Winged
                     Buffer::flushKill();
                     exit;
                 } else {
-                    Error::_die('END_OF_EXECUTION', 'Nothing exists. Controller no exists, action no exists, routes not found and [Not found] file not exists.', __LINE__, __FILE__, __LINE__);
+                    trigger_error('Nothing exists. Controller no exists, action no exists, routes not found and [Not found] file not exists.', E_USER_WARNING);
+                    Error::display();
                 }
             } else {
                 exit;
@@ -286,7 +292,7 @@ class Winged
     /**
      * normalize uri and ignore domain name and all folder before root of application
      */
-    public static function normalize()
+    private static function normalize()
     {
         $final_uri = '';
         $site_name = '';
@@ -441,7 +447,8 @@ class Winged
         ];
     }
 
-    public static function return_path_route()
+
+    private static function return_path_route()
     {
         $parent = self::$parent;
         $router = self::$router;
@@ -482,36 +489,5 @@ class Winged
                 ];
                 break;
         }
-    }
-
-    public
-    static function post()
-    {
-        if ($_POST) {
-            return $_POST;
-        }
-        return [];
-    }
-
-    public
-    static function get()
-    {
-        if ($_GET) {
-            return $_GET;
-        }
-        return [];
-    }
-
-    public
-    static function initialJs()
-    {
-        return '<script>
-                    window.protocol = "' . self::$protocol . '"; 
-                    window.parent = "' . self::$parent . '"; 
-                    window.page_surname = "' . self::$page_surname . '"; 
-                    window.uri = "' . self::$uri . '"; 
-                    window.controller_params = JSON.parse(\'' . json_encode(self::$controller_params) . '\'); 
-                    window.controller_action = "' . self::$controller_action . '";                
-                </script>';
     }
 }

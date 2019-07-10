@@ -4,3 +4,10 @@ this is not imported
 .wtf{
     border-left: 90px solid red;
 }
+
+textarea{
+    min-height: 200px;
+    width: 300px;
+    resize: none;
+    border-radius: 5px;
+}

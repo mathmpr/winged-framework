@@ -1083,8 +1083,10 @@ class HttpResponseHandler
     }
 
     /**
-     * @param $file File | string
-     * @param $exit bool
+     * @param      $file
+     * @param bool $exit
+     *
+     * @throws \Exception
      */
     public function dispatchFile($file, $exit = true)
     {
@@ -1104,11 +1106,13 @@ class HttpResponseHandler
                     } else {
                         header("Content-Type: " . $this->ages[$file->getExtension()]['mimetype']);
                     }
-                    header("Date: " . Date::now()->custom('%a, %d %b %Y %H:%M:%S GMT'));
-                    header("Last-Modified: " . (new Date($file->modifyTime()))->custom('%a, %d %b %Y %H:%M:%S GMT'));
-                    header("ETag: " . '"' . $file->modifyTime() . '-' . md5($file->read()) . '"');
-                    header("Expires: " . (new Date($file->modifyTime()))->add(['s' => $this->ages[$file->getExtension()]['age']])->custom('%a, %d %b %Y %H:%M:%S GMT'));
-                    if ($this->ages[$file->getExtension()]['gzip'] && WingedConfig::$config->get('USE_GZENCODE')) {
+                    if(WingedConfig::$config->ADD_CACHE_CONTROL){
+                        header("Date: " . Date::now()->custom('%a, %d %b %Y %H:%M:%S GMT'));
+                        header("Last-Modified: " . (new Date($file->modifyTime()))->custom('%a, %d %b %Y %H:%M:%S GMT'));
+                        header("ETag: " . '"' . $file->modifyTime() . '-' . md5($file->read()) . '"');
+                        header("Expires: " . (new Date($file->modifyTime()))->add(['s' => $this->ages[$file->getExtension()]['age']])->custom('%a, %d %b %Y %H:%M:%S GMT'));
+                    }
+                    if ($this->ages[$file->getExtension()]['gzip'] && WingedConfig::$config->USE_GZENCODE) {
                         header("Content-Encoding: gzip");
                         echo gzencode($file->read(), 9);
                     } else {

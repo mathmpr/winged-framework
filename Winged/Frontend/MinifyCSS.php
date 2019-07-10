@@ -7,6 +7,7 @@ use Winged\Date\Date;
 use Winged\External\MatthiasMullie\Minify\Minify\CSS;
 use Winged\File\File;
 use Winged\Utils\RandomName;
+use Winged\Winged;
 use \WingedConfig;
 
 /**
@@ -137,7 +138,8 @@ class MinifyCSS extends MinifyMaster
      * @param string $cssString
      * @param string $currentFile
      */
-    function replacePathsWithFileHandleCore($pattern, &$cssString, $currentFile){
+    function replacePathsWithFileHandleCore($pattern, &$cssString, $currentFile)
+    {
         if (WingedConfig::$config->USE_WINGED_FILE_HANDLER) {
             preg_match_all($pattern, $cssString, $matches);
             if (!empty($matches)) {
@@ -168,7 +170,7 @@ class MinifyCSS extends MinifyMaster
                         $fileObject = new File($fileImported, false);
                         if ($fileObject->exists()) {
                             $cssString = str_replace('  ', ' ', $cssString);
-                            $cssString = str_replace([$full_string . ' ;', $full_string . ';', $full_string], 'url("./__winged_file_handle_core__/' . base64_encode($fileObject->file_path) . '")', $cssString);
+                            $cssString = str_replace([$full_string . ' ;', $full_string . ';', $full_string], 'url("' . Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($fileObject->file_path) . '")', $cssString);
                         }
                     }
                 }
@@ -180,8 +182,8 @@ class MinifyCSS extends MinifyMaster
      * check if rule inside url property is an css file, if is css file, run again and again recursively
      * store all files inside $this->allCssPaths and minify all in one file (suppress css file imports)
      *
-     * @param array $matches
-     * @param File $_file
+     * @param array  $matches
+     * @param File   $_file
      * @param string $pattern
      * @param string $fileContent
      */
