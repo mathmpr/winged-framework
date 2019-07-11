@@ -125,7 +125,6 @@
     "./Winged/Socket/RatchetServer.php",
     "./Winged/Translate/Translate.php",
     "./Winged/Utils/Chord.php",
-    "./Winged/Utils/Container.php",
     "./Winged/Utils/DeepClone.php",
     "./Winged/Utils/FileTree.php",
     "./Winged/Utils/Order.php",

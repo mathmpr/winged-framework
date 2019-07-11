@@ -1,7 +1,8 @@
-@import url("../css/imported.css#ie-fix");
+@import url("imported.css#ie-fix");
+
+@import url("imported-after.css#ie-fix");
 
 body{
     background: #333;
 }
 
-@import url("../css/imported-after.css#ie-fix");

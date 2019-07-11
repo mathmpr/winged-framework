@@ -162,7 +162,7 @@ class Render extends Assets
             $this->unicidAssets = WingedConfig::$config->USE_UNICID_ON_INCLUDE_ASSETS;
         }
 
-        if (!empty($unicid_assets) || WingedConfig::$config->ADD_CACHE_CONTROL) {
+        if (!empty($this->unicidAssets) || WingedConfig::$config->ADD_CACHE_CONTROL) {
             foreach ($patterns as $tag => $pattern) {
                 $this->currentTag = $tag;
                 $content = preg_replace_callback($pattern, function ($matches) {
@@ -249,11 +249,13 @@ class Render extends Assets
             }
         }
 
+
         if (in_array($this->currentTag, $this->unicidAssets)) {
             if (is_int(stripos($only_match, '?'))) {
                 $full_string = str_replace($only_match, $only_match . '&get=' . RandomName::generate('sisisi'), $full_string);
             } else {
                 $full_string = str_replace($only_match, $only_match . '?get=' . RandomName::generate('sisisi'), $full_string);
+
             }
         }
 

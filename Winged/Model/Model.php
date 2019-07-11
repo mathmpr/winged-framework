@@ -20,31 +20,113 @@ abstract class Model extends AbstractEloquent
 
     public $extras = false;
 
-    private $on_save_error = [];
+    /**
+     * register callback to execute when save method as called and return error
+     *
+     * @var array
+     */
+    private $onSaveError = [];
 
-    private $on_save_success = [];
+    /**
+     * register callback to execute when save method as called and return success
+     *
+     * @var array
+     */
+    private $onSaveSuccess = [];
 
-    private $on_validate_success = [];
+    /**
+     * register callback to execute when validate method as called and return success
+     *
+     * @var array
+     */
+    private $onValidateSuccess = [];
 
-    private $on_validate_error = [];
+    /**
+     * register callback to execute when validate method as called and return error
+     *
+     * @var array
+     */
+    private $onValidateError = [];
 
-    private $parsed_properties = [];
+    /**
+     * register name of properties as parsed in last load call
+     *
+     * @var array
+     */
+    private $parsedProperties = [];
 
+    /**
+     * register name of properties as reversed in last select
+     *
+     * @var array
+     */
+    private $reversedProperties = [];
+
+    /**
+     * contain all fields names of a table
+     *
+     * @var array
+     */
     private $tableFields = [];
 
+    /**
+     * contain infos of a table
+     *
+     * @var array
+     */
     private $tableInfo = [];
 
+    /**
+     * store a cache information of a table
+     * with this, a new Model() do not need make a new query on database
+     *
+     * @var array
+     */
     protected static $cached_info = [];
 
     /**
-     * Model constructor.
+     * @param bool $pk
      *
-     * @throws \Exception
+     * @return int | $this
+     */
+    abstract public function primaryKey($pk = false);
+
+    /**
+     * @return array
+     */
+    abstract public function behaviors();
+
+    /**
+     * @return array
+     */
+    abstract public function reverseBehaviors();
+
+    /**
+     * @return array
+     */
+    abstract public function rules();
+
+    /**
+     * @return array
+     */
+    abstract public function messages();
+
+    /**
+     * @return array
+     */
+    abstract public function labels();
+
+    /**
+     * Model constructor.
      */
     public function __construct()
     {
         parent::__construct();
-        $this->tableFields();
+        try {
+            $this->tableFields();
+        } catch (\Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_ERROR);
+        }
         if (!$this->extras) {
             $this->extras = new \stdClass();
         }
@@ -53,9 +135,9 @@ abstract class Model extends AbstractEloquent
     /**
      * get table fields and fields informations
      *
+     * @return mixed
      * @throws \Exception
      *
-     * @return mixed
      */
     public function tableFields()
     {
@@ -89,7 +171,7 @@ abstract class Model extends AbstractEloquent
                 self::$cached_info[$class_name]->table_fields = $this->tableFields;
                 self::$cached_info[$class_name]->table_info = $this->tableInfo;
             }
-            return $this->table_fields;
+            return $this->tableFields;
         }
     }
 
@@ -284,7 +366,7 @@ abstract class Model extends AbstractEloquent
             $continue_and_apply_behavior = false;
             if ($this->isNew()) {
                 $continue_and_apply_behavior = true;
-            } else if (!$this->isNew() && in_array($key, $this->parsed_properties) && in_array($key, $fields_loaded_in_this_call)) {
+            } else if (!$this->isNew() && in_array($key, $this->parsedProperties) && in_array($key, $fields_loaded_in_this_call)) {
                 $continue_and_apply_behavior = true;
             }
 
@@ -301,7 +383,7 @@ abstract class Model extends AbstractEloquent
                                 $this->{$key} = $parsed_value;
                                 $this->before_values[$key] = $value_of_property_before_parse;
                                 $this->before_values_loaded = true;
-                                $this->parsed_properties[] = $key;
+                                $this->parsedProperties[] = $key;
                             }
                         }
                     } else {
@@ -312,7 +394,7 @@ abstract class Model extends AbstractEloquent
                         $this->{$key} = $parsed_value;
                         $this->before_values[$key] = $value_of_property_before_parse;
                         $this->before_values_loaded = true;
-                        $this->parsed_properties[] = $key;
+                        $this->parsedProperties[] = $key;
                     }
 
                     if (in_array($key, $this->table_fields) && $value_of_property_before_parse != $this->{$key}) {
@@ -598,13 +680,13 @@ abstract class Model extends AbstractEloquent
         }
 
         if ($continue) {
-            foreach ($this->on_validate_success as $index => $arr) {
-                call_user_func_array($this->on_validate_success[$index]['function'], $arr['args']);
+            foreach ($this->onValidateSuccess as $index => $arr) {
+                call_user_func_array($this->onValidateSuccess[$index]['function'], $arr['args']);
             }
         } else {
             $this->_reverse();
-            foreach ($this->on_validate_error as $index => $arr) {
-                call_user_func_array($this->on_validate_error[$index]['function'], $arr['args']);
+            foreach ($this->onValidateError as $index => $arr) {
+                call_user_func_array($this->onValidateError[$index]['function'], $arr['args']);
             }
         }
 
@@ -621,14 +703,14 @@ abstract class Model extends AbstractEloquent
         if (!empty($this->loaded_fields) || $this->primaryKey() != null) {
             $save = $this->createSaveStatement();
             if ($save) {
-                foreach ($this->on_save_success as $index => $arr) {
-                    call_user_func_array($this->on_save_success[$index]['function'], $arr['args']);
+                foreach ($this->onSaveSuccess as $index => $arr) {
+                    call_user_func_array($this->onSaveSuccess[$index]['function'], $arr['args']);
                     $this->removeFromSaveSuccess($index);
                 }
             } else {
                 $this->_reverse();
-                foreach ($this->on_save_error as $index => $arr) {
-                    call_user_func_array($this->on_save_error[$index]['function'], $arr['args']);
+                foreach ($this->onSaveError as $index => $arr) {
+                    call_user_func_array($this->onSaveError[$index]['function'], $arr['args']);
                 }
             }
             return $save;
@@ -679,7 +761,7 @@ abstract class Model extends AbstractEloquent
     public function onSaveSuccess($index = '', $function = '', $args = [])
     {
         if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
-            $this->on_save_success[$index] = [
+            $this->onSaveSuccess[$index] = [
                 'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
@@ -691,7 +773,7 @@ abstract class Model extends AbstractEloquent
     public function onSaveError($index = '', $function = '', $args = [])
     {
         if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
-            $this->on_save_error[$index] = [
+            $this->onSaveError[$index] = [
                 'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
@@ -703,8 +785,8 @@ abstract class Model extends AbstractEloquent
     public function removeFromSaveSuccess($index = '')
     {
         if (is_int($index) || is_string($index)) {
-            if (array_key_exists($index, $this->on_save_success)) {
-                unset($this->on_save_success[$index]);
+            if (array_key_exists($index, $this->onSaveSuccess)) {
+                unset($this->onSaveSuccess[$index]);
             }
         }
     }
@@ -712,8 +794,8 @@ abstract class Model extends AbstractEloquent
     public function removeFromSaveError($index = '')
     {
         if (is_int($index) || is_string($index)) {
-            if (array_key_exists($index, $this->on_save_error)) {
-                unset($this->on_save_error[$index]);
+            if (array_key_exists($index, $this->onSaveError)) {
+                unset($this->onSaveError[$index]);
             }
         }
     }
@@ -721,7 +803,7 @@ abstract class Model extends AbstractEloquent
     public function onValidateSuccess($index = '', $function = '', $args = [])
     {
         if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
-            $this->on_validate_success[$index] = [
+            $this->onValidateSuccess[$index] = [
                 'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
@@ -733,7 +815,7 @@ abstract class Model extends AbstractEloquent
     public function onValidateError($index = '', $function = '', $args = [])
     {
         if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
-            $this->on_validate_error[$index] = [
+            $this->onValidateError[$index] = [
                 'function' => \Closure::bind($function, $this, get_class()),
                 'args' => $args
             ];
@@ -745,8 +827,8 @@ abstract class Model extends AbstractEloquent
     public function removeFromValidateSuccess($index = '')
     {
         if (is_int($index) || is_string($index)) {
-            if (array_key_exists($index, $this->on_validate_success)) {
-                unset($this->on_validate_success[$index]);
+            if (array_key_exists($index, $this->onValidateSuccess)) {
+                unset($this->onValidateSuccess[$index]);
             }
         }
     }
@@ -754,8 +836,8 @@ abstract class Model extends AbstractEloquent
     public function removeFromValidateError($index = '')
     {
         if (is_int($index) || is_string($index)) {
-            if (array_key_exists($index, $this->on_validate_error)) {
-                unset($this->on_validate_error[$index]);
+            if (array_key_exists($index, $this->onValidateError)) {
+                unset($this->onValidateError[$index]);
             }
         }
     }

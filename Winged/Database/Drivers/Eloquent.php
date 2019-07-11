@@ -225,7 +225,7 @@ abstract class Eloquent
         } else {
             $this->database = $database;
         }
-        $this->model = $model;
+        $this->model = &$model;
     }
 
     /**
@@ -348,9 +348,9 @@ abstract class Eloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function where($condition = '', $values = [])
     {
@@ -368,9 +368,9 @@ abstract class Eloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function andWhere($condition = '', $values = [])
     {
@@ -388,9 +388,9 @@ abstract class Eloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function orWhere($condition = '', $values = [])
     {
@@ -431,9 +431,9 @@ abstract class Eloquent
      * @param string $condition
      * @param array  $inner
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function leftJoin($condition = '', $inner = [])
     {
@@ -453,9 +453,9 @@ abstract class Eloquent
      * @param string $condition
      * @param array  $inner
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function rightJoin($condition = '', $inner = [])
     {
@@ -476,9 +476,9 @@ abstract class Eloquent
      * @param string $condition
      * @param array  $inner
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function innerJoin($condition = '', $inner = [])
     {
@@ -531,9 +531,9 @@ abstract class Eloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function having($condition = '', $values = [])
     {
@@ -551,9 +551,9 @@ abstract class Eloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function andHaving($condition = '', $values = [])
     {
@@ -571,9 +571,9 @@ abstract class Eloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function orHaving($condition = '', $values = [])
     {
@@ -606,9 +606,9 @@ abstract class Eloquent
      * @param string $command
      * @param string $propertyName
      *
+     * @return false | $this
      * @throws \Exception
      *
-     * @return false | $this
      */
     protected function parse($condition = '', $args = [], $command = 'begin', $propertyName = 'where')
     {
@@ -651,10 +651,11 @@ abstract class Eloquent
     /**
      * check if field exists inside an table
      *
-     * @param string        $string
-     * @param string | bool $tableName
+     * @param string $string
+     * @param bool   $tableName
      *
      * @return bool
+     * @throws \Exception
      */
     protected function fieldExists($string = '', $tableName = false)
     {
@@ -709,9 +710,9 @@ abstract class Eloquent
     /**
      * @param Eloquent | Model | string | int | boolean | float | double $value
      *
+     * @return array
      * @throws \Exception
      *
-     * @return array
      */
     protected function getInformation($value)
     {
@@ -745,8 +746,8 @@ abstract class Eloquent
                     $info['type'] = 'alias';
                     $info['alias'] = $possibleTableOrAlias;
                     $info['table'] = $tableName;
-                    if (!$this->fieldExists($possibleFieldName, $tableName)) {
-                        throw new \Exception('field ' . $possibleFieldName . ' not exists in table ' . $possibleTableOrAlias);
+                    if (!$this->fieldExists($possibleFieldName, $tableName) && $possibleFieldName != "*") {
+                        throw new \Exception('field ' . $possibleFieldName . ' not exists in table ' . $tableName);
                     }
                     $info['field'] = $possibleFieldName;
                 } else {
@@ -790,9 +791,9 @@ abstract class Eloquent
      * @param $tableName
      * @param $fieldName
      *
+     * @return array
      * @throws \Exception
      *
-     * @return array
      */
     protected function getTypeOfField($tableName, $fieldName)
     {
@@ -825,9 +826,9 @@ abstract class Eloquent
      * @param string                                                   $tableName
      * @param string                                                   $fieldName
      *
+     * @return array
      * @throws \Exception
      *
-     * @return array
      */
     protected function normalizeValue($value, $tableName, $fieldName)
     {
@@ -923,9 +924,9 @@ abstract class Eloquent
     /**
      * @param string $propertyName
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function parseFields($propertyName = '')
     {
@@ -1022,9 +1023,9 @@ abstract class Eloquent
     /**
      * @param string $propertyName
      *
+     * @return $this;
      * @throws \Exception
      *
-     * @return $this;
      */
     public function parseTables($propertyName = '')
     {
@@ -1099,12 +1100,12 @@ abstract class Eloquent
      * get after clause relative to $current position in $this->queryTablesInfo with $propertyName
      * util to get information for parsing where and having clause for example
      *
-     * @throws \Exception
-     *
      * @param int    $current
      * @param string $propertyName
      *
      * @return bool | array
+     * @throws \Exception
+     *
      */
     public function afterClause($current = 0, $propertyName = '')
     {
@@ -1119,12 +1120,12 @@ abstract class Eloquent
      * get before clause relative to $current position in $this->queryTablesInfo with $propertyName
      * util to get information for parsing where and having clause for example
      *
-     * @throws \Exception
-     *
      * @param int    $current
      * @param string $propertyName
      *
      * @return bool | array
+     * @throws \Exception
+     *
      */
     public function beforeClause($current = 0, $propertyName = '')
     {
@@ -1138,12 +1139,12 @@ abstract class Eloquent
     /**
      * same as beforeClause(), but this return only type of operation like OR, BEGIN or AND.
      *
-     * @throws \Exception
-     *
      * @param int    $current
      * @param string $propertyName
      *
      * @return bool | string
+     * @throws \Exception
+     *
      */
     public function beforeClauseOperation($current = 0, $propertyName = '')
     {
@@ -1157,12 +1158,12 @@ abstract class Eloquent
     /**
      * same as afterClause(), but this return only type of operation like OR, BEGIN or AND.
      *
-     * @throws \Exception
-     *
      * @param int    $current
      * @param string $propertyName
      *
      * @return bool | string
+     * @throws \Exception
+     *
      */
     public function afterClauseOperation($current = 0, $propertyName = '')
     {
@@ -1232,9 +1233,9 @@ abstract class Eloquent
     /**
      * finally build query, return the final query and all values registred in eloquent
      *
+     * @return $this|EloquentInterface|array
      * @throws \Exception
      *
-     * @return $this|EloquentInterface|array
      */
     public function build()
     {
@@ -1275,6 +1276,7 @@ abstract class Eloquent
                 }
             }
             $return['query'] = call_user_func_array('sprintf', array_merge([$this->currentQueryString], $normalValues));
+            $return['command'] = $this->command;
 
             $this->resetAll();
             $this->builded = $return;
@@ -1296,46 +1298,78 @@ abstract class Eloquent
     /**
      * execute query, unbuild and unprepare query
      *
+     * @param bool $selectAsArray
+     *
      * @return array|bool|mixed|string
      */
-    public function execute(){
+    public function execute($selectAsArray = false)
+    {
         $returnedValue = false;
         if ($this->builded) {
             switch ($this->builded['command']) {
                 case Eloquent::COMMAND_INSERT:
-                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->insert($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->insert($this->builded['mysqli_query'], $this->builded['mysqli']);
                     } else {
                         $returnedValue = $this->database->insert($this->builded['query']);
                     }
+                    if($this->model){
+                        $this->model->primaryKey($returnedValue);
+                    }
                     break;
                 case Eloquent::COMMAND_DELETE:
-                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
                     } else {
                         $returnedValue = $this->database->execute($this->builded['query']);
                     }
                     break;
                 case Eloquent::COMMAND_UPDATE:
-                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
                     } else {
                         $returnedValue = $this->database->execute($this->builded['query']);
                     }
                     break;
                 case Eloquent::COMMAND_SELECT:
-                    if ($this->database->isPdo() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->fetch($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                         $returnedValue = $this->database->fetch($this->builded['mysqli_query'], $this->builded['mysqli']);
                     } else {
                         $returnedValue = $this->database->fetch($this->builded['query']);
+                    }
+                    if (!$selectAsArray && $this->model && !empty($returnedValue)) {
+                        $models = [];
+                        foreach ($returnedValue as $result) {
+                            try {
+                                $reflection = new \ReflectionClass(get_class($this->model));
+                            } catch (\Exception $exception) {
+                                $reflection = false;
+                            }
+                            if ($reflection) {
+                                /**
+                                 * @var $model Model
+                                 */
+                                $model = $reflection->newInstance();
+                                foreach ($result as $property => $value) {
+                                    if (property_exists($model, $property)) {
+                                        $model->{$property} = $value;
+                                    } else {
+                                        $model->extras->{$property} = $value;
+                                    }
+                                }
+                                $model->_reverse();
+                                $models[] = $model;
+                            }
+                        }
+                        $returnedValue = $models;
                     }
                     break;
                 default:

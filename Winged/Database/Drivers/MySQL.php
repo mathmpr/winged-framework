@@ -154,79 +154,83 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = '';
         $masterKey = 'joins';
-        foreach ($this->queryTablesInfo[$masterKey] as $key => $join) {
-            $part .= strtoupper($join['original']['type']) . ' JOIN ';
+        if (isset($this->queryTablesInfo[$masterKey])) {
+            foreach ($this->queryTablesInfo[$masterKey] as $key => $join) {
+                $part .= strtoupper($join['original']['type']) . ' JOIN ';
 
-            if ($this->queryTablesAlias[$masterKey][$key]) {
-                $part .= $this->queryTables[$masterKey][$key] . ' AS ' . $this->queryTablesAlias[$masterKey][$key];
-            } else {
-                $part .= $this->queryTables[$masterKey][$key];
+                if ($this->queryTablesAlias[$masterKey][$key]) {
+                    $part .= $this->queryTables[$masterKey][$key] . ' AS ' . $this->queryTablesAlias[$masterKey][$key];
+                } else {
+                    $part .= $this->queryTables[$masterKey][$key];
+                }
+
+                $part .= ' ON ';
+
+                if ($join['left']['alias']) {
+                    $part .= $join['left']['alias'] . '.' . $join['left']['field'];
+                } else {
+                    $part .= $join['left']['table'] . '.' . $join['left']['field'];
+                }
+
+                if ($join['right']['alias']) {
+                    $part .= ' ' . $join['condition'] . ' ' . $join['right']['alias'] . '.' . $join['right']['field'];
+                } else {
+                    $part .= ' ' . $join['condition'] . ' ' . $join['right']['table'] . '.' . $join['right']['field'];
+                }
             }
-
-            $part .= ' ON ';
-
-            if ($join['left']['alias']) {
-                $part .= $join['left']['alias'] . '.' . $join['left']['field'];
-            } else {
-                $part .= $join['left']['table'] . '.' . $join['left']['field'];
-            }
-
-            if ($join['right']['alias']) {
-                $part .= ' ' . $join['condition'] . ' ' . $join['right']['alias'] . '.' . $join['right']['field'];
-            } else {
-                $part .= ' ' . $join['condition'] . ' ' . $join['right']['table'] . '.' . $join['right']['field'];
-            }
+            $this->currentQueryString .= ' ' . $part;
         }
-        $this->currentQueryString .= ' ' . $part;
         return $this;
     }
 
     /**
      * adds where clause on $this->currentQueryString
      *
+     * @return $this|EloquentInterface
      * @throws \Exception
      *
-     * @return $this|EloquentInterface
      */
     public function parseWhere()
     {
         $part = '';
         $masterKey = 'where';
         $parenthesis = 0;
-        if (count7($this->queryTablesInfo[$masterKey]) > 0) {
-            foreach ($this->queryTablesInfo[$masterKey] as $key => $where) {
-                $keys = array_keys($where['original']['args']);
-                if ($where['original']['type'] === 'begin') {
-                    $part .= ' WHERE (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
-                }
-                if ($where['original']['type'] === 'and') {
-                    $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
-                    $parenthesis++;
-                }
-                if ($where['original']['type'] === 'or') {
-                    $next = $this->afterClauseOperation($key, $masterKey);
-                    if ($next) {
-                        if ($next == 'or') {
-                            $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+        if (isset($this->queryTablesInfo[$masterKey])) {
+            if (count7($this->queryTablesInfo[$masterKey]) > 0) {
+                foreach ($this->queryTablesInfo[$masterKey] as $key => $where) {
+                    $keys = array_keys($where['original']['args']);
+                    if ($where['original']['type'] === 'begin') {
+                        $part .= ' WHERE (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                    }
+                    if ($where['original']['type'] === 'and') {
+                        $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                        $parenthesis++;
+                    }
+                    if ($where['original']['type'] === 'or') {
+                        $next = $this->afterClauseOperation($key, $masterKey);
+                        if ($next) {
+                            if ($next == 'or') {
+                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                            } else {
+                                if ($parenthesis > 0) {
+                                    $parenthesis--;
+                                }
+                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s )';
+                            }
                         } else {
                             if ($parenthesis > 0) {
                                 $parenthesis--;
                             }
                             $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s )';
                         }
-                    } else {
-                        if ($parenthesis > 0) {
-                            $parenthesis--;
-                        }
-                        $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s )';
                     }
+                    $this->pushQueryInformation($where['left'], $where['right']);
                 }
-                $this->pushQueryInformation($where['left'], $where['right']);
+                for ($x = 0; $x < $parenthesis; $x++) {
+                    $part .= ')';
+                }
+                $this->currentQueryString .= ' ' . $part . ')';
             }
-            for ($x = 0; $x < $parenthesis; $x++) {
-                $part .= ')';
-            }
-            $this->currentQueryString .= ' ' . $part . ')';
         }
         return $this;
     }
@@ -240,16 +244,18 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = 'GROUP BY ';
         $masterKey = 'groupBy';
-        foreach ($this->queryFields[$masterKey] as $key => $field) {
-            if ($this->queryFieldsAlias[$masterKey][$key]) {
-                $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ' AS ' . $this->queryFieldsAlias[$masterKey][$key] . ',';
-            } else {
-                $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ',';
+        if (isset($this->queryFields[$masterKey])) {
+            foreach ($this->queryFields[$masterKey] as $key => $field) {
+                if ($this->queryFieldsAlias[$masterKey][$key]) {
+                    $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ' AS ' . $this->queryFieldsAlias[$masterKey][$key] . ',';
+                } else {
+                    $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ',';
+                }
             }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= ' ' . $part->get();
         }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= ' ' . $part->get();
         return $this;
     }
 
@@ -257,49 +263,51 @@ class MySQL extends Eloquent implements EloquentInterface
     /**
      * adds group by clause on $this->currentQueryString
      *
+     * @return $this|EloquentInterface
      * @throws \Exception
      *
-     * @return $this|EloquentInterface
      */
     public function parseHaving()
     {
         $part = '';
         $masterKey = 'having';
         $parenthesis = 0;
-        if (count7($this->queryTablesInfo[$masterKey]) > 0) {
-            foreach ($this->queryTablesInfo[$masterKey] as $key => $having) {
-                $keys = array_keys($having['original']['args']);
-                if ($having['original']['type'] === 'begin') {
-                    $part .= ' HAVING (' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
-                }
-                if ($having['original']['type'] === 'and') {
-                    $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
-                    $parenthesis++;
-                }
-                if ($having['original']['type'] === 'or') {
-                    $next = $this->afterClauseOperation($key, $masterKey);
-                    if ($next) {
-                        if ($next == 'or') {
-                            $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
+        if (isset($this->queryTablesInfo[$masterKey])) {
+            if (count7($this->queryTablesInfo[$masterKey]) > 0) {
+                foreach ($this->queryTablesInfo[$masterKey] as $key => $having) {
+                    $keys = array_keys($having['original']['args']);
+                    if ($having['original']['type'] === 'begin') {
+                        $part .= ' HAVING (' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
+                    }
+                    if ($having['original']['type'] === 'and') {
+                        $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
+                        $parenthesis++;
+                    }
+                    if ($having['original']['type'] === 'or') {
+                        $next = $this->afterClauseOperation($key, $masterKey);
+                        if ($next) {
+                            if ($next == 'or') {
+                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s';
+                            } else {
+                                if ($parenthesis > 0) {
+                                    $parenthesis--;
+                                }
+                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s )';
+                            }
                         } else {
                             if ($parenthesis > 0) {
                                 $parenthesis--;
                             }
                             $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s )';
                         }
-                    } else {
-                        if ($parenthesis > 0) {
-                            $parenthesis--;
-                        }
-                        $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$having['condition']] . ' %s )';
                     }
+                    $this->pushQueryInformation($having['left'], $having['right']);
                 }
-                $this->pushQueryInformation($having['left'], $having['right']);
+                for ($x = 0; $x < $parenthesis; $x++) {
+                    $part .= ')';
+                }
+                $this->currentQueryString .= ' ' . $part . ')';
             }
-            for ($x = 0; $x < $parenthesis; $x++) {
-                $part .= ')';
-            }
-            $this->currentQueryString .= ' ' . $part . ')';
         }
         return $this;
     }
@@ -314,12 +322,14 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = 'ORDER BY ';
         $masterKey = 'orderBy';
-        foreach ($this->queryTablesInfo[$masterKey] as $key => $orderBy) {
-            $part .= $orderBy['original'][1] . ' ' . $orderBy['original'][0] . ',';
+        if (isset($this->queryTablesInfo[$masterKey])) {
+            foreach ($this->queryTablesInfo[$masterKey] as $key => $orderBy) {
+                $part .= $orderBy['original'][1] . ' ' . $orderBy['original'][0] . ',';
+            }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= ' ' . $part->get();
         }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= ' ' . $part->get();
         return $this;
     }
 
@@ -332,12 +342,14 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = 'SET ';
         $masterKey = 'set';
-        foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
-            $part .= $fieldName . ' = %s,';
+        if (isset($this->queryFields[$masterKey])) {
+            foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
+                $part .= $fieldName . ' = %s,';
+            }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= ' ' . $part->get();
         }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= ' ' . $part->get();
         return $this;
     }
 
@@ -350,18 +362,20 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = '';
         $masterKey = 'values';
-        foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
-            $part .= $fieldName . ',';
+        if (isset($this->queryFields[$masterKey])) {
+            foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
+                $part .= $fieldName . ',';
+            }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $part = $part->get() . ') VALUES(';
+            foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
+                $part .= '%s,';
+            }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= $part->get() . ')';
         }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $part = $part->get() . ') VALUES(';
-        foreach ($this->queryFields[$masterKey] as $key => $fieldName) {
-            $part .= '%s,';
-        }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= $part->get() . ')';
         return $this;
     }
 
@@ -374,31 +388,35 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = ' ';
         $masterKey = 'delete';
-        foreach ($this->queryTables[$masterKey] as $key => $value) {
-            if ($this->queryTablesAlias[$masterKey][$key]) {
-                $part .= $this->queryTablesAlias[$masterKey][$key] . ',';
+        if (isset($this->queryTables[$masterKey])) {
+            foreach ($this->queryTables[$masterKey] as $key => $value) {
+                if ($this->queryTablesAlias[$masterKey][$key]) {
+                    $part .= $this->queryTablesAlias[$masterKey][$key] . ',';
+                }
             }
-        }
 
-        foreach ($this->queryTables['joins'] as $key => $value) {
-            if ($this->queryTablesAlias['joins'][$key]) {
-                $part .= $this->queryTablesAlias['joins'][$key] . ',';
+            if (isset($this->queryTables['joins'])) {
+                foreach ($this->queryTables['joins'] as $key => $value) {
+                    if ($this->queryTablesAlias['joins'][$key]) {
+                        $part .= $this->queryTablesAlias['joins'][$key] . ',';
+                    }
+                }
             }
-        }
 
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $part = $part->get() . ' FROM ';
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $part = $part->get() . ' FROM ';
 
-        foreach ($this->queryTables[$masterKey] as $key => $value) {
-            if ($this->queryTablesAlias[$masterKey][$key]) {
-                $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
+            foreach ($this->queryTables[$masterKey] as $key => $value) {
+                if ($this->queryTablesAlias[$masterKey][$key]) {
+                    $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
+                }
             }
-        }
 
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= ' ' . $part->get();
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= ' ' . $part->get();
+        }
         return $this;
     }
 
@@ -411,16 +429,18 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = '';
         $masterKey = 'update';
-        foreach ($this->queryTables[$masterKey] as $key => $value) {
-            if ($this->queryTablesAlias[$masterKey][$key]) {
-                $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
-            } else {
-                $part .= $value . ',';
+        if (isset($this->queryTables[$masterKey])) {
+            foreach ($this->queryTables[$masterKey] as $key => $value) {
+                if ($this->queryTablesAlias[$masterKey][$key]) {
+                    $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
+                } else {
+                    $part .= $value . ',';
+                }
             }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= ' ' . $part->get();
         }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= ' ' . $part->get();
         return $this;
     }
 
@@ -459,24 +479,26 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = '';
         $masterKey = 'select';
-        foreach ($this->queryFields[$masterKey] as $key => $field) {
-            if ($this->queryTablesAlias[$masterKey][$key]) {
-                if ($this->queryFieldsAlias[$masterKey][$key]) {
-                    $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ' AS ' . $this->queryFieldsAlias[$masterKey][$key] . ',';
+        if (isset($this->queryFields[$masterKey])) {
+            foreach ($this->queryFields[$masterKey] as $key => $field) {
+                if ($this->queryTablesAlias[$masterKey][$key]) {
+                    if ($this->queryFieldsAlias[$masterKey][$key]) {
+                        $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ' AS ' . $this->queryFieldsAlias[$masterKey][$key] . ',';
+                    } else {
+                        $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ',';
+                    }
                 } else {
-                    $part .= $this->queryTablesAlias[$masterKey][$key] . '.' . $field . ',';
-                }
-            } else {
-                if ($this->queryFieldsAlias[$masterKey][$key]) {
-                    $part .= $field . ' AS ' . $this->queryFieldsAlias[$masterKey][$key] . ',';
-                } else {
-                    $part .= $field . ',';
+                    if ($this->queryFieldsAlias[$masterKey][$key]) {
+                        $part .= $field . ' AS ' . $this->queryFieldsAlias[$masterKey][$key] . ',';
+                    } else {
+                        $part .= $field . ',';
+                    }
                 }
             }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= ' ' . $part->get();
         }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= ' ' . $part->get();
         return $this;
     }
 
@@ -489,16 +511,18 @@ class MySQL extends Eloquent implements EloquentInterface
     {
         $part = '';
         $masterKey = 'from';
-        foreach ($this->queryTables[$masterKey] as $key => $value) {
-            if ($this->queryTablesAlias[$masterKey][$key]) {
-                $part .= $value . ' AS ' . $this->queryTablesAlias[$masterKey][$key] . ',';
-            } else {
-                $part .= $value . ',';
+        if (isset($this->queryTables[$masterKey])) {
+            foreach ($this->queryTables[$masterKey] as $key => $value) {
+                if ($this->queryTablesAlias[$masterKey][$key]) {
+                    $part .= $value . ' AS ' . $this->queryTablesAlias[$masterKey][$key] . ',';
+                } else {
+                    $part .= $value . ',';
+                }
             }
+            $part = Chord::factory($part);
+            $part->endReplace(',');
+            $this->currentQueryString .= ' FROM ' . $part->get();
         }
-        $part = Chord::factory($part);
-        $part->endReplace(',');
-        $this->currentQueryString .= ' FROM ' . $part->get();
         return $this;
     }
 
@@ -524,9 +548,9 @@ class MySQL extends Eloquent implements EloquentInterface
     /**
      * prepare any query for after build query and execute then
      *
+     * @return $this|EloquentInterface
      * @throws \Exception
      *
-     * @return $this|EloquentInterface
      */
     public function prepare()
     {
@@ -605,6 +629,7 @@ class MySQL extends Eloquent implements EloquentInterface
                     $this->parseTables('from')
                         ->parseTables('joins');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
                 try {
@@ -614,6 +639,7 @@ class MySQL extends Eloquent implements EloquentInterface
                         ->parseFields('having')
                         ->parseFields('where');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
 

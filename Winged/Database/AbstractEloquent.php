@@ -316,9 +316,9 @@ class AbstractEloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function andHaving($condition = '', $values = [])
     {
@@ -336,9 +336,9 @@ class AbstractEloquent
      * @param $condition string
      * @param $values    array
      *
+     * @return $this
      * @throws \Exception
      *
-     * @return $this
      */
     public function orHaving($condition = '', $values = [])
     {
@@ -388,4 +388,5 @@ class AbstractEloquent
     {
         return $this->eloquent->execute();
     }
+
 }
