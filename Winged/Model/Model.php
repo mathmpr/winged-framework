@@ -5,8 +5,6 @@ namespace Winged\Model;
 use Winged\Database\DbDict;
 use Winged\Database\CurrentDB;
 use Winged\Database\AbstractEloquent;
-use Winged\Error\Error;
-use Winged\Winged;
 use WingedConfig;
 
 /**
@@ -23,58 +21,72 @@ abstract class Model extends AbstractEloquent
     /**
      * register callback to execute when save method as called and return error
      *
-     * @var array
+     * @var array $onSaveError
      */
     private $onSaveError = [];
 
     /**
      * register callback to execute when save method as called and return success
      *
-     * @var array
+     * @var array $onSaveSuccess
      */
     private $onSaveSuccess = [];
 
     /**
      * register callback to execute when validate method as called and return success
      *
-     * @var array
+     * @var array $onValidateSuccess
      */
     private $onValidateSuccess = [];
 
     /**
      * register callback to execute when validate method as called and return error
      *
-     * @var array
+     * @var array $onValidateError
      */
     private $onValidateError = [];
 
     /**
      * register name of properties as parsed in last load call
      *
-     * @var array
+     * @var null | \stdClass $parsedProperties
      */
-    private $parsedProperties = [];
+    private $parsedProperties = null;
 
     /**
      * register name of properties as reversed in last select
      *
-     * @var array
+     * @var null | \stdClass $reversedProperties
      */
-    private $reversedProperties = [];
+    private $reversedProperties = null;
+
+    /**
+     * contains all keys / properties loaded in last load call
+     *
+     * @var array $loadedFields
+     */
+    private $loadedFields = [];
 
     /**
      * contain all fields names of a table
      *
-     * @var array
+     * @var array $tableFields
      */
     private $tableFields = [];
 
     /**
      * contain infos of a table
      *
-     * @var array
+     * @var array $tableInfo
      */
     private $tableInfo = [];
+
+    /**
+     * after any call of load, behavior or reverseBehaviors the old value is stored in this backup
+     *
+     * @var null | \stdClass
+     */
+    private $backup = null;
 
     /**
      * store a cache information of a table
@@ -130,6 +142,9 @@ abstract class Model extends AbstractEloquent
         if (!$this->extras) {
             $this->extras = new \stdClass();
         }
+        $this->backup = new \stdClass();
+        $this->parsedProperties = new \stdClass();
+        $this->reversedProperties = new \stdClass();
     }
 
     /**
@@ -205,115 +220,147 @@ abstract class Model extends AbstractEloquent
         }
     }
 
-    public function hasOne($class_name, $link = [])
+    /**
+     * returns other model with other names based on a one-to-one relationship
+     *
+     * @param      $className
+     * @param bool $leftSidePkName
+     * @param bool $rightSidePkName
+     *
+     * @return array | null | Model
+     */
+    public function hasOne($className, $leftSidePkName = false, $rightSidePkName = false)
     {
-        if (is_string($class_name) && is_array($link)) {
-            if (array_key_exists('id', $link) && property_exists($this, $link['id'])) {
-                if ((class_exists($class_name) && property_exists($class_name, $link['id'])) ||
-                    (class_exists('\Winged\Model\\' . $class_name) && property_exists('\Winged\Model\\' . $class_name, $link['id']))
-                ) {
-                    $existent = class_exists($class_name) ? $class_name : '\Winged\Model\\' . $class_name;
-                    /**
-                     * @var $obj Model
-                     */
-                    $obj = (new $existent())
-                        ->select()
-                        ->from(['LINK' => $existent::tableName()])
-                        ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->{$link['id']}]);
+        $results = $this->hasMany($className, $leftSidePkName, $rightSidePkName);
+        if ($results) {
+            return $results[0];
+        }
+        return null;
+    }
 
-                    $result = $obj->one();
-                    return $result;
+    /**
+     * returns other models with other names based on a one-to-one relationship or N for N
+     *
+     * @param      $className
+     * @param bool $leftSidePkName
+     * @param bool $rightSidePkName
+     *
+     * @return null | array | Model[] | Model
+     */
+    public function hasMany($className, $leftSidePkName = false, $rightSidePkName = false)
+    {
+        if (is_string($className) && is_string($leftSidePkName) && is_string($rightSidePkName)) {
+            if (property_exists($this, $leftSidePkName)) {
+                if ((class_exists($className)) ||
+                    (class_exists('\Winged\Model\\' . $className))
+                ) {
+                    $class = class_exists($className) ? $className : '\Winged\Model\\' . $className;
+                    try {
+                        $reflect = new \ReflectionClass($class);
+                    } catch (\Exception $exception) {
+                        $reflect = false;
+                    }
+                    if ($reflect) {
+                        $newObject = $reflect->newInstance();
+                        if (property_exists($rightSidePkName, $newObject)) {
+                            /**
+                             * @var $newObject Model
+                             */
+                            $newObject = $newObject->select()
+                                ->from(['LINK' => $class::tableName()])
+                                ->where(DbDict::EQUAL, ['LINK.' . $leftSidePkName => $this->{$leftSidePkName}])
+                                ->execute();
+
+                            return $newObject;
+                        }
+                    }
                 }
             }
         }
-        return false;
+        return null;
     }
 
-    public function hasMany($class_name, $link = [])
+    /**
+     * get value inside backup if key exists in backup
+     *
+     * @param $property
+     *
+     * @return bool
+     */
+    public function backup($property)
     {
-        if (is_string($class_name) && is_array($link)) {
-            if (array_key_exists('id', $link) && property_exists($this, $link['id'])) {
-                if ((class_exists($class_name) && property_exists($class_name, $link['id'])) ||
-                    (class_exists('\Winged\Model\\' . $class_name) && property_exists('\Winged\Model\\' . $class_name, $link['id']))
-                ) {
-                    $existent = class_exists($class_name) ? $class_name : '\Winged\Model\\' . $class_name;
-                    /**
-                     * @var $obj Model
-                     */
-                    $obj = (new $existent())
-                        ->select()
-                        ->from(['LINK' => $existent::tableName()])
-                        ->where(DbDict::EQUAL, ['LINK.' . $link['id'] => $this->{$link['id']}]);
-
-                    $result = $obj->find();
-                    return $result;
-                }
-            }
+        if (property_exists($property, $this->backup)) {
+            return $this->backup->{$property};
         }
         return false;
     }
 
-    public function old($property)
-    {
-        if (array_key_exists($property, $this->before_values)) {
-            return $this->before_values[$property];
-        }
-        return false;
-    }
-
-    public function oldValueExists()
-    {
-        return $this->before_values_loaded;
-    }
-
-    public function isNew()
-    {
-        return $this->is_new;
-    }
-
+    /**
+     * return extras. extras contains values fetched in select statement
+     *
+     * @return bool|\stdClass
+     */
     public function extra()
     {
         return $this->extras;
     }
 
+    /**
+     * unload field in model
+     *
+     * @param $field
+     *
+     * @return bool
+     */
     public function unload($field)
     {
-        if (in_array($field, $this->loaded_fields)) {
-            unset($this->loaded_fields[array_search($field, $this->loaded_fields)]);
+        if (array_key_exists($field, $this->loadedFields)) {
+            unset($this->loadedFields[$field]);
             return true;
         } else {
             return false;
         }
     }
 
+    /**
+     * unload all field in model
+     *
+     * @return $this
+     */
     public function unloadAll()
     {
-        foreach ($this->loaded_fields as $key => $value) {
-            unset($this->loaded_fields[$key]);
-        }
-        return true;
+        $this->loadedFields = [];
+        return $this;
     }
 
+    /**
+     * check if field was loaded
+     *
+     * @param $field
+     *
+     * @return bool
+     */
     public function loaded($field)
     {
-        if (in_array($field, $this->table_fields)) {
-            if (in_array($field, $this->loaded_fields)) {
-                return true;
-            } else {
-                return false;
-            }
+        if (array_key_exists($field, $this->loadedFields)) {
+            return true;
         }
         return false;
     }
 
-    public function load($args = [], $newobj = false)
+    /**
+     * load values inside properties on model
+     *
+     * @param array $args
+     * @param bool  $withoutBehaviors
+     *
+     * @return $this
+     */
+    public function load($args = [], $withoutBehaviors = false)
     {
         $fields_loaded_in_this_call = [];
         $class_name = get_class($this);
-        $trade = false;
-        if (empty($this->before_values) || count7($this->before_values) == 0) {
-            $trade = true;
-        }
+
         $prepared_data_to_load = [];
         foreach ($args as $key => $value) {
             if (is_array($value) && is_int(stripos($class_name, ucfirst($key)))) {
@@ -324,123 +371,34 @@ abstract class Model extends AbstractEloquent
                 }
             }
         }
-        $rules = [];
-        if (method_exists($this, 'rules')) {
-            $rules = $this->rules();
-            if (!is_array($rules)) {
-                $rules = [];
-            }
-        }
+
         foreach ($prepared_data_to_load as $key => $value) {
             $value_of_property_before_parse = $this->{$key};
-            $safe = false;
-            if (array_key_exists($key, $rules)) {
-                foreach ($rules[$key] as $name => $rule) {
-                    if ($name === 'safe' || $rule === 'safe') {
-                        $safe = true;
-                    }
-                }
-            }
-
-            if ($safe) {
-                $this->safe_fields[] = $key;
-            }
-
-            if ((in_array($key, $this->table_fields) || $safe) && property_exists($class_name, $key)) {
-                $type = $this->returnMysqlType($key);
-                $this->{$key} = $this->getRealValue($value, $type['key']);
-                $this->loaded_fields[] = $key;
-                $fields_loaded_in_this_call[] = $key;
-                if ($trade && !array_key_exists($key, $this->before_values) && (!$this->isNew() || $newobj)) {
-                    $this->before_values[$key] = $value_of_property_before_parse;
-                    $this->before_values_loaded = true;
+            if (property_exists($class_name, $key)) {
+                $this->{$key} = $value;
+                $this->loadedFields[$key] = $key;
+                $fields_loaded_in_this_call[$key] = $key;
+                if ($value_of_property_before_parse !== $this->{$key}) {
+                    $this->backup->{$key} = $value_of_property_before_parse;
                 }
             }
         }
 
-
-        $behaviors = $this->behaviors();
-
-        foreach ($behaviors as $key => $parsed_value) {
-            $value_of_property_before_parse = $this->{$key};
-            $continue_and_apply_behavior = false;
-            if ($this->isNew()) {
-                $continue_and_apply_behavior = true;
-            } else if (!$this->isNew() && in_array($key, $this->parsedProperties) && in_array($key, $fields_loaded_in_this_call)) {
-                $continue_and_apply_behavior = true;
-            }
-
-            if ($continue_and_apply_behavior) {
-                if (property_exists($class_name, $key)) {
-                    if (is_callable($parsed_value)) {
-                        $parsed_value = call_user_func($parsed_value);
-                        if ($parsed_value !== null) {
-                            if ($parsed_value !== $this->{$key}) {
-                                if (!is_object($parsed_value)) {
-                                    $type = $this->returnMysqlType($key);
-                                    $parsed_value = $this->getRealValue($parsed_value, $type['key']);
-                                }
-                                $this->{$key} = $parsed_value;
-                                $this->before_values[$key] = $value_of_property_before_parse;
-                                $this->before_values_loaded = true;
-                                $this->parsedProperties[] = $key;
-                            }
-                        }
-                    } else {
-                        if (!is_object($parsed_value)) {
-                            $type = $this->returnMysqlType($key);
-                            $parsed_value = $this->getRealValue($parsed_value, $type['key']);
-                        }
-                        $this->{$key} = $parsed_value;
-                        $this->before_values[$key] = $value_of_property_before_parse;
-                        $this->before_values_loaded = true;
-                        $this->parsedProperties[] = $key;
-                    }
-
-                    if (in_array($key, $this->table_fields) && $value_of_property_before_parse != $this->{$key}) {
-                        if (!in_array($key, $this->loaded_fields)) {
-                            $this->loaded_fields[] = $key;
-                        }
-                    }
-                }
-            }
+        if (!$withoutBehaviors) {
+            $this->_behaviors();
         }
-        $this->is_new = false;
         return $this;
     }
 
-    public function createOldValuesIfExists()
-    {
-        foreach ($this->table_fields as $key) {
-            if ($this->{$key} != null) {
-                $this->before_values[$key] = $this->{$key};
-                $this->before_values_loaded = true;
-            }
-        }
-
-        $this->is_new = false;
-
-        return $this;
-    }
-
-    public function autoLoadDb($id = 0, $before_values = false)
-    {
-        $this->from_db = true;
-        $this->is_new = false;
-        $one = $this->findOne($id);
-        if ($one) {
-            foreach ($this->table_fields as $key) {
-                $this->{$key} = $one->{$key};
-            }
-            if ($before_values) {
-                $this->createOldValuesIfExists();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public function loadMultiple($args = [])
+    /**
+     * like load, but for multiple models
+     *
+     * @param array $args
+     * @param bool  $withoutBehaviors
+     *
+     * @return array
+     */
+    public function loadMultiple($args = [], $withoutBehaviors = false)
     {
         $class_name = get_class($this);
         $models = [];
@@ -477,16 +435,58 @@ abstract class Model extends AbstractEloquent
                      * @var $model Model
                      */
                     $model = new $class_name();
-                    $model->load($arr);
+                    $model->load($arr, $withoutBehaviors);
                     $models[] = $model;
                 }
             }
         }
-
         return $models;
     }
 
-    public function pushValidateError($key, $error, $pn)
+    /**
+     * run into table fields and
+     *
+     * @return $this
+     */
+    public function createBackup()
+    {
+        foreach ($this->tableFields as $key) {
+            if ($this->{$key} != null) {
+                $this->backup->{$key} = $this->{$key};
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * fetch a entire row from database with param $id
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function autoLoadDb($id = 0)
+    {
+        $one = $this->findOne($id);
+        if ($one) {
+            foreach ($this->tableFields as $key) {
+                $this->{$key} = $one->{$key};
+            }
+            $this->createBackup();
+        }
+        return false;
+    }
+
+    /**
+     * push a validade error message inside model
+     *
+     * @param $key
+     * @param $error
+     * @param $pn
+     *
+     * @return bool
+     */
+    protected function pushValidateError($key, $error, $pn)
     {
         if (array_key_exists($key, $this->errors)) {
             $this->errors[$key][$pn] = $error;
@@ -496,6 +496,11 @@ abstract class Model extends AbstractEloquent
         return true;
     }
 
+    /**
+     * validate values in model
+     *
+     * @return bool
+     */
     public function validate()
     {
         $class_name = get_class($this);
@@ -606,10 +611,17 @@ abstract class Model extends AbstractEloquent
                                                         $params = array_merge($params, [$func[2]]);
                                                     }
                                                 }
-                                                $reflect = new \ReflectionMethod(get_class($func[0]), $func[1]);
-                                                $ret = $reflect->invokeArgs($func[0], $params);
+                                                $ret = false;
+                                                try {
+                                                    $reflect = new \ReflectionMethod(get_class($func[0]), $func[1]);
+                                                } catch (\Exception $exception) {
+                                                    $reflect = false;
+                                                }
+                                                if ($reflect) {
+                                                    $ret = $reflect->invokeArgs($func[0], $params);
+                                                }
                                             } else {
-                                                Error::push(__CLASS__, "Object '" . $func[0] . "' no have method '" . $func[1] . "'", __FILE__, __LINE__);
+                                                trigger_error("Object '" . $func[0] . "' no have method '" . $func[1] . "'", E_USER_ERROR);
                                             }
                                         }
                                         if (is_callable($func[0])) {
@@ -693,24 +705,25 @@ abstract class Model extends AbstractEloquent
         return $continue;
     }
 
-    public function changeInLastUpdate()
-    {
-        return $this->change_in_last_update;
-    }
 
+    /**
+     * auto implements insert or update query based on primery key name
+     *
+     * @return array|bool|mixed|string
+     */
     public function save()
     {
-        if (!empty($this->loaded_fields) || $this->primaryKey() != null) {
-            $save = $this->createSaveStatement();
+        if (!empty($this->loadedFields) || $this->primaryKey() != null) {
+            $save = $this->saveStatement();
             if ($save) {
                 foreach ($this->onSaveSuccess as $index => $arr) {
-                    call_user_func_array($this->onSaveSuccess[$index]['function'], $arr['args']);
+                    $this->onSaveSuccess[$index]['function'](...$arr['args']);
                     $this->removeFromSaveSuccess($index);
                 }
             } else {
                 $this->_reverse();
                 foreach ($this->onSaveError as $index => $arr) {
-                    call_user_func_array($this->onSaveError[$index]['function'], $arr['args']);
+                    $this->onSaveError[$index]['function'](...$arr['args']);
                 }
             }
             return $save;
@@ -718,46 +731,135 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
-    public function getBeforeValue($property_name)
+    /**
+     * auto create save query and send this query to database
+     *
+     * @return array|bool|mixed|string
+     */
+    private function saveStatement()
     {
-        if (array_key_exists($property_name, $this->before_values)) {
-            return $this->before_values[$property_name];
-        }
-        return null;
-    }
+        if ($this->primaryKey() != null) {
+            $alias = randid(6);
+            $this->update([$alias => $this->_tableName()])
+                ->where(DbDict::EQUAL, [$alias . '.' . $this->_primaryKeyName() => $this->primaryKey()]);
 
+            $set = [];
+            foreach ($this->loadedFields as $key => $field) {
+                if (!in_array($key, $this->tableFields)) {
+                    if ($field != $this->_primaryKeyName()) {
+                        if (is_object($this->{$field})) {
+                            if (get_class($this->{$field}) === 'Winged\Date\Date') {
+                                $set[$field] = $this->{$field}->sql();
+                            }
+                        } else {
+                            $set[$field] = $this->{$field};
+                        }
 
-    public function _behaviors()
-    {
-        $class_name = get_class($this);
-        $behaviors = $this->behaviors();
-        foreach ($behaviors as $key => $apply) {
-            if (property_exists($class_name, $key)) {
-                if (is_callable($apply)) {
-                    $apply = call_user_func($apply);
+                    }
                 }
-                $this->{$key} = $apply;
             }
+            $this->set($set);
+            $success = $this->build()->execute();
+        } else {
+            $this->insert()->into($this->_tableName());
+            $into = [];
+            foreach ($this->loadedFields as $key => $field) {
+                if (is_object($this->{$field})) {
+                    if (get_class($this->{$field}) === 'Winged\Date\Date') {
+                        $into[$field] = $this->{$field}->sql();
+                    }
+                } else {
+                    $into[$field] = $this->{$field};
+                }
+            }
+            $this->values($into);
+            $success = $this->build()->execute();
         }
+        $this->_reverse();
+        return $success;
     }
 
+    /**
+     * apply behaviors into values inside model
+     *
+     * @return $this
+     */
+    protected function _behaviors()
+    {
+        return $this->_apply();
+    }
+
+    /**
+     * apply reverse behaviors into values inside model
+     *
+     * @return $this
+     */
     public function _reverse()
     {
-        if (!$this->reverse) {
-            $this->reverse = true;
-            $reverse = $this->reverseBehaviors();
-            $class_name = get_class($this);
-            foreach ($reverse as $key => $apply) {
-                if (property_exists($class_name, $key)) {
-                    if (is_callable($apply)) {
-                        $apply = call_user_func($apply);
+        return $this->_apply('_reverse');
+    }
+
+    /**
+     * abstraction for apply reverse behaviors and behaviors on model
+     *
+     * @param string $type
+     *
+     * @return $this
+     */
+    protected function _apply($type = '_behaviors')
+    {
+        if ($type === '_behaviors') {
+            $running = $this->behaviors();
+            $push = 'parsedProperties';
+            $unPush = 'reversedProperties';
+        } else {
+            $running = $this->reverseBehaviors();
+            $push = 'reversedProperties';
+            $unPush = 'parsedProperties';
+        }
+        foreach ($running as $key => $parsedValue) {
+            $value_of_property_before_parse = $this->{$key};
+            if (!property_exists($key, $this->{$push}) && property_exists(get_class($this), $key)) {
+                if (is_callable($parsedValue)) {
+                    $parsedValue = call_user_func($parsedValue);
+                    $changeInsideCallable = false;
+                    if ($this->{$key} !== $value_of_property_before_parse) {
+                        $changeInsideCallable = true;
                     }
-                    $this->{$key} = $apply;
+                    if (!$changeInsideCallable && ($parsedValue || !is_bool($parsedValue))) {
+                        if ($parsedValue !== $this->{$key}) {
+                            $this->{$key} = $parsedValue;
+                            $this->{$push}->{$key} = $parsedValue;
+                            $this->backup->{$key} = $value_of_property_before_parse;
+                            $this->loadedFields[$key] = $key;
+                            unset($this->{$unPush}->{$key});
+                        }
+                    } else {
+                        if ($changeInsideCallable) {
+                            $this->backup->{$key} = $value_of_property_before_parse;
+                        }
+                    }
+                } else {
+                    $this->{$key} = $parsedValue;
+                    $this->{$push}->{$key} = $parsedValue;
+                    $this->backup->{$key} = $value_of_property_before_parse;
+                    $this->loadedFields[$key] = $key;
+                    unset($this->{$unPush}->{$key});
                 }
             }
         }
+        return $this;
     }
 
+    /**
+     * register an callback for call when $this->save() obtain success
+     *
+     * @param string            $index
+     * @param string | callable $function
+     * @param array             $args
+     *
+     * @return bool
+     */
     public function onSaveSuccess($index = '', $function = '', $args = [])
     {
         if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
@@ -770,6 +872,15 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
+    /**
+     * register an callback for call when $this->save() obtain error
+     *
+     * @param string            $index
+     * @param string | callable $function
+     * @param array             $args
+     *
+     * @return bool
+     */
     public function onSaveError($index = '', $function = '', $args = [])
     {
         if (is_callable($function) && is_array($args) && (is_int($index) || is_string($index))) {
@@ -782,6 +893,11 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
+    /**
+     * remove an callback from callback stack for save success
+     *
+     * @param string $index
+     */
     public function removeFromSaveSuccess($index = '')
     {
         if (is_int($index) || is_string($index)) {
@@ -791,6 +907,11 @@ abstract class Model extends AbstractEloquent
         }
     }
 
+    /**
+     * remove an callback from callback stack for save error
+     *
+     * @param string $index
+     */
     public function removeFromSaveError($index = '')
     {
         if (is_int($index) || is_string($index)) {
@@ -800,6 +921,15 @@ abstract class Model extends AbstractEloquent
         }
     }
 
+    /**
+     * register an callback for call when $this->validate() obtain success
+     *
+     * @param string            $index
+     * @param string | callable $function
+     * @param array             $args
+     *
+     * @return bool
+     */
     public function onValidateSuccess($index = '', $function = '', $args = [])
     {
         if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
@@ -812,6 +942,15 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
+    /**
+     * register an callback for call when $this->validate() obtain error
+     *
+     * @param string            $index
+     * @param string | callable $function
+     * @param array             $args
+     *
+     * @return bool
+     */
     public function onValidateError($index = '', $function = '', $args = [])
     {
         if ((is_callable($function) || is_array($function)) && is_array($args) && (is_int($index) || is_string($index))) {
@@ -824,6 +963,11 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
+    /**
+     * remove an callback from callback stack for validate success
+     *
+     * @param string $index
+     */
     public function removeFromValidateSuccess($index = '')
     {
         if (is_int($index) || is_string($index)) {
@@ -833,6 +977,11 @@ abstract class Model extends AbstractEloquent
         }
     }
 
+    /**
+     * remove an callback from callback stack for validate error
+     *
+     * @param string $index
+     */
     public function removeFromValidateError($index = '')
     {
         if (is_int($index) || is_string($index)) {
@@ -842,12 +991,18 @@ abstract class Model extends AbstractEloquent
         }
     }
 
+    /**
+     * get value from $_POST if value exists in $_POST, else get value from model internals
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
     public function postKey($name = '')
     {
-        $reverse = $this->reverseBehaviors();
         if (array_key_exists(get_class($this), $_POST)) {
             $arr = $_POST[get_class($this)];
-            if (array_key_exists($name, $arr) && !array_key_exists($name, $reverse)) {
+            if (array_key_exists($name, $arr) && !property_exists($name, $this->reversedProperties)) {
                 return $arr[$name];
             }
         }
@@ -857,12 +1012,18 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
+    /**
+     * * get value from $_GET if value exists in $_GET, else get value from model internals
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
     public function getKey($name = '')
     {
-        $reverse = $this->reverseBehaviors();
         if (array_key_exists(get_class($this), $_GET)) {
             $arr = $_GET[get_class($this)];
-            if (array_key_exists($name, $arr) && !array_key_exists($name, $reverse)) {
+            if (array_key_exists($name, $arr) && !property_exists($name, $this->reversedProperties)) {
                 return $arr[$name];
             }
         }
@@ -872,6 +1033,13 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
+    /**
+     * try to get value from any font
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
     public function requestKey($name = '')
     {
         $enter = $this->postKey($name) ? $this->postKey($name) : $this->getKey($name);
@@ -883,11 +1051,21 @@ abstract class Model extends AbstractEloquent
         return $enter;
     }
 
+    /**
+     * get errors occured when validate model
+     *
+     * @return array
+     */
     public function getErrors()
     {
         return $this->errors;
     }
 
+    /**
+     * check if model have errors after validate
+     *
+     * @return bool
+     */
     public function hasErrors()
     {
         if (!empty($this->errors)) {
@@ -896,8 +1074,4 @@ abstract class Model extends AbstractEloquent
         return false;
     }
 
-    public function pushExtra($index, $value)
-    {
-        return $this->extras->$index = $value;
-    }
 }

@@ -7,6 +7,7 @@ use Winged\Database\Drivers\MySQL;
 use Winged\Database\Drivers\PostgreSQL;
 use Winged\Database\Drivers\Sqlite;
 use Winged\Database\Drivers\SQLServer;
+use Winged\Model\Model;
 use WingedConfig;
 
 /**
@@ -382,11 +383,13 @@ class AbstractEloquent
     /**
      * execute and eloquent object if eloquent has prepared and builded
      *
-     * @return array|bool|mixed|string
+     * @param bool $selectAsArray
+     *
+     * @return array|bool|mixed|string|Model[]
      */
-    public function execute()
+    public function execute($selectAsArray = false)
     {
-        return $this->eloquent->execute();
+        return $this->eloquent->execute($selectAsArray);
     }
 
 }

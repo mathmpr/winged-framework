@@ -1000,9 +1000,8 @@ abstract class Eloquent
                     $this->queryFields[$propertyName][] = $realName['field'];
                     $this->queryTables[$propertyName][] = $realName['table'];
                     $this->queryTablesAlias[$propertyName][] = $realName['alias'];
-                    if (in_array($propertyName, ['set', 'into'])) {
-                        $this->queryValues[] = $property;
-                        $this->normalizeValue($property, $realName['table'], $realName['field']);
+                    if (in_array($propertyName, ['set', 'values'])) {
+                        $this->pushQueryInformation($realName, $this->normalizeValue($property, $realName['table'], $realName['field']));
                     }
                 } else {
                     $realName = $this->getInformation($property);
@@ -1010,9 +1009,8 @@ abstract class Eloquent
                     $this->queryTables[$propertyName][] = $realName['table'];
                     $this->queryTablesAlias[$propertyName][] = $realName['alias'];
                     $this->queryFields[$propertyName][] = $realName['field'];
-                    if (in_array($propertyName, ['set', 'into'])) {
-                        $this->queryValues[] = $property;
-                        $this->normalizeValue($property, $realName['table'], $realName['field']);
+                    if (in_array($propertyName, ['set', 'values'])) {
+                        $this->pushQueryInformation($realName, $this->normalizeValue($property, $realName['table'], $realName['field']));
                     }
                 }
             }
@@ -1300,82 +1298,87 @@ abstract class Eloquent
      *
      * @param bool $selectAsArray
      *
-     * @return array|bool|mixed|string
+     * @return array|bool|mixed|string|Model[]
      */
     public function execute($selectAsArray = false)
     {
         $returnedValue = false;
-        if ($this->builded) {
-            switch ($this->builded['command']) {
-                case Eloquent::COMMAND_INSERT:
-                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->insert($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->insert($this->builded['mysqli_query'], $this->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->database->insert($this->builded['query']);
-                    }
-                    if($this->model){
-                        $this->model->primaryKey($returnedValue);
-                    }
-                    break;
-                case Eloquent::COMMAND_DELETE:
-                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->database->execute($this->builded['query']);
-                    }
-                    break;
-                case Eloquent::COMMAND_UPDATE:
-                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->database->execute($this->builded['query']);
-                    }
-                    break;
-                case Eloquent::COMMAND_SELECT:
-                    if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->fetch($this->builded['pdo_query'], $this->builded['pdo']);
-                    } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
-                        $returnedValue = $this->database->fetch($this->builded['mysqli_query'], $this->builded['mysqli']);
-                    } else {
-                        $returnedValue = $this->database->fetch($this->builded['query']);
-                    }
-                    if (!$selectAsArray && $this->model && !empty($returnedValue)) {
-                        $models = [];
-                        foreach ($returnedValue as $result) {
-                            try {
-                                $reflection = new \ReflectionClass(get_class($this->model));
-                            } catch (\Exception $exception) {
-                                $reflection = false;
-                            }
-                            if ($reflection) {
-                                /**
-                                 * @var $model Model
-                                 */
-                                $model = $reflection->newInstance();
-                                foreach ($result as $property => $value) {
-                                    if (property_exists($model, $property)) {
-                                        $model->{$property} = $value;
-                                    } else {
-                                        $model->extras->{$property} = $value;
-                                    }
-                                }
-                                $model->_reverse();
-                                $models[] = $model;
-                            }
-                        }
-                        $returnedValue = $models;
-                    }
-                    break;
-                default:
-                    return false;
-                    break;
+        if (!$this->builded) {
+            try {
+                $this->build();
+            } catch (\Exception $exception) {
+                return false;
             }
+        }
+        switch ($this->builded['command']) {
+            case Eloquent::COMMAND_INSERT:
+                if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->insert($this->builded['pdo_query'], $this->builded['pdo']);
+                } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->insert($this->builded['mysqli_query'], $this->builded['mysqli']);
+                } else {
+                    $returnedValue = $this->database->insert($this->builded['query']);
+                }
+                if ($this->model) {
+                    $this->model->primaryKey($returnedValue);
+                }
+                break;
+            case Eloquent::COMMAND_DELETE:
+                if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
+                } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
+                } else {
+                    $returnedValue = $this->database->execute($this->builded['query']);
+                }
+                break;
+            case Eloquent::COMMAND_UPDATE:
+                if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->execute($this->builded['pdo_query'], $this->builded['pdo']);
+                } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->execute($this->builded['mysqli_query'], $this->builded['mysqli']);
+                } else {
+                    $returnedValue = $this->database->execute($this->builded['query']);
+                }
+                break;
+            case Eloquent::COMMAND_SELECT:
+                if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->fetch($this->builded['pdo_query'], $this->builded['pdo']);
+                } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->fetch($this->builded['mysqli_query'], $this->builded['mysqli']);
+                } else {
+                    $returnedValue = $this->database->fetch($this->builded['query']);
+                }
+                if (!$selectAsArray && $this->model && !empty($returnedValue)) {
+                    $models = [];
+                    foreach ($returnedValue as $result) {
+                        try {
+                            $reflection = new \ReflectionClass(get_class($this->model));
+                        } catch (\Exception $exception) {
+                            $reflection = false;
+                        }
+                        if ($reflection) {
+                            /**
+                             * @var $model Model
+                             */
+                            $model = $reflection->newInstance();
+                            foreach ($result as $property => $value) {
+                                if (property_exists($model, $property)) {
+                                    $model->{$property} = $value;
+                                } else {
+                                    $model->extras->{$property} = $value;
+                                }
+                            }
+                            $model->_reverse();
+                            $models[] = $model;
+                        }
+                    }
+                    $returnedValue = $models;
+                }
+                break;
+            default:
+                return false;
+                break;
         }
         $this->unbuild();
         return $returnedValue;

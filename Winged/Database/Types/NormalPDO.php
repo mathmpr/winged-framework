@@ -108,7 +108,7 @@ class NormalPDO
     {
         $stmt = $this->querying($query);
         if ($stmt) {
-            $this->refer->lastInsertId();
+            return $this->refer->lastInsertId();
         }
         return false;
     }
