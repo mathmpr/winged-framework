@@ -2,13 +2,14 @@
 
 namespace Winged\Controller;
 
+use Winged\Database\Connections;
 use Winged\Directory\Directory;
 use Winged\File\File;
 use Winged\Frontend\Render;
 use Winged\Http\HttpResponseHandler;
 use Winged\Utils\WingedLib;
 use Winged\Winged;
-use WingedConfig;
+use \WingedConfig;
 use Winged\Error\Error;
 
 /**
@@ -366,6 +367,7 @@ class Controller extends Render
             mb_http_output(WingedConfig::$config->OUTPUT_ENCODING);
             Error::clear();
             $this->controller_reset = true;
+            Connections::closeAll();
             Winged::start();
             return true;
         }

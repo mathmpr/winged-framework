@@ -459,7 +459,7 @@ abstract class Model extends AbstractEloquent
     }
 
     /**
-     * fetch a entire row from database with param $id
+     * fetch a entire row from database with param $id and copy results to $this Model
      *
      * @param int $id
      *
@@ -473,8 +473,38 @@ abstract class Model extends AbstractEloquent
                 $this->{$key} = $one->{$key};
             }
             $this->createBackup();
+            return true;
         }
         return false;
+    }
+
+    /**
+     * returns one result found in the database according to the name of the table found in Model::tableName()
+     * and Model::primaryKeyName() where the primery key in memory is equal primary key in database
+     *
+     * @param null $id
+     *
+     * @return mixed|Model|null
+     */
+    public function findOne($id = null)
+    {
+        if ($id) {
+            return $this->select()
+                ->from(["`ONE`" => $this->_tableName()])
+                ->where(ELOQUENT_EQUAL, ["`ONE`." . $this->_primaryKeyName() => $id])
+                ->one();
+        }
+        return null;
+    }
+
+    /**
+     * returns all results found in the database according to the name of the table found in Model::tableName()
+     *
+     * @return array|bool|mixed|string|Model[]
+     */
+    public function findAll()
+    {
+        return $this->select()->from(["`ALL`" => $this->_tableName()])->execute();
     }
 
     /**
@@ -701,7 +731,6 @@ abstract class Model extends AbstractEloquent
                 call_user_func_array($this->onValidateError[$index]['function'], $arr['args']);
             }
         }
-
         return $continue;
     }
 
@@ -714,7 +743,12 @@ abstract class Model extends AbstractEloquent
     public function save()
     {
         if (!empty($this->loadedFields) || $this->primaryKey() != null) {
-            $save = $this->saveStatement();
+            $save = false;
+            try {
+                $save = $this->saveStatement();
+            } catch (\Exception $exception) {
+                trigger_error($exception->getMessage(), E_USER_ERROR);
+            }
             if ($save) {
                 foreach ($this->onSaveSuccess as $index => $arr) {
                     $this->onSaveSuccess[$index]['function'](...$arr['args']);
@@ -734,7 +768,8 @@ abstract class Model extends AbstractEloquent
     /**
      * auto create save query and send this query to database
      *
-     * @return array|bool|mixed|string
+     * @return array|bool|false|int|mixed|string|Model[]
+     * @throws \Exception
      */
     private function saveStatement()
     {
@@ -819,7 +854,7 @@ abstract class Model extends AbstractEloquent
         }
         foreach ($running as $key => $parsedValue) {
             $value_of_property_before_parse = $this->{$key};
-            if (!property_exists($key, $this->{$push}) && property_exists(get_class($this), $key)) {
+            if (!property_exists($this->{$push}, $key) && property_exists(get_class($this), $key)) {
                 if (is_callable($parsedValue)) {
                     $parsedValue = call_user_func($parsedValue);
                     $changeInsideCallable = false;

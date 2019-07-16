@@ -54,7 +54,7 @@ class NormalPDO
     {
         $stmt = $this->refer->prepare($query);
         if ($stmt === false) {
-            throw new \Exception("DB error: can't prepare query - " . $query . ' : ' . $this->refer->errorInfo()[2]);
+            trigger_error("DB error: can't prepare query - " . $query . ' : ' . $this->refer->errorInfo()[2], E_USER_ERROR);
         } else {
             $ret = false;
             try {
@@ -70,17 +70,17 @@ class NormalPDO
                 $this->error_info = $this->refer->errorInfo()[2];
                 return $stmt;
             } else {
-                $this->affected_rows = 0;
-                $this->sqlstate = '';
-                $this->error_code = 0;
-                $this->error_info = '';
+                $this->affected_rows = false;
+                $this->sqlstate = false;
+                $this->error_code = false;
+                $this->error_info = false;
             }
         }
         return false;
     }
 
     /**
-     * method for the purpose of executing queries to delete ou update data in the database
+     * method for the purpose of executing queries to delete or update data in the database
      *
      * @param string $query
      *
@@ -97,7 +97,7 @@ class NormalPDO
     }
 
     /**
-     * method for the purpose of executing queries to retrieve data from the database
+     * method for the purpose of executing queries to insert data into database
      *
      * @param string $query
      *

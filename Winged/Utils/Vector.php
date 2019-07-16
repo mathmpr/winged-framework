@@ -23,11 +23,21 @@ class Vector implements \ArrayAccess, \Iterator
      */
     private $unseted = false;
 
+    /**
+     * @param array $vector
+     *
+     * @return Vector
+     */
     public static function factory($vector = [])
     {
         return new Vector($vector);
     }
 
+    /**
+     * Vector constructor.
+     *
+     * @param array $vector
+     */
     public function __construct($vector = [])
     {
         $this->position = 0;

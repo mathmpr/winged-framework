@@ -760,7 +760,12 @@ abstract class Eloquent
                     throw new \Exception('format alias.field_name is required in join clause');
                 }
                 $possibleAny = $exp[0];
-                if (!in_array($possibleAny, $this->aliasUsed) && !in_array($possibleAny, $this->tablesUsed)) {
+                if ($possibleAny === '*') {
+                    $info['type'] = 'field';
+                    $info['alias'] = false;
+                    $info['table'] = false;
+                    $info['field'] = $possibleAny;
+                } else if (!in_array($possibleAny, $this->aliasUsed) && !in_array($possibleAny, $this->tablesUsed)) {
                     $found = false;
                     $foundIn = false;
                     foreach ($this->tablesUsed as $key => $tableName) {
@@ -1254,9 +1259,12 @@ abstract class Eloquent
             $this->prepared = false;
             //build prepared mysqli query type
             $return['mysqli_query'] = str_replace('%s', '?', $this->currentQueryString);
-            $return['mysqli'] = array_merge([
-                join('', $this->mysqliDataType)
-            ], $this->queryValues);
+            $return['mysqli'] = [];
+            if (!empty($this->mysqliDataType)) {
+                $return['mysqli'] = array_merge([
+                    join('', $this->mysqliDataType)
+                ], $this->queryValues);
+            }
             //build prepared pdo query type
             $return['pdo_query'] = call_user_func_array('sprintf', array_merge([$this->currentQueryString], $this->pdoDataType));
             $pdoParamsAndValues = [];
@@ -1294,11 +1302,10 @@ abstract class Eloquent
     }
 
     /**
-     * execute query, unbuild and unprepare query
-     *
      * @param bool $selectAsArray
      *
-     * @return array|bool|mixed|string|Model[]
+     * @return array|bool|false|int|mixed|string
+     * @throws \Exception
      */
     public function execute($selectAsArray = false)
     {

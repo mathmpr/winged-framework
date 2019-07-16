@@ -68,6 +68,13 @@ class Database
 
     private $cleared_drivers = null;
 
+    /**
+     * Database constructor.
+     *
+     * @param bool $class
+     * @param bool $driver
+     * @param bool $nickname
+     */
     function __construct($class = false, $driver = false, $nickname = false)
     {
 
@@ -181,18 +188,15 @@ class Database
         }
 
         if ($WCclass !== IS_MYSQLI && $WCclass !== IS_PDO) {
-            Error::push(__CLASS__, "Class " . $WCclass . " not suported by Winged dadabase connections.", __FILE__, __LINE__);
-            Error::display(__LINE__, __FILE__);
+            trigger_error("Class " . $WCclass . " not suported by Winged dadabase connections.", E_USER_ERROR);
         }
 
         if (!in_array($WCdriver, $this->drivers)) {
-            Error::push(__CLASS__, "Driver " . $WCdriver . " not suported by Winged dadabase connections.", __FILE__, __LINE__);
-            Error::display(__LINE__, __FILE__);
+            trigger_error("Driver " . $WCdriver . " not suported by Winged dadabase connections.", E_USER_ERROR);
         }
 
         if ($WCdriver !== DB_DRIVER_MYSQL && $WCclass === IS_MYSQLI) {
-            Error::push(__CLASS__, "mysqli class don't suports driver " . WingedConfig::$config->db()->DB_DRIVER . ". Please change the driver in ./WingedDatabaseConfig.php to DB_DRIVER_MYSQL ou change STD_DB_CLASS in ./config.php to IS_PDO", __FILE__, __LINE__);
-            Error::display(__LINE__, __FILE__);
+            trigger_error("mysqli class don't suports driver " . WingedConfig::$config->db()->DB_DRIVER . ". Please change the driver in ./WingedDatabaseConfig.php to DB_DRIVER_MYSQL ou change STD_DB_CLASS in ./config.php to IS_PDO", E_USER_ERROR);
         }
 
         $this->class = $WCclass;
@@ -205,14 +209,24 @@ class Database
         return $this;
     }
 
+    /**
+     * check connection type use PDO driver
+     *
+     * @return bool
+     */
     public function isPdo()
     {
-        if ($this->class === IS_MYSQLI) {
-            return false;
+        if ($this->class === IS_PDO) {
+            return true;
         }
-        return true;
+        return false;
     }
 
+    /**
+     * check connection type use MySQLi driver
+     *
+     * @return bool
+     */
     public function isMysqli()
     {
         if ($this->class === IS_MYSQLI) {
@@ -221,6 +235,14 @@ class Database
         return false;
     }
 
+    /**
+     * make a connection into database
+     *
+     * @param array $args
+     *
+     * @return $this
+     * @throws \ReflectionException
+     */
     public function connect($args = [])
     {
         $vars = [
@@ -287,9 +309,8 @@ class Database
         }
 
         if (!$this->analyze_error()) {
-            Error::push(__CLASS__, "Can't connect in database, please check the credentials in ./WingedDatabaseConfig.php", __FILE__, __LINE__);
-            Error::push(__CLASS__, "Error: " . $this->db, __FILE__, __LINE__);
-            Error::display(__LINE__, __FILE__);
+            trigger_error("Can't connect in database, please check the credentials in ./WingedDatabaseConfig.php", E_USER_ERROR);
+            trigger_error("Error: " . $this->db, E_USER_ERROR);
         }
 
         if ($this->nickname !== false) {
@@ -307,6 +328,11 @@ class Database
         return $this;
     }
 
+    /**
+     * check if error exists in current database object driver
+     *
+     * @return bool
+     */
     private function analyze_error()
     {
         if (is_object($this->db)) {
@@ -315,21 +341,57 @@ class Database
         return false;
     }
 
+    /**
+     * abstraction for execute query for delete and update
+     *
+     * @param       $query
+     * @param array $args
+     *
+     * @return array|bool|string
+     * @throws \Exception
+     */
     public function execute($query, $args = [])
     {
         return $this->abstract->execute($query, $args);
     }
 
+    /**
+     * abstraction for insert queries into database
+     *
+     * @param       $query
+     * @param array $args
+     *
+     * @return array|bool|false|int|mixed|string
+     * @throws \Exception
+     */
     public function insert($query, $args = [])
     {
         return $this->abstract->insert($query, $args);
     }
 
+    /**
+     * abstraction for select queries into database
+     *
+     * @param       $query
+     * @param array $args
+     *
+     * @return array|false|string|null
+     * @throws \Exception
+     */
     public function fetch($query, $args = [])
     {
         return $this->abstract->fetch($query, $args);
     }
 
+    /**
+     * abstraction for count queries into database
+     *
+     * @param string $query
+     * @param array  $args
+     *
+     * @return int|mixed|string|null
+     * @throws \Exception
+     */
     public function count($query = '', $args = [])
     {
         if ($query === '') {
@@ -339,17 +401,37 @@ class Database
         }
     }
 
+    /**
+     * abstraction for show tables query
+     *
+     * @return array
+     * @throws \Exception
+     */
     public function show()
     {
         return $this->abstract->show();
     }
 
+    /**
+     * abstraction for describe into table
+     *
+     * @param $tableName
+     *
+     * @return array
+     * @throws \Exception
+     */
     public function describe($tableName)
     {
         return $this->abstract->describe($tableName);
     }
 
-
+    /**
+     * get host pass in param $host or get host in config
+     *
+     * @param bool $host
+     *
+     * @return bool|string
+     */
     public function getRealHost($host = false)
     {
         if ($host !== false) {
@@ -361,6 +443,13 @@ class Database
         return false;
     }
 
+    /**
+     * get user pass in param $user or get user in config
+     *
+     * @param bool $user
+     *
+     * @return bool|string
+     */
     public function getRealUser($user = false)
     {
         if ($user !== false) {
@@ -372,6 +461,13 @@ class Database
         return false;
     }
 
+    /**
+     * get password pass in param $password or get password in config
+     *
+     * @param bool $password
+     *
+     * @return bool|string
+     */
     public function getRealPassword($password = false)
     {
         if ($password !== false) {
@@ -383,6 +479,13 @@ class Database
         return false;
     }
 
+    /**
+     * get dbname pass in param $dbname or get dbname in config
+     *
+     * @param bool $dbname
+     *
+     * @return bool|string
+     */
     public function getRealDbname($dbname = false)
     {
         if ($dbname !== false) {
@@ -394,6 +497,13 @@ class Database
         return false;
     }
 
+    /**
+     * get port pass in param $port or get port in config
+     *
+     * @param bool $port
+     *
+     * @return bool|int
+     */
     public function getRealPort($port = false)
     {
         if ($port !== false) {
@@ -405,6 +515,13 @@ class Database
         return false;
     }
 
+    /**
+     * get schema pass in param $schema or get schema in config
+     *
+     * @param bool $schema
+     *
+     * @return bool|string
+     */
     public function getRealSchema($schema = false)
     {
         if ($schema !== false) {
@@ -416,6 +533,14 @@ class Database
         return false;
     }
 
+    /**
+     * check if columns exists in table describe array
+     *
+     * @param array $columns
+     * @param array $desc
+     *
+     * @return bool
+     */
     public static function columnExists($columns = [], $desc = [])
     {
         $columns_ok = true;

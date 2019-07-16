@@ -18,4 +18,8 @@ class WingedConfig extends WingedConfigDefaults
     public $TIMEZONE = "America/Sao_Paulo";
     public $AUTO_MINIFY = 1;
     public $HTML_LANG = 'pt-BR';
+    public $INCLUDES = [
+        './projects/models/',
+        './projects/admin/models/',
+    ];
 }

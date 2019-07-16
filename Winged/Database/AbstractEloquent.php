@@ -42,6 +42,9 @@ class AbstractEloquent
      */
     public function select($fields = [])
     {
+        if(empty($fields)){
+            $fields = ['*'];
+        }
         $this->eloquent->select($fields);
         return $this;
     }
@@ -389,7 +392,26 @@ class AbstractEloquent
      */
     public function execute($selectAsArray = false)
     {
-        return $this->eloquent->execute($selectAsArray);
+        $return = null;
+        try {
+            $return = $this->eloquent->execute($selectAsArray);
+        } catch (\Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_ERROR);
+        }
+        return $return;
+    }
+
+    /**
+     * @param bool $selectAsArray
+     *
+     * @return mixed|Model|null
+     */
+    public function one($selectAsArray = false){
+        $return = $this->limit(1)->execute($selectAsArray);
+        if($return){
+            return $return[0];
+        }
+        return null;
     }
 
 }
