@@ -174,13 +174,13 @@ class HomeController extends Controller
 
         //Config::isSandBox();
         //Config::addRequiredJs($this);
-        //$this->addJs('jquery', './Modules/PagSeguro/Assets/jquery.js');
-        //$this->addJs('pagseguro', './Modules/PagSeguro/Assets/pagseguro.example.js');
+        //$this->appendJs('jquery', './Modules/PagSeguro/Assets/jquery.js');
+        //$this->appendJs('pagseguro', './Modules/PagSeguro/Assets/pagseguro.example.js');
         //$this->addCss('bootstrap', './Modules/PagSeguro/Assets/bootstrap.css');
         //$this->addCss('pagseguro', './Modules/PagSeguro/Assets/pagseguro.example.css');
 
 
-        //$this->renderHtml('pagseguro');
+        //$this->html('pagseguro');
     }
 
     public function actionMyImage()

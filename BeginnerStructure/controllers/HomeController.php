@@ -29,7 +29,7 @@ class HomeController extends Controller
         //$test = new Test();
 
         $this->rewriteHeadContentPath('./head.php');
-        $this->renderHtml('home');
+        $this->html('home');
     }
 
 }

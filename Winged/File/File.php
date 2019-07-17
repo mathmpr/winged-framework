@@ -99,8 +99,10 @@ class File
                     $file_name = array_pop($folder);
                     $folder = new Directory(join('/', $folder));
                     $this->handler = fopen($file, 'w+');
-                    fwrite($this->handler, '');
-                    fclose($this->handler);
+                    if ($this->handler) {
+                        fwrite($this->handler, '');
+                        fclose($this->handler);
+                    }
                 }
             }
             if (is_file($file) && file_exists($file)) {
@@ -223,11 +225,13 @@ class File
     {
         if ($this->file_path != null) {
             $this->handler = fopen($this->file_path, 'w+');
-            fwrite($this->handler, $content);
-            fclose($this->handler);
-            $this->new = false;
-            if (get_class($this) === 'CoreImage') {
-                $this->create(null);
+            if($this->handler){
+                fwrite($this->handler, $content);
+                fclose($this->handler);
+                $this->new = false;
+                if (get_class($this) === 'CoreImage') {
+                    $this->create(null);
+                }
             }
         }
         return $this;

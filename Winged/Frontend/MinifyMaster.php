@@ -142,7 +142,11 @@ abstract class MinifyMaster
                             return $this->activeMinify($path, $read);
                         } else {
                             foreach ($check['formed_with'] as $key => $former) {
-                                $this->controller->removeCss($former['identifier']);
+                                if ($property === 'css') {
+                                    $this->controller->removeCss($former['identifier']);
+                                } else {
+                                    $this->controller->removeJs($former['identifier']);
+                                }
                             }
                             $this->controller->{$property} = array_merge([$path => ['string' => $check['cache_file'], 'type' => 'file']], $this->controller->{$property});
                         }

@@ -123,7 +123,7 @@ class MinifyCSS extends MinifyMaster
     {
         foreach ($this->allCssPaths as $file => $files) {
             foreach ($files as $info) {
-                if ($info['file_path'] === $filePath) {
+                if ($info['file_path'] == $filePath) {
                     return $info['full_string'];
                 }
             }
@@ -144,7 +144,7 @@ class MinifyCSS extends MinifyMaster
             preg_match_all($pattern, $cssString, $matches);
             if (!empty($matches)) {
                 foreach ($matches[0] as $key => $match) {
-                    $full_string = $match;
+                    $full_string = str_replace(['src: ', 'src:'], '', $match);
                     $fileImported = str_replace(['"', "'"], '', $matches[1][$key]);
 
                     $fileImported = explode(')', $fileImported);
@@ -153,6 +153,9 @@ class MinifyCSS extends MinifyMaster
                     $explodeBar = explode('/', $fileImported);
                     $fileImportedName = array_pop($explodeBar);
                     $filePath = join('/', $explodeBar);
+
+                    $disableVersion = explode('?', $fileImportedName);
+                    $fileImportedName = array_shift($disableVersion);
 
                     $explodeExtension = explode('.', $fileImportedName);
                     $endExtension = end($explodeExtension);
@@ -163,6 +166,7 @@ class MinifyCSS extends MinifyMaster
                     $cleanedFileName = array_shift($fileImportedName) . '.' . $cleanedExtension;
 
                     $fileImported = $filePath . '/' . $cleanedFileName;
+
                     if ($cleanedExtension !== 'css') {
                         $explodeBar = explode('/', $currentFile);
                         array_pop($explodeBar);
@@ -170,7 +174,7 @@ class MinifyCSS extends MinifyMaster
                         $fileObject = new File($fileImported, false);
                         if ($fileObject->exists()) {
                             $cssString = str_replace('  ', ' ', $cssString);
-                            $cssString = str_replace([$full_string . ' ;', $full_string . ';', $full_string], 'url("' . Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($fileObject->file_path) . '")', $cssString);
+                            $cssString = str_replace([$full_string], 'url("' . Winged::$protocol . '__winged_file_handle_core__/' . base64_encode($fileObject->file_path) . '")', $cssString);
                         }
                     }
                 }
@@ -203,6 +207,9 @@ class MinifyCSS extends MinifyMaster
         $fileName = array_pop($explodeBar);
         $filePath = join('/', $explodeBar);
 
+        $disableVersion = explode('?', $fileName);
+        $fileName = array_shift($disableVersion);
+
         $explodeExtension = explode('.', $fileName);
         $endExtension = end($explodeExtension);
         $endExtension = str_replace(['#', '@', '?', '-', '!', '&', '_', '=', '+'], '~', $endExtension);
@@ -217,7 +224,7 @@ class MinifyCSS extends MinifyMaster
         if (!empty($matches)) {
             if (isset($matches[0][0])) {
                 foreach ($matches[0] as $match) {
-                    if (is_int(stripos($match, $cleanedFileName))) {
+                    if (is_int(stripos($match, $file))) {
                         $full_string = $match;
                         $import = true;
                     }

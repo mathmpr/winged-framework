@@ -91,7 +91,7 @@ class WingedConfig extends WingedConfigDefaults
 
     /**
      * @property $HEAD_CONTENT_PATH string
-     * defines path to include in every page called in any Controller by method renderHtml()
+     * defines path to include in every page called in any Controller by method html()
      * this option can be rewrited with method rewriteHeadContentPath() of any Controller
      */
     public $HEAD_CONTENT_PATH = null;

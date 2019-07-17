@@ -53,12 +53,12 @@ class MinifyJS extends MinifyMaster
         ];
         $cache_file = new File($read[$path]['cache_file']);
         $minify = new JS();
-        $cssString = '';
+        $jsString = '';
         foreach ($this->controller->js as $identifier => $content) {
             if ($content['type'] === 'file') {
                 $file = new File($content['string'], false);
                 if ($file->exists()) {
-                    $cssString .= $file->read();
+                    $jsString .= $file->read();
                     $this->controller->removeJs($identifier);
                     $read[$path]['formed_with'][$content['string']] = [
                         'time' => $file->modifyTime(),
@@ -69,7 +69,7 @@ class MinifyJS extends MinifyMaster
                 }
             }
         }
-        $cache_file->write($minify->add($cssString)->minify());
+        $cache_file->write($minify->add($jsString)->minify());
         $this->controller->js = array_merge([$path => ['string' => $cache_file->file_path, 'type' => 'file']], $this->controller->js);
         return $this->createMinify($read);
     }

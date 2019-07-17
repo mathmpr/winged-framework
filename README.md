@@ -32,7 +32,7 @@ class HomeController extends Controller
     function actionIndex()
     {
         //Try to find file home.php inside views folder and include it
-        $this->renderHtml('home');
+        $this->html('home');
     }
 }
 ```

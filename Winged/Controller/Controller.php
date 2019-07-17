@@ -368,6 +368,7 @@ class Controller extends Render
             Error::clear();
             $this->controller_reset = true;
             Connections::closeAll();
+            Connections::init();
             Winged::start();
             return true;
         }

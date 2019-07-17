@@ -185,6 +185,18 @@ class Render extends Assets
         $only_match = $matches[1];
         $base = false;
 
+        if (is_int(stripos($only_match, 'http://')) ||
+            is_int(stripos($only_match, 'https://')) ||
+            is_int(stripos($only_match, 'http://www')) ||
+            is_int(stripos($only_match, 'https://www')) ||
+            filter_var($only_match, FILTER_VALIDATE_URL)) {
+            return $full_string;
+        }
+
+        if (is_int(stripos($only_match, 'family=Roboto'))) {
+            pre_clear_buffer_die($only_match);
+        }
+
         if (is_string($this->baseUrl)) {
             $base = str_replace(
                 [
