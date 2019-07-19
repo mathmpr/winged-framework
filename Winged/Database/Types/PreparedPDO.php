@@ -56,8 +56,8 @@ class PreparedPDO
             $argsNames = [];
             $forSprintf = [$query];
             foreach ($args as $key => $value) {
-                $argsNames[':' . $key] = $value;
-                $forSprintf[] = ':' . $key;
+                $argsNames[$key] = $value;
+                $forSprintf[] = $key;
             }
             $query = call_user_func_array('sprintf', $forSprintf);
             $stmt = $this->refer->prepare($query);

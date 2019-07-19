@@ -15,8 +15,7 @@ if (!defined('DOCUMENT_ROOT')) {
         }
         $document_root = join('/', $document_root);
         if ($persists === 2) {
-            echo 'Die. Folder Winged not found in any location.';
-            exit;
+            die('Die. Folder Winged not found in any location.');
         }
     }
     define('DOCUMENT_ROOT', $document_root . '/');

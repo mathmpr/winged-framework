@@ -8,6 +8,8 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
 use React\EventLoop\Factory;
+use Winged\Database\Connections;
+use Winged\Winged;
 
 class RatchetServer implements MessageComponentInterface
 {
@@ -151,7 +153,7 @@ class RatchetServer implements MessageComponentInterface
             }
             if (($date - $initial) >= 5) {
                 $this->socket->close();
-                exit;
+                Winged::_exit();
             }
         });
     }

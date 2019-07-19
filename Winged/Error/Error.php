@@ -3,6 +3,7 @@
 namespace Winged\Error;
 
 use Winged\Buffer\Buffer;
+use Winged\Database\Connections;
 use Winged\Utils\WingedLib;
 use Winged\Winged;
 
@@ -227,7 +228,7 @@ class Error
             Buffer::flush();
             Error::clear();
             if ($exit) {
-                exit;
+                Winged::_exit();
             }
         }
     }

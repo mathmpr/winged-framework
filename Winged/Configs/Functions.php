@@ -3,6 +3,7 @@
 use Winged\Buffer\Buffer;
 use Winged\Winged;
 use Winged\Database\CurrentDB;
+use Winged\Database\Connections;
 
 /**
  * return all memory used
@@ -539,7 +540,7 @@ function no_injection_array($array)
  */
 function no_injection($str)
 {
-    if (WingedConfig::$config->STD_DB_CLASS === IS_MYSQLI) {
+    if (WingedConfig::$config->db()->STD_DB_CLASS === IS_MYSQLI) {
         return CurrentDB::$current->db->real_escape_string($str);
     }
     return $str;
@@ -588,7 +589,7 @@ function pre($array, $die = false)
     print_r($array);
     echo "</pre>";
     if ($die) {
-        exit;
+        Winged::_exit();
     }
 }
 
@@ -626,7 +627,7 @@ function pre_clear_buffer_die($array = [])
     </html>
     <?php
     Buffer::flush();
-    exit;
+    Winged::_exit();
 }
 
 $printed_pre = [];
@@ -692,6 +693,7 @@ function delegate_pre($die = false)
         echo "</pre>";
     }
     if ($die) {
+        Winged::_exit();
         exit;
     }
 }
@@ -735,6 +737,7 @@ function delegate_pre_clear_buffer_die()
         </html>
         <?php
         Buffer::flush();
+        Winged::_exit();
         exit;
     }
 }

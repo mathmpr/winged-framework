@@ -4,6 +4,7 @@ namespace Winged;
 
 use Winged\Buffer\Buffer;
 use Winged\Controller\Controller;
+use Winged\Database\Connections;
 use Winged\Error\Error;
 use \Exception;
 use Winged\File\File;
@@ -103,6 +104,9 @@ class Winged
         self::nosplit();
     }
 
+    /**
+     * clear urls
+     */
     private static function clearUrls()
     {
         $refers = [
@@ -123,6 +127,10 @@ class Winged
 
     }
 
+    /**
+     * define if request use File Handler
+     * Route ou Controller
+     */
     private static function nosplit()
     {
         self::normalize();
@@ -185,7 +193,7 @@ class Winged
             Session::set('__WINGED_HEADERS_REDIRECT__', $headers);
             header("HTTP/1.1 301 Moved Permanently");
             header("Location: " . $location);
-            exit;
+            Winged::_exit();
         }
 
 
@@ -220,7 +228,7 @@ class Winged
             } else {
                 header('HTTP/1.0 404 Not Found');
             }
-            exit;
+            Winged::_exit();
         });
 
 
@@ -228,7 +236,7 @@ class Winged
             if (file_exists(self::$routed_file)) {
                 include_once self::$routed_file;
                 if (!RouteExec::execute()) {
-                    exit;
+                    Winged::_exit();
                 }
             }
         }
@@ -255,22 +263,27 @@ class Winged
                 if ($before === false || $before === null) {
                     RouteExec::sendErrorResponse();
                 }
-                $file = new File(WingedConfig::$config->NOTFOUND, false);
+                $file = new File(WingedConfig::$config->NOT_FOUND_FILE_PATH, false);
                 if ($file->exists()) {
                     Buffer::reset();
-                    include_once WingedConfig::$config->NOTFOUND;
+                    include_once WingedConfig::$config->NOT_FOUND_FILE_PATH;
                     Buffer::flushKill();
-                    exit;
+                    Winged::_exit();
                 } else {
                     trigger_error('Nothing exists. Controller no exists, action no exists, routes not found and [Not found] file not exists.', E_USER_WARNING);
                     Error::display();
                 }
             } else {
-                exit;
+                Winged::_exit();
             }
         }
     }
 
+    /**
+     * get controller info
+     *
+     * @return array
+     */
     private static function controllerInfo()
     {
         $exploded_parent = WingedLib::explodePath(self::$parent);
@@ -447,7 +460,17 @@ class Winged
         ];
     }
 
+    /**
+     * close db and exit
+     */
+    public static function _exit(){
+        Connections::closeAll();
+        exit;
+    }
 
+    /**
+     * @return array
+     */
     private static function return_path_route()
     {
         $parent = self::$parent;

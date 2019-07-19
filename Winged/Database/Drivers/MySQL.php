@@ -156,7 +156,7 @@ class MySQL extends Eloquent implements EloquentInterface
         $masterKey = 'joins';
         if (isset($this->queryTablesInfo[$masterKey])) {
             foreach ($this->queryTablesInfo[$masterKey] as $key => $join) {
-                $part .= strtoupper($join['original']['type']) . ' JOIN ';
+                $part .= ' ' . strtoupper($join['original']['type']) . ' JOIN ';
 
                 if ($this->queryTablesAlias[$masterKey][$key]) {
                     $part .= $this->queryTables[$masterKey][$key] . ' AS ' . $this->queryTablesAlias[$masterKey][$key];
@@ -409,7 +409,7 @@ class MySQL extends Eloquent implements EloquentInterface
 
             foreach ($this->queryTables[$masterKey] as $key => $value) {
                 if ($this->queryTablesAlias[$masterKey][$key]) {
-                    $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
+                    $part .=  $value . ' AS ' . $this->queryTablesAlias[$masterKey][$key] . ',';
                 }
             }
 
@@ -432,7 +432,7 @@ class MySQL extends Eloquent implements EloquentInterface
         if (isset($this->queryTables[$masterKey])) {
             foreach ($this->queryTables[$masterKey] as $key => $value) {
                 if ($this->queryTablesAlias[$masterKey][$key]) {
-                    $part .= $this->queryTablesAlias[$masterKey][$key] . ' AS ' . $value . ',';
+                    $part .= $value . ' AS ' . $this->queryTablesAlias[$masterKey][$key] . ',';
                 } else {
                     $part .= $value . ',';
                 }
@@ -548,12 +548,16 @@ class MySQL extends Eloquent implements EloquentInterface
     /**
      * prepare any query for after build query and execute then
      *
+     * @param $model
+     *
      * @return $this|EloquentInterface
      * @throws \Exception
-     *
      */
-    public function prepare()
+    public function prepare($model = false)
     {
+        if($model){
+            $this->model = &$model;
+        }
         if ($this->builded || $this->prepared) {
             $this->reset();
         }

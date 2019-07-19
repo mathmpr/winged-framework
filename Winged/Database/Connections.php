@@ -82,9 +82,11 @@ class Connections
      */
     public static function closeAll()
     {
-        foreach (self::$connections as $key => $connection) {
-            $connection->abstract->close();
-            unset(self::$connections[$key]);
+        if(!empty(self::$connections)){
+            foreach (self::$connections as $key => $connection) {
+                $connection->abstract->close();
+                unset(self::$connections[$key]);
+            }
         }
     }
 

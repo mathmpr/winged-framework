@@ -2,9 +2,11 @@
 
 namespace Winged\Http;
 
+use Winged\Database\Connections;
 use Winged\Date\Date;
 use Winged\File\File;
 use Winged\Route\Route;
+use Winged\Winged;
 use WingedConfig;
 
 /**
@@ -1010,7 +1012,7 @@ class HttpResponseHandler
             echo $content ? $content : $content;
         }
         if ($exit) {
-            exit;
+            Winged::_exit();
         }
     }
 
@@ -1119,7 +1121,7 @@ class HttpResponseHandler
                         echo $file->read();
                     }
                     if ($exit) {
-                        exit;
+                        Winged::_exit();
                     }
                 } else {
                     header('Content-Type: application/octet-stream');
@@ -1127,7 +1129,7 @@ class HttpResponseHandler
                     header("Content-disposition: attachment; filename=\"" . basename($file->file_path) . "\"");
                     echo $file->read();
                     if ($exit) {
-                        exit;
+                        Winged::_exit();
                     }
                 }
             }

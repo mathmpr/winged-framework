@@ -13,7 +13,6 @@
 /views/
 /vendor/
 /composer.json
-/projects/
 /cache/
 /.htaccess
 /minify.cache.json

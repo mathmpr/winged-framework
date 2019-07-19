@@ -1,0 +1,120 @@
+<div data-src="<?= "../admin/views/portfolio/arquivos/" . $audio['arquivo'] ?>"
+class="audio-js"></div>
+<div class="form-group">
+    <div class="row">
+        <div class="col-lg-12">
+            <label for="usuarios">Usu�rios</label>
+            <input name="usuarios" id="usuarios" type="text"
+                   class="form-control">
+            <?php
+                                                        if(count($dados['usuarios']) > 0){
+            ?>
+            <script>var users_tokens = JSON.parse('<?= json_encode(['data' => $dados['usuarios']]) ?>')</script>
+            <?php
+                                                        }else{
+                                                            ?>
+            <script>var users_tokens = {data: []};</script>
+            <?php
+                                                        }
+                                                        ?>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('.summernote').summernote({
+            height: 250,
+            lang: "pt-BR",
+            callbacks: {
+                onPaste: function (e) {
+                    var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                    e.preventDefault();
+                    document.execCommand('insertText', false, bufferText);
+                }
+            }
+        });
+        $('.pickadate').pickadate({
+            monthsFull: ['Janeiro', 'Fevereiro', 'Mar�o', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+            weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+            today: 'Hoje',
+            clear: 'Limpar',
+            close: 'Fechar',
+            formatSubmit: 'yyyy-mm-dd',
+            onStart: function () {
+                var pre = this.$node.attr('data-predefined');
+                if (pre != null) {
+                    if (pre.trim() != '') {
+                        this.set('select', pre, {format: 'dd-mm-yyyy'});
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script>
+    $(function () {
+        var usuarios, cursos;
+        cursos = new Tokens('#cursos', {
+            url: 'notificacoes/cursos',
+            type: 'post',
+            names: ['id_curso'],
+            show: 'titulo',
+            cantReapeatComparison: ['id_curso'],
+            nothingMessage: 'Nenhum resultado encontrado.',
+            afterRemove: function(data, token){
+                if(token.tokenCount() == 0){
+                    var tokens = usuarios.findWith({id_usuario: -1});
+                    for(var i in tokens){
+                        tokens[i].remove();
+                    }
+                }
+            },
+            remote: function (data, token) {
+                token.process(data.data);
+            }
+        });
+
+        usuarios = new Tokens('#usuarios', {
+            names: ['id_usuario'],
+            show: 'nome',
+            cantReapeatComparison: ['id_usuario'],
+            nothingMessage: 'Nenhum resultado encontrado.',
+            load: users_tokens.data,
+            beforeCreate: function(data, token){
+                if(data.id_usuario == -1){
+                    token.removeAll();
+                }
+            },
+            ajax: function (query, token) {
+                var c_token = cursos.serialize('cursos')
+                c_token['query'] = query;
+                $.ajax({
+                    url: 'notificacoes/usuarios',
+                    type: 'post',
+                    data: c_token,
+                    success: function (data) {
+                        try {
+                            data = $.parseJSON(data);
+                        } catch (e) {
+                            data = false;
+                        }
+                        if (data) {
+                            if (c_token.cursos.id_curso != null) {
+                                var all = [{nome: 'Todos os alunos', id_usuario: -1}];
+                                data.data = all.concat(data.data);
+                            }
+                            var tokens = usuarios.findWith({id_usuario: -1});
+                            if(tokens.length == 0){
+                                token.process(data.data);
+                            }else{
+                                token.process([]);
+                            }
+                        } else {
+                            console.error('Parse json error. Verefy server response.');
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>

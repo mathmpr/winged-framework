@@ -89,6 +89,13 @@ abstract class Model extends AbstractEloquent
     private $backup = null;
 
     /**
+     * keep instance of current database when model starts
+     *
+     * @var null
+     */
+    protected $database = null;
+
+    /**
      * store a cache information of a table
      * with this, a new Model() do not need make a new query on database
      *
@@ -268,7 +275,7 @@ abstract class Model extends AbstractEloquent
                              */
                             $newObject = $newObject->select()
                                 ->from(['LINK' => $class::tableName()])
-                                ->where(DbDict::EQUAL, ['LINK.' . $leftSidePkName => $this->{$leftSidePkName}])
+                                ->where(ELOQUENT_EQUAL, ['LINK.' . $leftSidePkName => $this->{$leftSidePkName}])
                                 ->execute();
 
                             return $newObject;
@@ -776,11 +783,11 @@ abstract class Model extends AbstractEloquent
         if ($this->primaryKey() != null) {
             $alias = randid(6);
             $this->update([$alias => $this->_tableName()])
-                ->where(DbDict::EQUAL, [$alias . '.' . $this->_primaryKeyName() => $this->primaryKey()]);
+                ->where(ELOQUENT_EQUAL, [$alias . '.' . $this->_primaryKeyName() => $this->primaryKey()]);
 
             $set = [];
             foreach ($this->loadedFields as $key => $field) {
-                if (!in_array($key, $this->tableFields)) {
+                if (in_array($key, $this->tableFields)) {
                     if ($field != $this->_primaryKeyName()) {
                         if (is_object($this->{$field})) {
                             if (get_class($this->{$field}) === 'Winged\Date\Date') {
@@ -799,12 +806,14 @@ abstract class Model extends AbstractEloquent
             $this->insert()->into($this->_tableName());
             $into = [];
             foreach ($this->loadedFields as $key => $field) {
-                if (is_object($this->{$field})) {
-                    if (get_class($this->{$field}) === 'Winged\Date\Date') {
-                        $into[$field] = $this->{$field}->sql();
+                if (in_array($key, $this->tableFields)) {
+                    if (is_object($this->{$field})) {
+                        if (get_class($this->{$field}) === 'Winged\Date\Date') {
+                            $into[$field] = $this->{$field}->sql();
+                        }
+                    } else {
+                        $into[$field] = $this->{$field};
                     }
-                } else {
-                    $into[$field] = $this->{$field};
                 }
             }
             $this->values($into);
@@ -1037,7 +1046,7 @@ abstract class Model extends AbstractEloquent
     {
         if (array_key_exists(get_class($this), $_POST)) {
             $arr = $_POST[get_class($this)];
-            if (array_key_exists($name, $arr) && !property_exists($name, $this->reversedProperties)) {
+            if (array_key_exists($name, $arr) && !property_exists($this->reversedProperties, $name)) {
                 return $arr[$name];
             }
         }
@@ -1058,7 +1067,7 @@ abstract class Model extends AbstractEloquent
     {
         if (array_key_exists(get_class($this), $_GET)) {
             $arr = $_GET[get_class($this)];
-            if (array_key_exists($name, $arr) && !property_exists($name, $this->reversedProperties)) {
+            if (array_key_exists($name, $arr) && !property_exists($this->reversedProperties, $name)) {
                 return $arr[$name];
             }
         }

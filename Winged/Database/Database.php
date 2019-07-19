@@ -205,7 +205,6 @@ class Database
         $this->cleared = array_shift($exp);
         $handlerName = $this->cleared_drivers[$this->cleared]['handler'];
         $this->queryStringHandler = new $handlerName($this);
-
         return $this;
     }
 

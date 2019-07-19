@@ -148,6 +148,7 @@ class PreparedMysqli
                 while ($row = $ret->fetch_assoc()) {
                     $tuple[] = $row;
                 }
+                $ret->free_result();
                 return empty($tuple) ? null : $tuple;
             }
         }
@@ -167,7 +168,13 @@ class PreparedMysqli
     {
         $stmt = $this->querying($query, $args);
         if ($stmt) {
-            return $stmt->num_rows;
+            $ret = $stmt->get_result();
+            if ($ret) {
+                $rows = $ret->num_rows;
+                $ret->close();
+                $stmt->free_result();
+                return $rows;
+            }
         }
         return -1;
     }

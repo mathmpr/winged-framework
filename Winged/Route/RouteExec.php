@@ -3,6 +3,7 @@
 namespace Winged\Route;
 
 use Winged\Buffer\Buffer;
+use Winged\Database\Connections;
 use Winged\Date\Date;
 use Winged\Error\Error;
 use Winged\File\File;
@@ -39,7 +40,7 @@ class RouteExec extends Route
                         Buffer::reset();
                         include_once WingedConfig::$config->NOTFOUND;
                         Buffer::flushKill();
-                        exit;
+                        Winged::_exit();
                     }
                     break;
                 case 200:

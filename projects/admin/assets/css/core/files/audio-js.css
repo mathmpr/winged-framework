@@ -1,0 +1,230 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700);
+body, html{
+    margin: 0;
+    padding: 0;
+}
+div, span, p, table, tr, td, i{
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+.clearfix:after { 
+    content:' ';  
+    display:block;
+    height:0; 
+    clear:both;
+    visibility: hidden;
+}
+.audio-js{
+    width: 100%;
+    -webkit-user-select: none; 
+    -moz-user-select: none;     
+    -ms-user-select: none;   
+    -o-user-select: none;
+    user-select: none;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    border: 0;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    border-collapse: collapse;
+}
+.audio-js .audio-js-ant{
+    width: 100%;
+    min-height: 80px;    
+    border: 1px solid #f6f6f6;
+    position: relative;
+}
+.audio-js .audio-js-ant .audio-js-controls{
+    float: right;
+    margin-top: 5px;
+}
+.audio-js .audio-js-ant .audio-js-controls .nine-three{
+    float: left;
+    width: 20px;
+    height: 25px;
+}
+.audio-js .audio-js-ant .audio-js-controls .nine-three i{
+    height: 25px;
+    line-height: 25px;
+    cursor: pointer;    
+    font-size: 14px;
+    -webkit-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -o-transition: 0.2s linear;
+    transition: 0.2s linear;
+}
+.audio-js .audio-js-ant .audio-js-bar{
+    float: left;
+    width: calc(100% - 200px);
+    width: -webkit-calc(100% - 200px);
+    width: -moz-calc(100% - 200px);
+    margin-left: 20px;
+    height: 2px;    
+    margin-top: 15px;
+    position: relative;
+}
+.audio-js .audio-js-ant .audio-js-bar .audio-js-progress{
+    width: 0%;
+    height: 2px;    
+    float: left;
+}
+.audio-js .audio-js-ant .audio-js-bar .audio-js-drag{
+    width: 98%;
+    margin-left: 1%;    
+}
+.audio-js .audio-js-ant .audio-js-bar .audio-js-drag span{
+    position: absolute !important;
+    height: 30px;
+    width: 30px;  
+    margin-left: 0%;   
+    cursor: pointer;
+    outline: none;
+}
+.audio-js .audio-js-ant .audio-js-bar .audio-js-drag span .js-visual{
+    -webkit-border-radius: 100px;
+    -moz-border-radius: 100px;
+    -ms-border-radius: 100px;
+    -o-border-radius: 100px;
+    border-radius: 100px;    
+    height: 10px;
+    width: 10px;
+    position: absolute;
+    margin-top: -4px;
+}
+audio, video{
+    display: none;
+}
+.audio-js .audio-js-ant .js-name-now{
+    width: 80%;
+    margin: auto;
+    text-align: center;
+    margin-top: 35px;
+    font-size: 1em;
+    line-height: 1.4em;
+    letter-spacing: 1px;   
+}
+@media only screen and (max-width: 640px){ 
+    .audio-js .audio-js-ant .audio-js-controls{
+        float: none;
+        position: absolute;
+        bottom: 15px;
+        width: 99.9%;
+        text-align: center;
+    }
+    .audio-js .audio-js-ant .audio-js-controls .nine-three{
+        float: none;
+        display: inline-block;
+        margin: 0px 14px;
+    }
+    .audio-js .audio-js-ant .audio-js-controls .nine-three i{
+        font-size: 16px;
+    }
+    .audio-js .audio-js-ant .audio-js-bar{        
+        width: 93%;        
+        height: 2px;      
+        margin: 20px 20px 0px !important;
+    }
+    .audio-js .audio-js-ant .audio-js-bar .audio-js-drag span{
+        height: 40px;
+        width: 40px;       
+        margin-top: -9px;        
+    }
+    .audio-js .audio-js-ant .audio-js-bar .audio-js-drag span .js-visual{
+        height: 15px;
+        width: 15px;
+        position: absolute;
+        margin-top: 2px;
+    }
+    .audio-js .audio-js-ant{        
+        min-height: 130px;        
+    }
+    .audio-js .audio-js-ant .js-name-now{
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+}
+.audio-js .audio-js-ant{
+    background: #f8f8f8;
+}
+.audio-js .audio-js-ant .audio-js-bar{
+    background: #fff;
+}
+.audio-js .audio-js-ant .audio-js-bar .audio-js-progress{
+    background: #ff2b2b;
+}
+.audio-js .audio-js-ant .audio-js-bar .audio-js-drag span .js-visual{
+    background: #9d9d9d;
+}
+.audio-js .audio-js-ant .audio-js-controls .nine-three i{    
+    color: #6c6c6c;    
+}
+.audio-js .audio-js-ant .audio-js-controls .nine-three i:hover{
+    text-shadow: rgba(255, 50, 0, 0.7) 0px 0px 15px;
+    color: #ff2b2b;
+}
+.audio-js .audio-js-ant .audio-js-controls .nine-three.hover, .audio-js .audio-js-ant .audio-js-controls .nine-three.hover i{
+    text-shadow: rgba(255, 50, 0, 0.7) 0px 0px 15px;
+    color: #ff2b2b;
+}
+.audio-js .audio-js-ant .js-name-now{    
+    color: #525252;    
+}
+.audio-js.green .audio-js-ant{
+    background: #f8f8f8;
+}
+.audio-js.green .audio-js-ant .audio-js-bar{
+    background: #fff;
+}
+.audio-js.green .audio-js-ant .audio-js-bar .audio-js-progress{
+    background: #62ff90;
+}
+.audio-js.green .audio-js-ant .audio-js-bar .audio-js-drag span .js-visual{
+    background: #b6b6b6;
+}
+.audio-js.green .audio-js-ant .audio-js-controls .nine-three i{    
+    color: #6c6c6c;    
+}
+.audio-js.green .audio-js-ant .audio-js-controls .nine-three i:hover{
+    text-shadow: rgba(50, 255, 0, 0.7) 0px 0px 15px;
+    color: #62ff90;
+}
+.audio-js.green .audio-js-ant .audio-js-controls .nine-three.hover, .audio-js.green .audio-js-ant .audio-js-controls .nine-three.hover i{
+    text-shadow: rgba(50, 255, 0, 0.7) 0px 0px 15px;
+    color: #62ff90;
+}
+.audio-js.green .audio-js-ant .js-name-now{    
+    color: #525252;    
+}
+.audio-js.blue .audio-js-ant{
+    background: #f8f8f8;
+}
+.audio-js.blue .audio-js-ant .audio-js-bar{
+    background: #fff;
+}
+.audio-js.blue .audio-js-ant .audio-js-bar .audio-js-progress{
+    background: #00c5f5;
+}
+.audio-js.blue .audio-js-ant .audio-js-bar .audio-js-drag span .js-visual{
+    background: #b6b6b6;
+}
+.audio-js.blue .audio-js-ant .audio-js-controls .nine-three i{    
+    color: #6c6c6c;    
+}
+.audio-js.blue .audio-js-ant .audio-js-controls .nine-three i:hover{
+    text-shadow: rgba(5, 50, 255, 0.7) 0px 0px 15px;
+    color: #00c5f5;
+}
+.audio-js.blue .audio-js-ant .audio-js-controls .nine-three.hover, .audio-js.blue .audio-js-ant .audio-js-controls .nine-three.hover i{
+    text-shadow: rgba(5, 50, 255, 0.7) 0px 0px 15px;
+    color: #00c5f5;
+}
+.audio-js.blue .audio-js-ant .js-name-now{    
+    color: #525252;    
+}

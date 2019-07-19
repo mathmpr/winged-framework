@@ -127,9 +127,7 @@ class ShutdownCallback
                     $line = 'internal';
                 }
             }
-            if($mExp[1] === 'Winged\Controller\Con'){
-                pre_clear_buffer_die($message);
-            }
+
             $exp = explode('->', $mExp[1]);
             if (count($exp) >= 2) {
                 $type = '->';
@@ -178,8 +176,17 @@ class ShutdownCallback
                 } else {
                     $type = 'procedural call';
                     $class = 'procedural call';
-                    pre_clear_buffer_die($exp);
-                    $function = $value[1][1];
+                    $exp = explode(': ', $value);
+                    preg_match('#\((.*?)\)#', $exp[0], $matchs);
+                    if (!empty($matchs)) {
+                        $line = trim($matchs[1]);
+                        $mExp[0] = str_replace('(' . $matchs[1] . ')', '', $mExp[0]);
+                        $file = $mExp[0];
+                    } else {
+                        $file = $mExp[0];
+                        $line = 'internal';
+                    }
+                    $function = $exp[1];
                 }
             }
             $message[$key] = [

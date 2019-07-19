@@ -505,7 +505,7 @@ class Controller extends Render
         } else {
             header('Location: ' . Winged::$protocol . $path . $args);
         }
-        exit;
+        Winged::_exit();
     }
 
     /**

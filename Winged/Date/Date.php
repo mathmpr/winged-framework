@@ -88,11 +88,14 @@ class Date
      * @param bool $date
      * @param bool $hours
      *
-     * @throws Exception
      */
     public function __construct($date = false, $hours = true)
     {
-        $this->rebuild($date, $hours);
+        try{
+            $this->rebuild($date, $hours);
+        }catch (\Exception $exception){
+            trigger_error($exception->getMessage(), E_USER_ERROR);
+        }   
         return $this;
     }
 

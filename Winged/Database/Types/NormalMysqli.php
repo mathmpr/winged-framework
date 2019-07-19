@@ -109,6 +109,7 @@ class NormalMysqli
             while ($row = $result->fetch_assoc()) {
                 $tuple[] = $row;
             }
+            $result->free_result();
             return empty($tuple) ? null : $tuple;
         }
         return false;
@@ -124,7 +125,10 @@ class NormalMysqli
      */
     public function count($query = '')
     {
-        return $this->querying($query) ? $this->refer->affected_rows : false;
+        $result = $this->querying($query);
+        $rows = $result->num_rows;
+        $result->free_result();
+        return $result ? $rows : false;
     }
 
     /**

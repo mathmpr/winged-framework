@@ -1,0 +1,77 @@
+h4{
+    margin: 25px 0;
+}
+
+input[type=radio] {
+    display: none;
+}
+
+input[type=radio] + span {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(167, 167, 167, 0.5);
+    border-radius: 40px;
+    top: 4px;
+    margin-right: 10px;
+
+}
+
+input[type=radio]:checked + span:before{
+    content: '';
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    margin: auto;
+    display: block;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: #53c260;
+    border-radius: 40px;
+}
+
+input[type=checkbox] {
+    display: none;
+}
+
+input[type=checkbox] + span {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(167, 167, 167, 0.5);
+    top: 4px;
+    margin-right: 10px;
+}
+
+input[type=checkbox]:checked + span:before{
+    content: '';
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    margin: auto;
+    display: block;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: #53c260;
+}
+
+.none{
+    display: none;
+}
+
+#brands{
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+#brands li{
+    display: inline-block;
+    margin: 10px 10px;
+}

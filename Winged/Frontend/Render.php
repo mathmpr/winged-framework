@@ -193,10 +193,6 @@ class Render extends Assets
             return $full_string;
         }
 
-        if (is_int(stripos($only_match, 'family=Roboto'))) {
-            pre_clear_buffer_die($only_match);
-        }
-
         if (is_string($this->baseUrl)) {
             $base = str_replace(
                 [

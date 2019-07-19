@@ -57,7 +57,7 @@ class SilencedErrors
             'gzinflate' => [
                 'warning' => false,
                 'fatal' => false
-            ],
+            ]
         ];
     }
 }

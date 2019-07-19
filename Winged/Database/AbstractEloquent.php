@@ -3,6 +3,7 @@
 namespace Winged\Database;
 
 use Winged\Database\Drivers\Cubrid;
+use Winged\Database\Drivers\EloquentInterface;
 use Winged\Database\Drivers\MySQL;
 use Winged\Database\Drivers\PostgreSQL;
 use Winged\Database\Drivers\Sqlite;
@@ -24,12 +25,7 @@ class AbstractEloquent
 
     public function __construct()
     {
-        try {
-            $reflection = new \ReflectionClass(get_class(CurrentDB::$current->queryStringHandler));
-            $this->eloquent = $reflection->newInstanceArgs([&CurrentDB::$current, &$this]);
-        } catch (\ReflectionException $exception) {
-            return false;
-        }
+        $this->eloquent = &CurrentDB::$current->queryStringHandler;
         return $this;
     }
 
@@ -42,7 +38,7 @@ class AbstractEloquent
      */
     public function select($fields = [])
     {
-        if(empty($fields)){
+        if (empty($fields)) {
             $fields = ['*'];
         }
         $this->eloquent->select($fields);
@@ -119,7 +115,11 @@ class AbstractEloquent
      */
     public function insert()
     {
-        $this->eloquent->insert();
+        try {
+            $this->eloquent->insert();
+        } catch (\Exception $exception) {
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
+        }
         return $this;
     }
 
@@ -148,7 +148,7 @@ class AbstractEloquent
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['table_name.field' => value or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['table_name.field' => value or Eloquent]
      *
      * @param $condition string
      * @param $values    array
@@ -160,13 +160,13 @@ class AbstractEloquent
         try {
             $this->eloquent->where($condition, $values);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['table_name.field' => value or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['table_name.field' => value or Eloquent]
      *
      * @param $condition string
      * @param $values    array
@@ -178,13 +178,13 @@ class AbstractEloquent
         try {
             $this->eloquent->andWhere($condition, $values);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['table_name.field' => value or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['table_name.field' => value or Eloquent]
      *
      * @param $condition string
      * @param $values    array
@@ -196,7 +196,7 @@ class AbstractEloquent
         try {
             $this->eloquent->orWhere($condition, $values);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
@@ -216,7 +216,7 @@ class AbstractEloquent
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
      * @param string $condition
      * @param array  $inner
@@ -228,13 +228,13 @@ class AbstractEloquent
         try {
             $this->eloquent->leftJoin($condition, $inner);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
      * @param string $condition
      * @param array  $inner
@@ -246,13 +246,13 @@ class AbstractEloquent
         try {
             $this->eloquent->rightJoin($condition, $inner);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['alias' => 'table_name', 'alias.field' => 'other_alias.field' or Eloquent]
      *
      * @param string $condition
      * @param array  $inner
@@ -264,7 +264,7 @@ class AbstractEloquent
         try {
             $this->eloquent->innerJoin($condition, $inner);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
@@ -297,7 +297,7 @@ class AbstractEloquent
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['table_name.field' => value or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['table_name.field' => value or Eloquent]
      *
      * @param $condition string
      * @param $values    array
@@ -309,13 +309,13 @@ class AbstractEloquent
         try {
             $this->eloquent->having($condition, $values);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['table_name.field' => value or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['table_name.field' => value or Eloquent]
      *
      * @param $condition string
      * @param $values    array
@@ -329,13 +329,13 @@ class AbstractEloquent
         try {
             $this->eloquent->andHaving($condition, $values);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
 
     /**
-     * Exemple: Eloquent::EQUALS, ['table_name.field' => value or Eloquent]
+     * Exemple: ELOQUENT_EQUAL, ['table_name.field' => value or Eloquent]
      *
      * @param $condition string
      * @param $values    array
@@ -349,23 +349,43 @@ class AbstractEloquent
         try {
             $this->eloquent->orHaving($condition, $values);
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $this;
     }
 
     /**
      * perform query building
+     * reset prepared infos and all registred commands in query
      *
      * @return Cubrid|Drivers\EloquentInterface|MySQL|PostgreSQL|Sqlite|SQLServer|$this
      */
     public function build()
     {
+        $this->eloquent->model = &$this;
         try {
             return $this->eloquent->build();
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
+        return $this;
+    }
+
+    /**
+     * perform query building
+     * reset prepared infos and all registred commands in query
+     *
+     * @return Cubrid|Drivers\EloquentInterface|MySQL|PostgreSQL|Sqlite|SQLServer|$this
+     */
+    public function buildKeepRegisters()
+    {
+        $this->eloquent->model = &$this;
+        try {
+            return $this->eloquent->build(true);
+        } catch (\Exception $exception) {
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
+        }
+        return $this;
     }
 
     /**
@@ -376,11 +396,13 @@ class AbstractEloquent
      */
     public function prepare()
     {
+        $this->eloquent->model = &$this;
         try {
             return $this->eloquent->prepare();
         } catch (\Exception $exception) {
-            return $this;
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
+        return $this;
     }
 
     /**
@@ -392,11 +414,12 @@ class AbstractEloquent
      */
     public function execute($selectAsArray = false)
     {
+        $this->eloquent->model = &$this;
         $return = null;
         try {
             $return = $this->eloquent->execute($selectAsArray);
         } catch (\Exception $exception) {
-            trigger_error($exception->getMessage(), E_USER_ERROR);
+            trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
         }
         return $return;
     }
@@ -406,12 +429,29 @@ class AbstractEloquent
      *
      * @return mixed|Model|null
      */
-    public function one($selectAsArray = false){
+    public function one($selectAsArray = false)
+    {
+        $this->eloquent->model = &$this;
         $return = $this->limit(1)->execute($selectAsArray);
-        if($return){
+        if ($return) {
             return $return[0];
         }
         return null;
+    }
+
+    /**
+     * method for the purpose of executing queries select for count rows from the database
+     */
+    public function count()
+    {
+        $this->eloquent->model = &$this;
+        $this->buildKeepRegisters();
+        $this->eloquent->builded['command'] = 'count';
+        $return = $this->execute();
+        if ($return) {
+            return $return;
+        }
+        return -1;
     }
 
 }

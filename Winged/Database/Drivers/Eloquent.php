@@ -23,6 +23,8 @@ abstract class Eloquent
 
     const COMMAND_INSERT = 'insert';
 
+    const COMMAND_COUNT = 'count';
+
     public $prepared = false;
 
     public $builded = false;
@@ -622,8 +624,14 @@ abstract class Eloquent
                 throw new \Exception('args inside $args expected exactly two parameters, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
             }
         } else {
-            if ($countArguments > 1) {
-                throw new \Exception('args inside $args expected exactly one parameter, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
+            if($condition === ELOQUENT_BETWEEN){
+                if ($countArguments != 3) {
+                    throw new \Exception('args inside $args expected exactly three parameter, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
+                }
+            }else{
+                if ($countArguments > 1) {
+                    throw new \Exception('args inside $args expected exactly one parameter, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
+                }
             }
         }
 
@@ -757,7 +765,12 @@ abstract class Eloquent
                 $stack = debug_backtrace();
                 $columnArgs = array_column(array_column($stack, 'args'), 0);
                 if (in_array('joins', $columnArgs)) {
-                    throw new \Exception('format alias.field_name is required in join clause');
+                    $search = array_search('joins', $columnArgs);
+                    if ($search) {
+                        if ($columnArgs[$search] === 'joins') {
+                            throw new \Exception('format alias.field_name is required in join clause');
+                        }
+                    }
                 }
                 $possibleAny = $exp[0];
                 if ($possibleAny === '*') {
@@ -802,6 +815,9 @@ abstract class Eloquent
      */
     protected function getTypeOfField($tableName, $fieldName)
     {
+        if(!$tableName){
+            throw new \Exception('table name must be integer or string');
+        }
         if (array_key_exists($tableName, $this->database->db_tables)) {
             if (array_key_exists($fieldName, $this->database->db_tables[$tableName]['fields'])) {
                 $field = $this->database->db_tables[$tableName]['fields'][$fieldName];
@@ -1236,11 +1252,13 @@ abstract class Eloquent
     /**
      * finally build query, return the final query and all values registred in eloquent
      *
+     * @param bool $noReset
+     *
      * @return $this|EloquentInterface|array
      * @throws \Exception
      *
      */
-    public function build()
+    public function build($noReset = false)
     {
         if (in_array(get_class($this), [
             'Winged\Database\Drivers\Cubrid',
@@ -1253,7 +1271,7 @@ abstract class Eloquent
              * @var $this Cubrid|MySQL|PostgreSQL|Sqlite|SQLServer
              */
             $return = [];
-            if (!$this->prepared) {
+            if (!$this->prepared || $noReset) {
                 $this->prepare();
             }
             $this->prepared = false;
@@ -1283,8 +1301,11 @@ abstract class Eloquent
             }
             $return['query'] = call_user_func_array('sprintf', array_merge([$this->currentQueryString], $normalValues));
             $return['command'] = $this->command;
-
-            $this->resetAll();
+            if (!$noReset) {
+                $this->resetAll();
+            } else {
+                $this->reset();
+            }
             $this->builded = $return;
         }
         return $this;
@@ -1318,6 +1339,18 @@ abstract class Eloquent
             }
         }
         switch ($this->builded['command']) {
+            case Eloquent::COMMAND_COUNT:
+                if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->count($this->builded['pdo_query'], $this->builded['pdo']);
+                } else if ($this->database->isMysqli() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
+                    $returnedValue = $this->database->count($this->builded['mysqli_query'], $this->builded['mysqli']);
+                } else {
+                    $returnedValue = $this->database->count($this->builded['query']);
+                }
+                if ($this->model) {
+                    $this->model->primaryKey($returnedValue);
+                }
+                break;
             case Eloquent::COMMAND_INSERT:
                 if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
                     $returnedValue = $this->database->insert($this->builded['pdo_query'], $this->builded['pdo']);
@@ -1358,12 +1391,12 @@ abstract class Eloquent
                 }
                 if (!$selectAsArray && $this->model && !empty($returnedValue)) {
                     $models = [];
+                    try {
+                        $reflection = new \ReflectionClass(get_class($this->model));
+                    } catch (\Exception $exception) {
+                        $reflection = false;
+                    }
                     foreach ($returnedValue as $result) {
-                        try {
-                            $reflection = new \ReflectionClass(get_class($this->model));
-                        } catch (\Exception $exception) {
-                            $reflection = false;
-                        }
                         if ($reflection) {
                             /**
                              * @var $model Model
