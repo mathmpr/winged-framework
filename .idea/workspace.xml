@@ -390,7 +390,7 @@
       <path value="$PROJECT_DIR$/projects/vendor/composer" />
     </include_path>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
@@ -511,7 +511,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
     <property name="com.jetbrains.php.phpunit.codeGeneration.PhpNewTestDialog.defaultLibrary" value="PHPUnit" />
     <property name="database.console.LAST_STATE" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../finished/icvlondrina.com.br" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.jscs" value="true" />
