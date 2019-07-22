@@ -106,8 +106,8 @@ class ObrasController extends Controller
     {
         $this->dynamic('page_action_string', 'Inserindo');
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', './admin/assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', './admin/assets/js/pages/numeric.js');
+        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
+        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
         $this->appendJs("cep", "./projects/admin/assets/js/pages/cep.js");
         $this->appendJs("obras", "./projects/admin/assets/js/pages/obras.js");
         $this->appendJs('_mask', '<script> 
@@ -170,8 +170,8 @@ class ObrasController extends Controller
     {
         $this->dynamic('page_action_string', 'Alterando');
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', './admin/assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', './admin/assets/js/pages/numeric.js');
+        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
+        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
         $this->appendJs("cep", "./projects/admin/assets/js/pages/cep.js");
         $this->appendJs("obras", "./projects/admin/assets/js/pages/obras.js");
         $this->appendJs('_mask', '<script> 

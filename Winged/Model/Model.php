@@ -5,6 +5,7 @@ namespace Winged\Model;
 use Winged\Database\DbDict;
 use Winged\Database\CurrentDB;
 use Winged\Database\AbstractEloquent;
+use Winged\Date\Date;
 use WingedConfig;
 
 /**
@@ -773,6 +774,22 @@ abstract class Model extends AbstractEloquent
     }
 
     /**
+     * remove an row in database based in primary key inside $this model
+     *
+     * @return bool
+     */
+    public function remove()
+    {
+        if ($this->primaryKey() != null) {
+            $alias = randid(6);
+            return $this->delete([$alias => $this->_tableName()])
+                ->where(ELOQUENT_EQUAL, [$alias . '.' . $this->_primaryKeyName() => $this->primaryKey()])
+                ->execute();
+        }
+        return false;
+    }
+
+    /**
      * auto create save query and send this query to database
      *
      * @return array|bool|false|int|mixed|string|Model[]
@@ -794,9 +811,12 @@ abstract class Model extends AbstractEloquent
                                 $set[$field] = $this->{$field}->sql();
                             }
                         } else {
-                            $set[$field] = $this->{$field};
+                            if (Date::valid($this->{$field})) {
+                                $set[$field] = (new Date($this->{$field}))->sql();
+                            } else {
+                                $set[$field] = $this->{$field};
+                            }
                         }
-
                     }
                 }
             }

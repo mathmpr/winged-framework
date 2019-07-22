@@ -1,4 +1,7 @@
 <?php
+
+use Winged\Date\Date;
+
 ob_end_clean();
 
 require_once 'projects/admin/classes/tcpdf/tcpdf.php';

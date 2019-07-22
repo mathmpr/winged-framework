@@ -34,7 +34,7 @@ function rebindFields() {
             if (_.attr('data-old') != _.val()) {
                 var data = gem_data(serialize(getForm(_)));
                 $.ajax({
-                    url: 'admin/carrinho/refresh',
+                    url: window.protocol + window._parent + 'carrinho/refresh',
                     type: 'post',
                     data: data,
                     contentType: false,
@@ -103,7 +103,7 @@ $(function () {
 
         if (_.hasClass('verified')) {
             $.ajax({
-                url: 'admin/carrinho/finish',
+                url: window.protocol + window._parent + 'carrinho/finish',
                 type: 'post',
                 success: function (response) {
                     setTimeout(function () {
@@ -145,7 +145,7 @@ $(function () {
             });
         } else {
             $.ajax({
-                url: 'admin/carrinho/verify',
+                url: window.protocol + window._parent + 'carrinho/verify',
                 type: 'post',
                 success: function (response) {
                     setTimeout(function () {
@@ -213,7 +213,7 @@ $(function () {
     });
 
     cliente = new Tokens('#clientes', {
-        url: 'admin/carrinho/clientes',
+        url: window.protocol + window._parent + 'carrinho/clientes',
         type: 'post',
         names: ['id_cliente'],
         show: 'nome',
@@ -259,7 +259,7 @@ $(function () {
         form.append('<input name="innf" type="hidden" value="' + $('[name="innf"]:checked').val() + '"/>');
         var data = gem_data(serialize(form));
         $.ajax({
-            url: 'admin/carrinho/save',
+            url: window.protocol + window._parent + 'carrinho/save',
             type: 'post',
             data: data,
             contentType: false,
@@ -321,7 +321,7 @@ $(function () {
 
     $('#remove-item-all').on('click', function () {
         $.ajax({
-            url: 'admin/carrinho/remove-all',
+            url: window.protocol + window._parent + 'carrinho/remove-all',
             type: 'post',
             contentType: false,
             processData: false,
@@ -363,7 +363,7 @@ $(function () {
         form.append('<input name="id_carrinho" type="hidden" value="' + _.attr('data-id') + '">');
         var data = gem_data(serialize(form));
         $.ajax({
-            url: 'admin/carrinho/remove',
+            url: window.protocol + window._parent + 'carrinho/remove',
             type: 'post',
             data: data,
             contentType: false,
@@ -403,7 +403,7 @@ $(function () {
     });
 
     var produto = new Tokens($('#produtos'), {
-        url: 'admin/pedidos/produtos',
+        url: window.protocol + window._parent + 'pedidos/produtos',
         type: 'post',
         names: ['id_produto'],
         show: 'nome',
@@ -427,7 +427,7 @@ $(function () {
         var data = gem_data(serialize($('<form></form>').append(produto.main.clone())));
 
         $.ajax({
-            url: 'admin/carrinho/add',
+            url: window.protocol + window._parent + 'carrinho/add',
             type: 'post',
             data: data,
             contentType: false,

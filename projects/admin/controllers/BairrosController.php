@@ -71,7 +71,7 @@ class BairrosController extends Controller
     public function actionInsert()
     {
         AdminAssets::init($this);
-        $this->appendJs('bairros', './admin/assets/js/pages/bairros.js');
+        $this->appendJs('bairros', Winged::$parent . 'assets/js/pages/bairros.js');
         $this->dynamic('page_action_string', 'Inserindo');
         $model = new Bairros();
         Session::always('action', 'insert');
@@ -108,7 +108,7 @@ class BairrosController extends Controller
     public function actionUpdate()
     {
         AdminAssets::init($this);
-        $this->appendJs('bairros', './admin/assets/js/pages/bairros.js');
+        $this->appendJs('bairros', Winged::$parent . 'assets/js/pages/bairros.js');
         $this->dynamic('page_action_string', 'Alterando');
         $model = new Bairros();
         $this->setNicknamesToUri(['id']);

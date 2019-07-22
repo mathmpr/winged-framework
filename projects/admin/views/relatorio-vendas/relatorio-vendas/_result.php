@@ -853,8 +853,6 @@ use Winged\Date\Date;
                 $sellers_valor[$s . 'str'] = $tojs['sellers'][$s];
             }
 
-            ///
-
             $tojs['acheters'] = $acheters_valor;
 
             $tojs['sellers'] = $sellers_valor;

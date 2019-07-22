@@ -78,7 +78,7 @@ class UsuariosController extends Controller
         !Login::permissionAdm() ? $this->redirectTo() : null;
         $this->dynamic('page_action_string', 'Inserindo');
         AdminAssets::init($this);
-        $this->appendJs('usuarios', './admin/assets/js/pages/usuarios.js');
+        $this->appendJs('usuarios', Winged::$parent . 'assets/js/pages/usuarios.js');
         $this->appendJs('_mask', '<script> $(function(){ $("#Usuarios_telefone").mask("(99) 99999-999?9") }) </script>');
         $model = new Usuarios();
         Session::always('action', 'insert');
@@ -118,7 +118,7 @@ class UsuariosController extends Controller
         !Login::permission() ? $this->redirectTo('../') : null;
         $this->dynamic('page_action_string', 'Alterando');
         AdminAssets::init($this);
-        $this->appendJs('usuarios', './admin/assets/js/pages/usuarios.js');
+        $this->appendJs('usuarios', Winged::$parent . 'assets/js/pages/usuarios.js');
         $this->appendJs('_mask', '<script> $(function(){ $("#Usuarios_telefone").mask("(99) 9999-9999?9") }) </script>');
         $model = new Usuarios();
         $this->setNicknamesToUri(['id']);

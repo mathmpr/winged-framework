@@ -27,7 +27,7 @@ class ProdutosController extends Controller
     public function actionPage()
     {
         AdminAssets::init($this);
-        $this->appendJs('carrinho_produtos', './admin/assets/js/pages/carrinho_produtos.js');
+        $this->appendJs('carrinho_produtos', Winged::$parent . 'assets/js/pages/carrinho_produtos.js');
         $this->setNicknamesToUri(['page']);
         $limit = get('limit') ? get('limit') : 10;
         $page = uri('page') ? uri('page') : 1;
@@ -85,7 +85,7 @@ class ProdutosController extends Controller
     public function actionInsert()
     {
         AdminAssets::init($this);
-        $this->appendJs('produtos', './admin/assets/js/pages/produtos.js');
+        $this->appendJs('produtos', Winged::$parent . 'assets/js/pages/produtos.js');
         $this->dynamic('page_action_string', 'Inserindo');
         $model = new Produtos();
         Session::always('action', 'insert');
@@ -122,7 +122,7 @@ class ProdutosController extends Controller
     public function actionUpdate()
     {
         AdminAssets::init($this);
-        $this->appendJs('produtos', './admin/assets/js/pages/produtos.js');
+        $this->appendJs('produtos', Winged::$parent . 'assets/js/pages/produtos.js');
         $this->dynamic('page_action_string', 'Alterando');
         $model = new Produtos();
         $this->setNicknamesToUri(['id']);

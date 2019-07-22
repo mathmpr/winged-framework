@@ -31,6 +31,7 @@ class AdminAssets
             <script>
                 window.protocol = "<?= Winged::$protocol ?>";
                 window.page_surname = "<?= Winged::$page_surname ?>";
+                window._parent = "<?= Winged::$parent ?>";
                 window.uri = "<?= Winged::$uri ?>";
                 window.controller_params = JSON.parse('<?= json_encode(Winged::$controller_params) ?>');
                 window.controller_action = "<?= Winged::$controller_action ?>";

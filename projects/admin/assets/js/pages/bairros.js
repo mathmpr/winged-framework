@@ -3,7 +3,7 @@ $(function () {
         var select = $('#Bairros_id_cidade').find('option:first-child').clone().text('Carregando...');
         $('#Bairros_id_cidade').html('').append(select);
         $.ajax({
-            url: window.protocol + 'admin/services/get-cidades/',
+            url: window.protocol + window._parent + 'services/get-cidades/',
             type: 'post',
             data: {id_estado: $(this).val()},
             success: function (response) {

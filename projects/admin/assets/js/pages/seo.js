@@ -211,27 +211,23 @@ $(function () {
         var result = current * 100 / tot;
         var charc = inp.closest('div').find('.char-count');
 
-        if(current < 0){
+        if (current < 0) {
             current = 0;
         }
         charc.html(current);
         if (result <= 100 && result >= 85) {
             charc.addClass('label-primary');
             charc.removeClass('label-danger').removeClass('label-success').removeClass('label-warning').removeClass('label-info');
-        }
-        else if (result <= 84 && result >= 65) {
+        } else if (result <= 84 && result >= 65) {
             charc.addClass('label-info');
             charc.removeClass('label-primary').removeClass('label-danger').removeClass('label-success').removeClass('label-warning');
-        }
-        else if (result <= 64 && result >= 45) {
+        } else if (result <= 64 && result >= 45) {
             charc.addClass('label-success');
             charc.removeClass('label-primary').removeClass('label-danger').removeClass('label-warning').removeClass('label-info');
-        }
-        else if (result <= 44 && result >= 24) {
+        } else if (result <= 44 && result >= 24) {
             charc.addClass('label-warning');
             charc.removeClass('label-primary').removeClass('label-danger').removeClass('label-success').removeClass('label-info');
-        }
-        else if (result <= 24 && result >= 0) {
+        } else if (result <= 24 && result >= 0) {
             charc.addClass('label-danger');
             charc.removeClass('label-primary').removeClass('label-success').removeClass('label-warning').removeClass('label-info');
         } else {
@@ -252,20 +248,16 @@ $(function () {
             if (result <= 100 && result >= 85) {
                 charc.addClass('label-primary');
                 charc.removeClass('label-danger').removeClass('label-success').removeClass('label-warning').removeClass('label-info');
-            }
-            else if (result <= 84 && result >= 65) {
+            } else if (result <= 84 && result >= 65) {
                 charc.addClass('label-info');
                 charc.removeClass('label-primary').removeClass('label-danger').removeClass('label-success').removeClass('label-warning');
-            }
-            else if (result <= 64 && result >= 45) {
+            } else if (result <= 64 && result >= 45) {
                 charc.addClass('label-success');
                 charc.removeClass('label-primary').removeClass('label-danger').removeClass('label-warning').removeClass('label-info');
-            }
-            else if (result <= 44 && result >= 24) {
+            } else if (result <= 44 && result >= 24) {
                 charc.addClass('label-warning');
                 charc.removeClass('label-primary').removeClass('label-danger').removeClass('label-success').removeClass('label-info');
-            }
-            else if (result <= 24 && result >= 0) {
+            } else if (result <= 24 && result >= 0) {
                 charc.addClass('label-danger');
                 charc.removeClass('label-primary').removeClass('label-success').removeClass('label-warning').removeClass('label-info');
             } else {
@@ -370,7 +362,7 @@ $(function () {
             event.stopPropagation();
             var datacrop = gem_data(serialize($('<form></form>').append(col12last.find('._info').clone().append('<input type="hidden" name="file" value="' + last_url + '">'))));
             $.ajax({
-                url: window.protocol + 'admin/upload-abstract/normal-set/',
+                url: window.protocol + window._parent + 'upload-abstract/normal-set/',
                 type: 'post',
                 cache: false,
                 contentType: false,
@@ -390,7 +382,7 @@ $(function () {
         });
 
         $.ajax({
-            url: window.protocol + 'admin/upload-abstract/upload-normal/',
+            url: window.protocol + window._parent + 'upload-abstract/upload-normal/',
             type: 'post',
             cache: false,
             contentType: false,

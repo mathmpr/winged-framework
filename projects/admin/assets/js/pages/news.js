@@ -143,7 +143,7 @@ $(function () {
             event.stopPropagation();
             var datacrop = gem_data(serialize($('<form></form>').append(col12last.find('._info').clone().append('<input type="hidden" name="file" value="' + last_url + '">'))));
             $.ajax({
-                url: window.protocol + 'admin/upload-abstract/normal-set/',
+                url: window.protocol + window._parent + 'upload-abstract/normal-set/',
                 type: 'post',
                 cache: false,
                 contentType: false,
@@ -163,7 +163,7 @@ $(function () {
         });
 
         $.ajax({
-            url: window.protocol + 'admin/upload-abstract/upload-normal/',
+            url: window.protocol + window._parent + 'upload-abstract/upload-normal/',
             type: 'post',
             cache: false,
             contentType: false,

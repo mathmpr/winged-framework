@@ -5,6 +5,7 @@ namespace Winged\Database\Drivers;
 use Winged\Database\CurrentDB;
 use Winged\Utils\Chord;
 use WingedConfig;
+use \Exception;
 
 /**
  * Syntax compatible with PostgreSQL 10.0.2
@@ -46,7 +47,11 @@ class MySQL extends Eloquent implements EloquentInterface
      */
     public function setEncoding()
     {
-        CurrentDB::execute('SET NAMES ' . WingedConfig::$config->db()->DATABASE_CHARSET);
+        try {
+            CurrentDB::execute('SET NAMES ' . WingedConfig::$config->db()->DATABASE_CHARSET);
+        } catch (Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_ERROR);
+        }
     }
 
     /**
@@ -199,29 +204,45 @@ class MySQL extends Eloquent implements EloquentInterface
             if (count7($this->queryTablesInfo[$masterKey]) > 0) {
                 foreach ($this->queryTablesInfo[$masterKey] as $key => $where) {
                     $keys = array_keys($where['original']['args']);
+                    $valuesString = ' %s';
+                    if ($where['condition'] === ELOQUENT_BETWEEN) {
+                        $valuesString = ' %s AND %s';
+                    } else if ($where['condition'] === ELOQUENT_IN || $where['condition'] === ELOQUENT_NOTIN) {
+                        if (is_array($where['original']['args'][$keys[0]])) {
+                            $valuesString = ' (';
+                            foreach ($where['original']['args'][$keys[0]] as $value) {
+                                $valuesString .= '%s ,';
+                            }
+                            $valuesStringPart = Chord::factory($valuesString);
+                            $valuesStringPart->endReplace(' ,');
+                            $valuesString = $valuesStringPart->get() . ')';
+                        }
+
+                    }
+
                     if ($where['original']['type'] === 'begin') {
-                        $part .= ' WHERE (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                        $part .= ' WHERE (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . $valuesString;
                     }
                     if ($where['original']['type'] === 'and') {
-                        $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                        $part .= ' AND (' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . $valuesString;
                         $parenthesis++;
                     }
                     if ($where['original']['type'] === 'or') {
                         $next = $this->afterClauseOperation($key, $masterKey);
                         if ($next) {
                             if ($next == 'or') {
-                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s';
+                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . $valuesString;
                             } else {
                                 if ($parenthesis > 0) {
                                     $parenthesis--;
                                 }
-                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s )';
+                                $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . $valuesString . ')';
                             }
                         } else {
                             if ($parenthesis > 0) {
                                 $parenthesis--;
                             }
-                            $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . ' %s )';
+                            $part .= ' OR ' . $keys[0] . ' ' . $this->modifiersConditions[$where['condition']] . $valuesString . ')';
                         }
                     }
                     $this->pushQueryInformation($where['left'], $where['right']);
@@ -409,7 +430,7 @@ class MySQL extends Eloquent implements EloquentInterface
 
             foreach ($this->queryTables[$masterKey] as $key => $value) {
                 if ($this->queryTablesAlias[$masterKey][$key]) {
-                    $part .=  $value . ' AS ' . $this->queryTablesAlias[$masterKey][$key] . ',';
+                    $part .= $value . ' AS ' . $this->queryTablesAlias[$masterKey][$key] . ',';
                 }
             }
 
@@ -555,7 +576,7 @@ class MySQL extends Eloquent implements EloquentInterface
      */
     public function prepare($model = false)
     {
-        if($model){
+        if ($model) {
             $this->model = &$model;
         }
         if ($this->builded || $this->prepared) {

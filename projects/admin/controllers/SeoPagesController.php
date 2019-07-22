@@ -84,7 +84,7 @@ class SeoPagesController extends Controller
     {
         $this->dynamic('page_action_string', 'Inserindo');
         AdminAssets::init($this);
-        $this->appendJs('news', './admin/assets/js/pages/seo.js');
+        $this->appendJs('news', Winged::$parent . 'assets/js/pages/seo.js');
         $model = new SeoPages();
         Session::always('action', 'insert');
         if (is_get()) {
@@ -124,7 +124,7 @@ class SeoPagesController extends Controller
     {
         $this->dynamic('page_action_string', 'Alterando');
         AdminAssets::init($this);
-        $this->appendJs('news', './admin/assets/js/pages/seo.js');
+        $this->appendJs('news', Winged::$parent . 'assets/js/pages/seo.js');
         $model = new SeoPages();
         $this->setNicknamesToUri(['id']);
         if (uri('id') !== false && is_get()) {

@@ -3,7 +3,7 @@ $(function () {
         var select = $('#EnderecosClientes_id_cidade').find('option:first-child').clone().text('Carregando...');
         $('#EnderecosClientes_id_cidade').html('').append(select);
         $.ajax({
-            url: window.protocol + 'admin/services/get-cidades/',
+            url: window.protocol + window._parent + 'services/get-cidades/',
             type: 'post',
             data: {id_estado: $(this).val()},
             success: function (response) {
@@ -24,7 +24,7 @@ $(function () {
         var select = $('#EnderecosClientes_id_bairro').find('option:first-child').clone().text('Carregando...');
         $('#EnderecosClientes_id_bairro').html('').append(select);
         $.ajax({
-            url: window.protocol + 'admin/services/get-bairros/',
+            url: window.protocol + window._parent + 'services/get-bairros/',
             type: 'post',
             data: {
                 id_estado: $('#EnderecosClientes_id_estado').val() == '' ? 0 : $('#EnderecosClientes_id_estado').val(),

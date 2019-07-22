@@ -21,7 +21,7 @@ class AbstractEloquent
     /**
      * @var $eloquent null | Sqlite | MySQL | Cubrid | SQLServer | PostgreSQL
      */
-    public $eloquent = null;
+    protected $eloquent = null;
 
     public function __construct()
     {

@@ -12,6 +12,7 @@ use Winged\Date\Date;
 use Winged\Http\Cookie;
 use Winged\Formater\Formater;
 use Winged\Http\Session;
+use Winged\Utils\Caster;
 
 class PedidosController extends Controller
 {
@@ -65,14 +66,10 @@ class PedidosController extends Controller
              */
 
             if ($pedido) {
-                $usuario = (new Usuarios())->findOne($pedido->id_usuario);
-                if ($usuario->session_namespace != 'ADM') {
-                    return true;
-                }
+                return true;
             } else {
                 $this->error_st = 'no exists';
                 $this->message = 'O pedido não existe mais.';
-
                 return false;
             }
         }
@@ -519,10 +516,14 @@ class PedidosController extends Controller
                     ->andWhere(ELOQUENT_EQUAL, ['PP.id_pedido_produto' => post('id_pedido_produto')])
                     ->one();
 
+                $valor_unico = Caster::toFloat(post('valor_unico'));
+                $porcentagem_desconto = Caster::toFloat(post('porcentagem_desconto'));
+                $quantidade = Caster::toFloat(post('quantidade'));
+
                 if ($model) {
 
-                    if (((post('quantidade') - $model->quantidade) > $model->extra()->quantidade_estoque)) {
-                        if (!(post('quantidade') < $model->quantidade)) {
+                    if (($quantidade - $model->quantidade) > $model->extra()->quantidade_estoque) {
+                        if (!($quantidade < $model->quantidade)) {
                             $recalc = $this->recalc();
                             return [
                                 'status' => true,
@@ -538,7 +539,7 @@ class PedidosController extends Controller
                         }
                     }
 
-                    if (post('valor_unico') < $model->extra()->valor_minimo) {
+                    if ($valor_unico < $model->extra()->valor_minimo) {
                         $recalc = $this->recalc();
                         return [
                             'status' => true,
@@ -553,7 +554,7 @@ class PedidosController extends Controller
                         ];
                     }
 
-                    if ((post('valor_unico') - (post('valor_unico') * post('porcentagem_desconto') / 100)) < $model->extra()->valor_minimo) {
+                    if ($valor_unico - ($valor_unico * $porcentagem_desconto / 100) < $model->extra()->valor_minimo) {
                         $recalc = $this->recalc();
                         return [
                             'status' => true,
@@ -570,9 +571,9 @@ class PedidosController extends Controller
 
                     $status = (new PedidosProdutos())->update(['PP' => PedidosProdutos::tableName()])
                         ->set([
-                            'PP.quantidade' => post('quantidade'),
-                            'PP.valor_unico' => post('valor_unico'),
-                            'PP.porcentagem_desconto' => post('porcentagem_desconto') == 0 ? '0' : post('porcentagem_desconto'),
+                            'PP.quantidade' => $quantidade,
+                            'PP.valor_unico' => $valor_unico,
+                            'PP.porcentagem_desconto' => $porcentagem_desconto == 0 ? '0' : $porcentagem_desconto,
                         ])
                         ->where(ELOQUENT_EQUAL, ['PP.id_pedido_produto' => post('id_pedido_produto')])
                         ->execute();
@@ -580,8 +581,8 @@ class PedidosController extends Controller
                     $recalc = $this->recalc();
 
                     if ($status && $model->extra()->innf != 1) {
-                        if (post('quantidade') > $model->quantidade) {
-                            $remove = post('quantidade') - $model->quantidade;
+                        if ($quantidade > $model->quantidade) {
+                            $remove = $quantidade - $model->quantidade;
                             (new Produtos())->update(['PR' => Produtos::tableName()])
                                 ->set([
                                     'quantidade_estoque' => $model->extra()->quantidade_estoque - $remove,
@@ -589,7 +590,7 @@ class PedidosController extends Controller
                                 ->where(ELOQUENT_EQUAL, ['PR.id_produto' => $model->id_produto])
                                 ->execute();
                         } else {
-                            $add = $model->quantidade - post('quantidade');
+                            $add = $model->quantidade - $quantidade;
                             (new Produtos())->update(['PR' => Produtos::tableName()])
                                 ->set([
                                     'quantidade_estoque' => $model->extra()->quantidade_estoque + $add,
@@ -604,10 +605,10 @@ class PedidosController extends Controller
                         'quantidade_total' => $recalc['quantidade_total'],
                         'valor_total' => Formater::intToCurrency($recalc['valor_total']),
                         'media_desconto' => $recalc['media_desconto'],
-                        'quantidade' => post('quantidade'),
-                        'valor_unico' => Formater::intToCurrency(post('valor_unico')),
-                        'valor_final' => Formater::intToCurrency((post('valor_unico') - (post('valor_unico') * post('porcentagem_desconto') / 100)) * post('quantidade')),
-                        'porcentagem_desconto' => post('porcentagem_desconto'),
+                        'quantidade' => $quantidade,
+                        'valor_unico' => Formater::intToCurrency($valor_unico),
+                        'valor_final' => Formater::intToCurrency(($valor_unico - ($valor_unico * $porcentagem_desconto / 100)) * $quantidade),
+                        'porcentagem_desconto' => $porcentagem_desconto,
                     ];
                 }
             }
@@ -656,9 +657,9 @@ class PedidosController extends Controller
     public function actionPage()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', './admin/assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', './admin/assets/js/pages/numeric.js');
-        $this->appendJs('pedidos', './admin/assets/js/pages/pedidos.js');
+        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
+        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
+        $this->appendJs('pedidos', Winged::$parent . 'assets/js/pages/pedidos.js');
         $this->setNicknamesToUri(['page']);
         $limit = get('limit') ? get('limit') : 10;
         $page = uri('page') ? uri('page') : 1;

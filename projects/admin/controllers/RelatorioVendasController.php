@@ -36,9 +36,9 @@ class RelatorioVendasController extends Controller
     public function actionIndex()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', './admin/assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', './admin/assets/js/pages/numeric.js');
-        $this->appendJs('ralatorio_vendas', './admin/assets/js/pages/ralatorio_vendas.js');
+        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
+        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
+        $this->appendJs('ralatorio_vendas', Winged::$parent . 'assets/js/pages/ralatorio_vendas.js');
 
         $model = $this->completeModel((new RelatorioVendas()));
 
@@ -242,10 +242,10 @@ class RelatorioVendasController extends Controller
     public function actionResult()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', './admin/assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', './admin/assets/js/pages/numeric.js');
-        $this->appendJs('pedidos', './admin/assets/js/pages/pedidos.js');
-        $this->appendJs('relatorio_vendas', './admin/assets/js/pages/ralatorio_vendas.js');
+        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
+        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
+        $this->appendJs('pedidos', Winged::$parent . 'assets/js/pages/pedidos.js');
+        $this->appendJs('relatorio_vendas', Winged::$parent . 'assets/js/pages/ralatorio_vendas.js');
 
         $model = new RelatorioVendas();
 
@@ -329,8 +329,6 @@ class RelatorioVendasController extends Controller
             }
 
             $nmodel = $this->completeModel($model);
-
-
 
             $this->html(Winged::$page_surname . '/' . Winged::$page_surname . '/_result', [
                 'models' => $pedidos,

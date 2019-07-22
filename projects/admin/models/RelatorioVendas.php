@@ -5,7 +5,7 @@ namespace Winged\Model;
 use Winged\Validator\Validator;
 use Winged\Date\Date;
 
-class RelatorioVendas extends Model
+class RelatorioVendas extends Produtos
 {
 
     /**
@@ -66,6 +66,11 @@ class RelatorioVendas extends Model
                 return Date::valid($this->data_final) ? $this->data_final : (new Date())->dmy();
             },
         ];
+    }
+
+    public function reverseBehaviors()
+    {
+
     }
 
     public function rules()

@@ -3,7 +3,7 @@ $(function () {
         var select = $('#Produtos_id_subcategoria').find('option:first-child').clone().text('Carregando...');
         $('#Produtos_id_subcategoria').html('').append(select);
         $.ajax({
-            url: window.protocol + 'admin/services/get-subcategorias/',
+            url: window.protocol + window._parent + 'services/get-subcategorias/',
             type: 'post',
             data: {id_categoria: $(this).val()},
             success: function (response) {

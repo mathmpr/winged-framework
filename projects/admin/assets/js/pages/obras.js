@@ -3,7 +3,7 @@ $(function () {
     var last_id = 0;
 
     var cliente = new Tokens('#clientes', {
-        url: 'admin/obras/clientes',
+        url: window.protocol + window._parent + 'obras/clientes',
         type: 'post',
         names: ['id_usuario'],
         show: 'nome',

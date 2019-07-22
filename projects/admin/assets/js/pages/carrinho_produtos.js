@@ -1,6 +1,6 @@
 function addToCart(id_produto){
     $.ajax({
-        url: window.protocol + 'admin/carrinho/add-to-cart/',
+        url: window.protocol + window._parent + 'carrinho/add-to-cart/',
         type: 'post',
         data: {id_produto: id_produto},
         success: function (response) {
@@ -19,7 +19,7 @@ function bind_add_cart(element){
         element.find('i').addClass('icon-spinner11').addClass('infinite-rotation').removeClass('icon-cart-add');
         setTimeout(function(){
             $.ajax({
-                url: window.protocol + 'admin/carrinho/add-to-cart/',
+                url: window.protocol + window._parent + 'carrinho/add-to-cart/',
                 type: 'post',
                 data: {id_produto: id_produto},
                 success: function (response) {

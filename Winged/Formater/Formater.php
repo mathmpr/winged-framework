@@ -13,8 +13,11 @@ class Formater
     public static function intToCurrency($int = 0, $length = 2, $left = ',', $right = '.')
     {
         $int = numeric_is($int);
-        $currency = (string)($int / 100);
-        return number_format($currency, $length, $right, $left);
+        if($int){
+            $currency = $int / 100;
+            return number_format($currency, $length, $right, $left);
+        }
+        return '0' . $right . '00';
     }
 
     public static function removeAccents($str, $lowerCase = Formater::KEEP_FORMAT)

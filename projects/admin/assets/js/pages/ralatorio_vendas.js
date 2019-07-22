@@ -7,7 +7,7 @@ $(function () {
     });
 
     new Tokens('#RelatorioVendas_clientes', {
-        url: 'admin/carrinho/clientes',
+        url: window.protocol + window._parent + 'carrinho/clientes',
         type: 'post',
         names: ['id_cliente'],
         show: 'nome',
@@ -20,7 +20,7 @@ $(function () {
     });
 
     new Tokens('#RelatorioVendas_bairros', {
-        url: 'admin/relatorio-vendas/bairros',
+        url: window.protocol + window._parent + 'relatorio-vendas/bairros',
         type: 'post',
         names: ['id_bairro'],
         show: 'nome',
@@ -33,7 +33,7 @@ $(function () {
     });
 
     new Tokens('#RelatorioVendas_produtos', {
-        url: 'admin/pedidos/produtos',
+        url: window.protocol + window._parent + 'pedidos/produtos',
         type: 'post',
         names: ['id_produto'],
         show: 'nome',
@@ -46,7 +46,7 @@ $(function () {
     });
 
     new Tokens('#RelatorioVendas_status', {
-        url: 'admin/relatorio-vendas/status',
+        url: window.protocol + window._parent + 'relatorio-vendas/status',
         type: 'post',
         names: ['id_status'],
         show: 'nome',

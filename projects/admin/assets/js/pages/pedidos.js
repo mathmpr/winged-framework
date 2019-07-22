@@ -43,7 +43,7 @@ function rebindFields() {
         if (_.attr('data-old') != _.val()) {
             var data = gem_data(serialize(getForm(_)));
             $.ajax({
-                url: 'admin/pedidos/refresh',
+                url: 'pedidos/refresh',
                 type: 'post',
                 data: data,
                 contentType: false,
@@ -171,7 +171,7 @@ $(function () {
             var tr = $('tr[data-id=' + $('#id_pedido').val() + ']');
 
             $.ajax({
-                url: 'admin/pedidos/update',
+                url: 'pedidos/update',
                 type: 'post',
                 data: data,
                 contentType: false,
@@ -212,7 +212,7 @@ $(function () {
                                 tr.find('.edit-pedido').unbind('click');
                                 tr.find('.edit-pedido').css({opacity: '0.4'});
                                 tr.find('.btn.bg-danger').css({opacity: '1'});
-                                tr.find('.btn.bg-danger').attr('onclick', 'confirmDelete(\'' + window.protocol + 'admin/pedidos/delete/' + $('#id_pedido').val() + '\', \'' + location.href + '\')');
+                                tr.find('.btn.bg-danger').attr('onclick', 'confirmDelete(\'' + window.protocol + 'pedidos/delete/' + $('#id_pedido').val() + '\', \'' + location.href + '\')');
                             }
 
                             if (response.current == 3) {
@@ -246,7 +246,7 @@ $(function () {
         var _ = $(this);
         _.attr('key-to-object', key_to_object);
         search_objects[key_to_object] = new Tokens(_, {
-            url: 'admin/pedidos/produtos',
+            url: 'pedidos/produtos',
             type: 'post',
             names: ['id_produto'],
             show: 'nome',
@@ -271,7 +271,7 @@ $(function () {
         var data = gem_data(serialize($('<form></form>').append(search_objects[key_to_object].main.clone()).append('<input name="id_pedido" type="hidden" value="' + id + '"/>')));
 
         $.ajax({
-            url: 'admin/pedidos/add',
+            url: 'pedidos/add',
             type: 'post',
             data: data,
             contentType: false,
@@ -358,7 +358,7 @@ $(function () {
         form.append('<input name="id_pedido" type="hidden" value="' + tr.attr('data-id') + '">');
         var data = gem_data(serialize(form));
         $.ajax({
-            url: 'admin/pedidos/remove',
+            url: 'pedidos/remove',
             type: 'post',
             data: data,
             contentType: false,

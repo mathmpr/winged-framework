@@ -52,9 +52,9 @@ class PedidosAgendadosController extends Controller
     public function actionPage()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', './admin/assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', './admin/assets/js/pages/numeric.js');
-        $this->appendJs('pedidos', './admin/assets/js/pages/pedidos.js');
+        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
+        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
+        $this->appendJs('pedidos', Winged::$parent . 'assets/js/pages/pedidos.js');
         $this->setNicknamesToUri(['page']);
         $limit = get('limit') ? get('limit') : 10000;
         $page = uri('page') ? uri('page') : 1;
@@ -76,7 +76,7 @@ class PedidosAgendadosController extends Controller
             ->from(['PEDIDOS' => 'pedidos'])
             ->leftJoin(ELOQUENT_EQUAL, ['CLIENTES' => 'clientes', 'CLIENTES.id_cliente' => 'PEDIDOS.id_cliente'])
             ->leftJoin(ELOQUENT_EQUAL, ['USUARIOS' => 'usuarios', 'USUARIOS.id_usuario' => 'PEDIDOS.id_usuario'])
-            ->where(ELOQUENT_BETWEEN, ['PEDIDOS.agendamento', (new Date(strtotime(date('Y/m/d 00:00:00'))))->sql(), (new Date(strtotime(date('Y/m/d 00:00:00'))))->add(['d' => $warn])->sql()])
+            ->where(ELOQUENT_BETWEEN, ['PEDIDOS.agendamento' => [(new Date(strtotime(date('Y/m/d 00:00:00'))))->sql(), (new Date(strtotime(date('Y/m/d 00:00:00'))))->add(['d' => $warn])->sql()]])
             ->orderBy(ELOQUENT_DESC, 'PEDIDOS.id_pedido');
 
         //if (!Login::permissionAdm()) {

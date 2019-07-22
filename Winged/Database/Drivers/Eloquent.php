@@ -624,11 +624,17 @@ abstract class Eloquent
                 throw new \Exception('args inside $args expected exactly two parameters, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
             }
         } else {
-            if($condition === ELOQUENT_BETWEEN){
-                if ($countArguments != 3) {
-                    throw new \Exception('args inside $args expected exactly three parameter, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
+            if ($condition === ELOQUENT_BETWEEN) {
+                $keys = array_keys($args);
+                if (!is_array($args[$keys[0]])) {
+                    throw new \Exception('args when you use ELOQUENT_BETWEEN expected an key with value equals array');
+                } else {
+                    if (count7($args[$keys[0]]) != 2) {
+                        pre_clear_buffer_die($args);
+                        throw new \Exception('args inside $args expected exactly three parameter, given ' . (is_bool($args[$keys[0]]) ? 'boolean value' : count7($args[$keys[0]])));
+                    }
                 }
-            }else{
+            } else {
                 if ($countArguments > 1) {
                     throw new \Exception('args inside $args expected exactly one parameter, given ' . (is_bool($countArguments) ? 'boolean value' : $countArguments));
                 }
@@ -815,7 +821,7 @@ abstract class Eloquent
      */
     protected function getTypeOfField($tableName, $fieldName)
     {
-        if(!$tableName){
+        if (!$tableName) {
             throw new \Exception('table name must be integer or string');
         }
         if (array_key_exists($tableName, $this->database->db_tables)) {
@@ -939,7 +945,6 @@ abstract class Eloquent
             $this->pdoDataType[] = ':' . $left['field'] . uniqid('_');
             $this->queryValues[] = $right['value'];
         }
-
     }
 
     /**
@@ -1131,7 +1136,8 @@ abstract class Eloquent
         if (!array_key_exists($propertyName, $this->queryTablesInfo)) {
             throw new \Exception('key ' . $propertyName . ' do not exists in $this->queryTablesInfo');
         }
-        if ($current + 1 > count($this->queryTablesInfo[$propertyName])) return false;
+        if (($current + 1) > count7($this->queryTablesInfo[$propertyName])) return false;
+        if (($current + 1) === count7($this->queryTablesInfo[$propertyName])) return $this->queryTablesInfo[$propertyName][$current];
         return $this->queryTablesInfo[$propertyName][$current + 1];
     }
 
@@ -1151,7 +1157,7 @@ abstract class Eloquent
         if (!array_key_exists($propertyName, $this->queryTablesInfo)) {
             throw new \Exception('key ' . $propertyName . ' do not exists in $this->queryTablesInfo');
         }
-        if ($current === 0) return false;
+        if ($current === 0) return $this->queryTablesInfo[$propertyName][$current];
         return $this->queryTablesInfo[$propertyName][$current - 1];
     }
 
