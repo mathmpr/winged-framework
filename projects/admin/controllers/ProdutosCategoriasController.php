@@ -1,9 +1,7 @@
 <?php
 
 use Winged\Controller\Controller;
-use Winged\Model\Login;
 use Winged\Winged;
-use Winged\Model\ProdutosCategorias;
 use Winged\Http\Cookie;
 use Winged\Http\Session;
 

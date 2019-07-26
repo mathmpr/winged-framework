@@ -1,7 +1,6 @@
 <?php
 
 use Winged\Controller\Controller;
-use Winged\Model\Login;
 
 class UploadAbstractController extends Controller
 {

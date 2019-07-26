@@ -3,6 +3,7 @@
 namespace Winged\Frontend;
 
 use Winged\File\File;
+use Winged\Error\Error;
 use \WingedConfig;
 use \Exception;
 

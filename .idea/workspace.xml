@@ -130,36 +130,80 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/admin/controllers/PedidosController.php">
+        <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/pages/default.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="638">
-              <caret line="483" column="29" selection-start-line="483" selection-start-column="29" selection-end-line="483" selection-end-column="29" />
+            <state relative-caret-position="647">
+              <caret line="257" column="41" selection-start-line="257" selection-start-column="41" selection-end-line="257" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/admin.sql">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/projects/admin/views/_includes/midias.modal.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="596">
+              <caret line="103" column="82" selection-start-line="103" selection-start-column="77" selection-end-line="103" selection-end-column="82" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/projects/admin/assets/css/core/core.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="820">
+              <caret line="8357" column="16" selection-start-line="8357" selection-start-column="16" selection-end-line="8357" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/projects/admin/controllers/ServicesController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="276">
+              <caret line="279" column="154" selection-start-line="279" selection-start-column="154" selection-end-line="279" selection-end-column="154" />
               <folding>
                 <element signature="e#7#40#0#PHP" expanded="true" />
-                <element signature="n#actionIndex#0;n#PedidosController#0;n#!!top" />
-                <element signature="n#recalc#0;n#PedidosController#0;n#!!top" />
-                <element signature="n#actionPrint#0;n#PedidosController#0;n#!!top" />
-                <element signature="n#actionDelete#0;n#PedidosController#0;n#!!top" />
-                <element signature="n#actionRemove#0;n#PedidosController#0;n#!!top" />
+                <element signature="e#3428#3487#0#HTML" expanded="true" />
+                <element signature="e#9817#9876#0#HTML" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/admin/models/RelatorioVendas.php">
+        <entry file="file://$PROJECT_DIR$/projects/admin/models/Midias.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="18" column="23" lean-forward="true" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
+            <state relative-caret-position="272">
+              <caret line="16" column="31" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="31" />
+              <folding>
+                <element signature="e#7#30#0#PHP" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/projects/admin/controllers/RelatorioVendasController.php">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/core/files/evaluate.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="310">
-              <caret line="377" lean-forward="true" selection-start-line="377" selection-end-line="377" />
+            <state relative-caret-position="572">
+              <caret line="1026" column="18" selection-start-line="1026" selection-start-column="9" selection-end-line="1026" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/projects/admin/views/news/news/_form.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="493">
+              <caret line="252" column="54" selection-start-line="237" selection-start-column="48" selection-end-line="252" selection-end-column="54" />
+              <folding>
+                <element signature="e#105#126#0#PHP" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -167,63 +211,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/projects/admin/autoload/AdminAssets.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="561">
-              <caret line="33" column="30" selection-start-line="33" selection-start-column="23" selection-end-line="33" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/admin/models/News.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="23" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Winged/Formater/Formater.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="17" column="68" lean-forward="true" selection-start-line="17" selection-start-column="68" selection-end-line="17" selection-end-column="68" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/admin/views/relatorio-vendas/relatorio-vendas/_result.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="443">
-              <caret line="826" column="28" lean-forward="true" selection-start-line="826" selection-start-column="28" selection-end-line="826" selection-end-column="28" />
-              <folding>
-                <element signature="e#105#126#0#PHP" expanded="true" />
-                <element signature="e#1047#43803#0#PHP" />
-                <element signature="e#8641#12707#0#HTML" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/admin/views/relatorio-vendas/relatorio-vendas/_index.php">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/pages/ralatorio_vendas.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="21" lean-forward="true" selection-start-line="10" selection-start-column="21" selection-end-line="10" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Winged/Database/Types/PreparedPDO.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1496">
-              <caret line="88" column="65" selection-start-line="88" selection-start-column="65" selection-end-line="88" selection-end-column="65" />
+            <state relative-caret-position="313">
+              <caret line="53" column="43" selection-start-line="53" selection-start-column="43" selection-end-line="53" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -240,40 +229,38 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Winged::_e</find>
-      <find>aquii</find>
-      <find>Winged::_ex</find>
-      <find>Winged::_exit();</find>
-      <find>Connections::closeAll();</find>
-      <find>pre_clear</find>
+      <find>\Winged\Model\</find>
+      <find>FakeGa</find>
+      <find>Fakega</find>
+      <find>Google Analytics</find>
+      <find>Páginas mais vistas</find>
+      <find>backup</find>
+      <find>componentpa</find>
+      <find>pages</find>
+      <find>Roboto:400,300,100,500,700,900</find>
+      <find>assets/js/pages/tokenstags.js</find>
+      <find>Source+Sans+Pro:300,400,600,700</find>
+      <find>SPM</find>
       <find>pre_cle</find>
-      <find>find(</find>
-      <find>is required in join clause</find>
-      <find>find</find>
-      <find>-&gt;find(</find>
-      <find>1047</find>
-      <find>update</find>
-      <find>' AS '</find>
-      <find>asda</find>
-      <find>renderPartial</find>
-      <find>tcpf</find>
-      <find>tcpdf/tcpdf</find>
-      <find>bet</find>
-      <find>pre_cl</find>
-      <find>pre_clea</find>
-      <find>expected an key with</find>
+      <find>prepareMultipleUpdate</find>
+      <find>slug</find>
       <find>load(</find>
-      <find>valor_unico</find>
-      <find>post(</find>
-      <find>add(</find>
-      <find>reverse</find>
-      <find>reverseBehav</find>
-      <find>formater</find>
-      <find>tojs</find>
+      <find>asdasd</find>
+      <find>save()</find>
+      <find>l</find>
+      <find>pre_clear_bu</find>
+      <find>pre_clear_buffer_die</find>
+      <find>jcrop</find>
+      <find>nametype</find>
+      <find>Formater</find>
+      <find>preserve</find>
+      <find>.plupload_file_name</find>
+      <find>rotate</find>
+      <find>added</find>
+      <find>render-delete-midia</find>
+      <find>.cropper-point.point-se</find>
     </findStrings>
     <replaceStrings>
-      <replace>use WingedConfig</replace>
-      <replace>::exists</replace>
       <replace>Eloquent</replace>
       <replace>AbstractEloquent</replace>
       <replace>queryTableInfo</replace>
@@ -302,6 +289,8 @@
       <replace>Winged::_exit();</replace>
       <replace>-&gt;execute(</replace>
       <replace>partial</replace>
+      <replace>use</replace>
+      <replace />
     </replaceStrings>
     <dirStrings>
       <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\admin\assets\js\pages</dir>
@@ -309,11 +298,13 @@
       <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\Winged\External\pQuery</dir>
       <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\projects\Modules</dir>
       <dir>C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\projects\admin\controllers</dir>
-      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin</dir>
       <dir>E:\xampp\htdocs\mixed\wingedframework.com.br</dir>
-      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\models</dir>
-      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\controllers</dir>
+      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\views</dir>
+      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin</dir>
+      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\adminPáginas mais vistas</dir>
       <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects</dir>
+      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\controllers</dir>
+      <dir>E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\models</dir>
     </dirStrings>
   </component>
   <component name="Git.Settings">
@@ -322,57 +313,57 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/projects/admin/models/Estados.php" />
-        <option value="$PROJECT_DIR$/projects/admin/models/Pedidos.php" />
-        <option value="$PROJECT_DIR$/projects/admin/models/PedidosProdutos.php" />
-        <option value="$PROJECT_DIR$/WingedDatabaseConfig.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/Types/NormalMysqli.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/Types/PreparedMysqli.php" />
-        <option value="&lt;47223ff1-7fec-4a27-901b-514ba64e894e&gt;/.htaccess" />
-        <option value="$PROJECT_DIR$/Winged/Database/Connections.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/Database.php" />
-        <option value="$PROJECT_DIR$/Winged/Configs/Defines.php" />
-        <option value="$PROJECT_DIR$/Winged/Error/Error.php" />
-        <option value="$PROJECT_DIR$/Winged/Controller/Controller.php" />
-        <option value="$PROJECT_DIR$/Winged/Winged.php" />
-        <option value="$PROJECT_DIR$/Winged/File/Download.php" />
-        <option value="$PROJECT_DIR$/Winged/File/Image.php" />
-        <option value="$PROJECT_DIR$/Winged/Http/HttpResponseHandler.php" />
-        <option value="$PROJECT_DIR$/Winged/Route/RouteExec.php" />
-        <option value="$PROJECT_DIR$/Winged/Socket/RatchetServer.php" />
-        <option value="$PROJECT_DIR$/projects/others/creator/init.php" />
-        <option value="$PROJECT_DIR$/Winged/Configs/Functions.php" />
-        <option value="$PROJECT_DIR$/Winged/Error/SilencedErrors.php" />
-        <option value="$PROJECT_DIR$/Winged/Frontend/Render.php" />
-        <option value="$PROJECT_DIR$/controllers/HomeController.php" />
-        <option value="$PROJECT_DIR$/projects/admin/classes/Paginate.php" />
-        <option value="$PROJECT_DIR$/Extras.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/Drivers/EloquentInterface.php" />
-        <option value="$PROJECT_DIR$/projects/admin/controllers/CarrinhoController.php" />
-        <option value="$PROJECT_DIR$/Winged/Error/ShutdownCallback.php" />
-        <option value="$PROJECT_DIR$/Winged/Form/Components/parsers/ButtonComponent.php" />
-        <option value="$PROJECT_DIR$/Winged/Components/ComponentParser.php" />
-        <option value="$PROJECT_DIR$/Winged/Form/Form.php" />
-        <option value="$PROJECT_DIR$/projects/admin/views/produtos_subcategorias/produtos_subcategorias/_form.php" />
-        <option value="$PROJECT_DIR$/projects/admin/controllers/ProdutosSubcategoriasController.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/Types/PreparedPDO.php" />
-        <option value="&lt;47223ff1-7fec-4a27-901b-514ba64e894e&gt;/WingedDatabaseConfig.php" />
-        <option value="$PROJECT_DIR$/projects/admin/views/pedidos/pedidos/_pdf.php" />
-        <option value="$PROJECT_DIR$/projects/admin/views/pedidos-hoje/pedidos-hoje/_pdf.php" />
-        <option value="$PROJECT_DIR$/Winged/Date/Date.php" />
-        <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/projects/admin/controllers/PedidosHojeController.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/Drivers/MySQL.php" />
-        <option value="$PROJECT_DIR$/projects/admin/controllers/PedidosAgendadosController.php" />
-        <option value="$PROJECT_DIR$/Winged/Model/Model.php" />
-        <option value="$PROJECT_DIR$/Winged/Utils/Caster.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/Drivers/Eloquent.php" />
-        <option value="$PROJECT_DIR$/Winged/Database/AbstractEloquent.php" />
-        <option value="$PROJECT_DIR$/projects/admin/controllers/PedidosController.php" />
-        <option value="$PROJECT_DIR$/projects/admin/models/RelatorioVendas.php" />
-        <option value="$PROJECT_DIR$/Winged/Formater/Formater.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/pedidos/pedidos/_index.php" />
         <option value="$PROJECT_DIR$/projects/admin/views/relatorio-vendas/relatorio-vendas/_result.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/clientes/clientes/_form.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/relatorio-vendas/relatorio-vendas/_index.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/enderecos_clientes/enderecos_clientes/_form.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/pedidos-agendados/pedidos-agendados/_index.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/produtos_categorias/produtos_categorias/_form.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/produtos_subcategorias/produtos_subcategorias/_form.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/LoginController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/default/default/_index.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/DefaultController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/models/Slugs.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/news_categorias/news_categorias/_index.php" />
+        <option value="$PROJECT_DIR$/projects/admin/models/NewsNewsCategoria.php" />
+        <option value="$PROJECT_DIR$/projects/admin/models/NewsCategorias.php" />
+        <option value="$PROJECT_DIR$/Winged/Form/Components/parsers/InputComponent.php" />
+        <option value="$PROJECT_DIR$/Winged/Frontend/Assets.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/CarrinhoController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/PedidosController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/PedidosAgendadosController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/PedidosHojeController.php" />
         <option value="$PROJECT_DIR$/projects/admin/controllers/RelatorioVendasController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/assets/js/pages/news.js" />
+        <option value="$PROJECT_DIR$/Winged/Error/assets/winged.error.css" />
+        <option value="$PROJECT_DIR$/projects/admin/assets/js/core/files/evaluate.js" />
+        <option value="$PROJECT_DIR$/projects/admin/autoload/AdminUtils.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/Eloquent.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/NewsCategoriasController.php" />
+        <option value="$PROJECT_DIR$/Winged/Error/ShutdownCallback.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/NewsController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/models/News.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/news/news/_index.php" />
+        <option value="$PROJECT_DIR$/Winged/Components/ComponentParser.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/Drivers/MySQL.php" />
+        <option value="$PROJECT_DIR$/Winged/Model/Model.php" />
+        <option value="$PROJECT_DIR$/Winged/File/Upload.php" />
+        <option value="$PROJECT_DIR$/Winged/Database/AbstractEloquent.php" />
+        <option value="$PROJECT_DIR$/Winged/Configs/IniSets.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/news/news/_form.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.image.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.default.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.video.php" />
+        <option value="$PROJECT_DIR$/projects/admin/autoload/AdminAssets.php" />
+        <option value="$PROJECT_DIR$/projects/admin/assets/css/core/core.css" />
+        <option value="$PROJECT_DIR$/projects/admin/assets/css/core/files/components.css" />
+        <option value="$PROJECT_DIR$/projects/admin/assets/js/plugins/media/cropper.min.js" />
+        <option value="$PROJECT_DIR$/projects/admin/models/Midias.php" />
+        <option value="$PROJECT_DIR$/projects/admin/controllers/ServicesController.php" />
+        <option value="$PROJECT_DIR$/projects/admin/views/_includes/midias.modal.php" />
+        <option value="$PROJECT_DIR$/projects/admin/assets/js/pages/default.js" />
       </list>
     </option>
   </component>
@@ -402,7 +393,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -443,14 +433,43 @@
               <item name="admin" type="462c0819:PsiDirectoryNode" />
               <item name="assets" type="462c0819:PsiDirectoryNode" />
               <item name="js" type="462c0819:PsiDirectoryNode" />
-              <item name="pages" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
               <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
               <item name="projects" type="462c0819:PsiDirectoryNode" />
               <item name="admin" type="462c0819:PsiDirectoryNode" />
-              <item name="controllers" type="462c0819:PsiDirectoryNode" />
+              <item name="assets" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="files" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="projects" type="462c0819:PsiDirectoryNode" />
+              <item name="admin" type="462c0819:PsiDirectoryNode" />
+              <item name="assets" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
+              <item name="plugins" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="projects" type="462c0819:PsiDirectoryNode" />
+              <item name="admin" type="462c0819:PsiDirectoryNode" />
+              <item name="assets" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
+              <item name="plugins" type="462c0819:PsiDirectoryNode" />
+              <item name="media" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="projects" type="462c0819:PsiDirectoryNode" />
+              <item name="admin" type="462c0819:PsiDirectoryNode" />
+              <item name="autoload" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
@@ -472,7 +491,7 @@
               <item name="projects" type="462c0819:PsiDirectoryNode" />
               <item name="admin" type="462c0819:PsiDirectoryNode" />
               <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="relatorio-vendas" type="462c0819:PsiDirectoryNode" />
+              <item name="_includes" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
@@ -480,8 +499,16 @@
               <item name="projects" type="462c0819:PsiDirectoryNode" />
               <item name="admin" type="462c0819:PsiDirectoryNode" />
               <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="relatorio-vendas" type="462c0819:PsiDirectoryNode" />
-              <item name="relatorio-vendas" type="462c0819:PsiDirectoryNode" />
+              <item name="news" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
+              <item name="projects" type="462c0819:PsiDirectoryNode" />
+              <item name="admin" type="462c0819:PsiDirectoryNode" />
+              <item name="views" type="462c0819:PsiDirectoryNode" />
+              <item name="news" type="462c0819:PsiDirectoryNode" />
+              <item name="news" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
@@ -492,12 +519,13 @@
               <item name="wingedframework.com.br" type="b2602c69:ProjectViewProjectNode" />
               <item name="wingedframework.com.br" type="462c0819:PsiDirectoryNode" />
               <item name="Winged" type="462c0819:PsiDirectoryNode" />
-              <item name="Utils" type="462c0819:PsiDirectoryNode" />
+              <item name="Configs" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -531,22 +559,22 @@
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\views\_includes" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\models" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\autoload" />
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\admin\img" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\autoload" />
       <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\Winged\Assets" />
       <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\Winged\Config" />
       <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\BeginnerStructure\controllers" />
       <recent name="C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\projects" />
-      <recent name="C:\xampp\htdocs\MISCELANEA\wingedframework.com.br\Winged\Database\Drivers" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\projects\admin\models" />
-      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\admin\img" />
-      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\admin" />
-      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\assets\css" />
-      <recent name="E:\xampp\htdocs\mixed\wingedframework.com.br\Winged\Error\assets" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -867,18 +895,27 @@
       <workItem from="1563561312074" duration="10577000" />
       <workItem from="1563797317336" duration="2226000" />
       <workItem from="1563805382278" duration="5948000" />
-      <workItem from="1563826877562" duration="2777000" />
+      <workItem from="1563826877562" duration="11358000" />
+      <workItem from="1563901415444" duration="9740000" />
+      <workItem from="1563911813345" duration="215000" />
+      <workItem from="1563912087995" duration="3425000" />
+      <workItem from="1563915538959" duration="15525000" />
+      <workItem from="1564056898011" duration="2876000" />
+      <workItem from="1564066994295" duration="1180000" />
+      <workItem from="1564073613392" duration="3868000" />
+      <workItem from="1564078062379" duration="6203000" />
+      <workItem from="1564084709543" duration="41978000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1377925000" />
+    <option name="totallyTimeSpent" value="1471516000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1066" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17910448" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19722815" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -889,7 +926,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.3290461" />
-      <window_info anchor="bottom" id="File Transfer" order="8" weight="0.3290461" />
+      <window_info anchor="bottom" id="File Transfer" order="8" weight="0.17148982" />
       <window_info anchor="bottom" id="Inspection Results" order="9" weight="0.32980973" />
       <window_info anchor="bottom" id="Terminal" order="10" />
       <window_info anchor="bottom" id="Version Control" order="11" show_stripe_button="false" weight="0.32980973" />
@@ -900,7 +937,7 @@
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Remote Host" order="3" visible="true" weight="0.19083156" />
+      <window_info anchor="right" id="Remote Host" order="3" visible="true" weight="0.18017058" />
       <window_info anchor="right" id="Database" order="4" weight="0.26012793" />
       <window_info anchor="right" x="99" y="143" width="1736" height="856" id="Documentation" order="5" type="FLOATING" />
     </layout>
@@ -954,375 +991,342 @@
     </ignored-roots>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/projects/admin/models/Pedidos.php">
+    <entry file="file://$PROJECT_DIR$/projects/admin/autoload/AdminUtils.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="20" selection-start-line="8" selection-start-column="20" selection-end-line="8" selection-end-column="20" />
+        <state relative-caret-position="68">
+          <caret line="5" column="16" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="16" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/DelegateQuery.php" />
-    <entry file="file://$PROJECT_DIR$/projects/admin/models/Estados.php">
+    <entry file="file://$PROJECT_DIR$/Winged/Database/CurrentDB.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="766">
-          <caret line="64" column="5" selection-start-line="61" selection-start-column="4" selection-end-line="64" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Types/PreparedMysqli.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="149" column="17" lean-forward="true" selection-start-line="149" selection-start-column="17" selection-end-line="149" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Types/NormalMysqli.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="111" column="35" selection-start-line="111" selection-start-column="35" selection-end-line="111" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/WingedDatabaseConfig.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Connections.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="75" column="35" lean-forward="true" selection-start-line="75" selection-start-column="35" selection-end-line="75" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Error/Error.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="411">
-          <caret line="231" column="13" lean-forward="true" selection-start-line="231" selection-start-column="13" selection-end-line="231" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Controller/Controller.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="507" column="8" lean-forward="true" selection-start-line="507" selection-start-column="8" selection-end-line="507" selection-end-column="8" />
-          <folding>
-            <element signature="e#37#69#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Winged.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="477">
-          <caret line="462" column="7" lean-forward="true" selection-start-line="462" selection-start-column="7" selection-end-line="462" selection-end-column="7" />
-          <folding>
-            <element signature="e#26#51#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Configs/Functions.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
-          <caret line="622" column="18" selection-start-line="622" selection-start-column="12" selection-end-line="622" selection-end-column="18" />
-          <folding>
-            <element signature="e#7#32#0#PHP" expanded="true" />
-            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#pre#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Error/SilencedErrors.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="732">
-          <caret line="59" column="13" selection-start-line="59" selection-start-column="13" selection-end-line="59" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Frontend/Render.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="194" selection-start-line="194" selection-end-line="194" />
-          <folding>
-            <element signature="e#35#56#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BeginnerStructure/controllers/_HomeController.php" />
-    <entry file="file://$PROJECT_DIR$/controllers/HomeController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="26" column="5" selection-start-line="26" selection-start-column="5" selection-end-line="26" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/classes/Paginate.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="935">
-          <caret line="55" selection-start-line="55" selection-end-line="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Extras.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="4" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/EloquentInterface.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1767">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/LoginController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="27" column="50" selection-start-line="27" selection-start-column="50" selection-end-line="27" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/CarrinhoController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="557">
-          <caret line="657" lean-forward="true" selection-start-line="657" selection-end-line="657" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Error/ShutdownCallback.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="169" column="32" lean-forward="true" selection-start-line="169" selection-start-column="32" selection-end-line="169" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Form/Components/parsers/ButtonComponent.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="33" column="20" selection-start-line="33" selection-start-column="20" selection-end-line="33" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/views/produtos_subcategorias/produtos_subcategorias/_form.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="62" column="50" selection-start-line="62" selection-start-column="50" selection-end-line="62" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Form/Form.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-15">
-          <caret line="43" column="9" lean-forward="true" selection-start-line="43" selection-start-column="9" selection-end-line="43" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Components/ComponentParser.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1565">
-          <caret line="276" column="19" selection-start-line="276" selection-start-column="15" selection-end-line="276" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/ProdutosSubcategoriasController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="562">
-          <caret line="130" column="51" lean-forward="true" selection-start-line="130" selection-start-column="51" selection-end-line="130" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="11" lean-forward="true" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
+        <state relative-caret-position="170">
+          <caret line="10" column="6" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Winged/Date/Date.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1649">
-          <caret line="97" column="12" selection-start-line="97" selection-start-column="12" selection-end-line="97" selection-end-column="12" />
+        <state relative-caret-position="244">
+          <caret line="533" column="21" selection-start-line="533" selection-start-column="21" selection-end-line="533" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/PedidosAgendadosController.php">
+    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/NewsCategoriasController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1275">
-          <caret line="83" column="11" selection-start-line="83" selection-start-column="11" selection-end-line="83" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Utils/Caster.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="1" lean-forward="true" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/models/Usuarios.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-119">
-          <caret line="11" column="20" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/Eloquent.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19652">
-          <caret line="1158" column="9" selection-start-line="1158" selection-start-column="9" selection-end-line="1158" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/PedidosHojeController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2227">
-          <caret line="138" column="41" selection-start-line="138" selection-start-column="41" selection-end-line="138" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/MySQL.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/AbstractEloquent.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="31" column="7" selection-start-line="31" selection-start-column="7" selection-end-line="31" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/views/pedidos/pedidos/_pdf.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="23" selection-start-line="5" selection-start-column="23" selection-end-line="5" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/views/pedidos-hoje/pedidos-hoje/_pdf.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="23" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Database.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5746">
-          <caret line="349" column="23" selection-start-line="349" selection-start-column="23" selection-end-line="349" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Database/Types/PreparedPDO.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1496">
-          <caret line="88" column="65" selection-start-line="88" selection-start-column="65" selection-end-line="88" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/PedidosController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="638">
-          <caret line="483" column="29" selection-start-line="483" selection-start-column="29" selection-end-line="483" selection-end-column="29" />
+        <state relative-caret-position="2397">
+          <caret line="144" column="7" selection-start-line="144" selection-start-column="7" selection-end-line="144" selection-end-column="7" />
           <folding>
             <element signature="e#7#40#0#PHP" expanded="true" />
-            <element signature="n#actionIndex#0;n#PedidosController#0;n#!!top" />
-            <element signature="n#recalc#0;n#PedidosController#0;n#!!top" />
-            <element signature="n#actionPrint#0;n#PedidosController#0;n#!!top" />
-            <element signature="n#actionDelete#0;n#PedidosController#0;n#!!top" />
-            <element signature="n#actionRemove#0;n#PedidosController#0;n#!!top" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/models/ProdutosSubcategorias.php">
+    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/NewsController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="36" column="38" lean-forward="true" selection-start-line="32" selection-start-column="8" selection-end-line="36" selection-end-column="38" />
+        <state relative-caret-position="2363">
+          <caret line="143" column="35" selection-start-line="143" selection-start-column="35" selection-end-line="143" selection-end-column="35" />
+          <folding>
+            <element signature="e#7#40#0#PHP" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Model/Model.php">
+    <entry file="file://$PROJECT_DIR$/Winged/Error/ShutdownCallback.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="17" column="24" lean-forward="true" selection-start-line="17" selection-start-column="24" selection-end-line="17" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/models/Produtos.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="697">
-          <caret line="45" column="26" lean-forward="true" selection-start-line="18" selection-start-column="4" selection-end-line="45" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/views/relatorio-vendas/relatorio-vendas/_index.php">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/pages/ralatorio_vendas.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="21" lean-forward="true" selection-start-line="10" selection-start-column="21" selection-end-line="10" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/models/RelatorioVendas.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="18" column="23" lean-forward="true" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/autoload/AdminAssets.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="33" column="30" selection-start-line="33" selection-start-column="23" selection-end-line="33" selection-end-column="30" />
+        <state relative-caret-position="3383">
+          <caret line="199" column="43" selection-start-line="199" selection-start-column="43" selection-end-line="199" selection-end-column="43" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/admin/models/News.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="23" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Winged/Formater/Formater.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="68" lean-forward="true" selection-start-line="17" selection-start-column="68" selection-end-line="17" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/views/relatorio-vendas/relatorio-vendas/_result.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="443">
-          <caret line="826" column="28" lean-forward="true" selection-start-line="826" selection-start-column="28" selection-end-line="826" selection-end-column="28" />
+        <state relative-caret-position="3111">
+          <caret line="188" selection-start-line="188" selection-end-line="188" />
           <folding>
-            <element signature="e#105#126#0#PHP" expanded="true" />
-            <element signature="e#1047#43803#0#PHP" />
-            <element signature="e#8641#12707#0#HTML" />
+            <element signature="e#7#30#0#PHP" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/RelatorioVendasController.php">
+    <entry file="file://$PROJECT_DIR$/Winged/External/pQuery/pQuery.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="377" lean-forward="true" selection-start-line="377" selection-end-line="377" />
+        <state relative-caret-position="249">
+          <caret line="110" column="20" selection-start-line="110" selection-start-column="20" selection-end-line="110" selection-end-column="20" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/External/pQuery/DomNode.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="258">
+          <caret line="2557" lean-forward="true" selection-start-line="2557" selection-end-line="2557" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Components/ComponentParser.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="538">
+          <caret line="274" column="83" selection-start-line="274" selection-start-column="83" selection-end-line="274" selection-end-column="83" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/plugins/uploaders/plupload/i18n/pt_BR.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="26" selection-start-line="1" selection-start-column="26" selection-end-line="1" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/backgrounds/boxed_bg_retina.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/backgrounds/boxed_bg.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/backgrounds/seamless.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/brands/spotify.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/brands/Untitled-1.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/pnotify/danger.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/ui/map_marker.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/signature.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/cover.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/coverw.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/cropperIcons2.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/images/login_cover.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/MySQL.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="667">
+          <caret line="592" column="151" selection-start-line="592" selection-start-column="151" selection-end-line="592" selection-end-column="151" />
+          <caret line="599" column="151" selection-start-line="599" selection-start-column="151" selection-end-line="599" selection-end-column="151" />
+          <caret line="612" column="151" selection-start-line="612" selection-start-column="151" selection-end-line="612" selection-end-column="151" />
+          <caret line="620" column="151" selection-start-line="620" selection-start-column="151" selection-end-line="620" selection-end-column="151" />
+          <caret line="636" column="151" selection-start-line="636" selection-start-column="151" selection-end-line="636" selection-end-column="151" />
+          <caret line="645" column="151" selection-start-line="645" selection-start-column="151" selection-end-line="645" selection-end-column="151" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/File/Upload.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="822">
+          <caret line="193" column="66" lean-forward="true" selection-start-line="193" selection-start-column="66" selection-end-line="193" selection-end-column="66" />
+          <folding>
+            <element signature="e#2662#7935#0#PHP" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/Drivers/Eloquent.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="444">
+          <caret line="1388" column="17" lean-forward="true" selection-start-line="1388" selection-start-column="17" selection-end-line="1388" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Database/AbstractEloquent.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="687">
+          <caret line="457" column="35" lean-forward="true" selection-start-line="457" selection-start-column="35" selection-end-line="457" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Configs/Defines.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-288" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Configs/IniSets.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="25" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/views/news/news/_index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="698">
+          <caret line="238" column="22" lean-forward="true" selection-start-line="215" selection-start-column="16" selection-end-line="238" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Form/Form.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="139" column="20" selection-start-line="139" selection-start-column="20" selection-end-line="139" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Controller/Controller.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="644" column="44" lean-forward="true" selection-start-line="644" selection-start-column="44" selection-end-line="644" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/core/core.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="718">
+          <caret line="274" column="9" lean-forward="true" selection-start-line="271" selection-start-column="8" selection-end-line="274" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/views/news/news/_form.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="252" column="54" selection-start-line="237" selection-start-column="48" selection-end-line="252" selection-end-column="54" />
+          <folding>
+            <element signature="e#105#126#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/models/Carrinho.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-663">
+          <caret line="9" column="6" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/pages/carrinho.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="56" column="39" lean-forward="true" selection-start-line="52" selection-start-column="36" selection-end-line="56" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.image.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="443">
+          <caret line="154" column="83" selection-start-line="154" selection-start-column="76" selection-end-line="154" selection-end-column="83" />
+          <folding>
+            <element signature="e#5325#5346#0#HTML" expanded="true" />
+            <element signature="e#5325#5346#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Winged/Model/Model.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="370">
+          <caret line="341" column="24" lean-forward="true" selection-start-line="341" selection-start-column="24" selection-end-line="341" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.default.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="32" selection-start-line="32" selection-end-line="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/views/_includes/midia.edit.form.video.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/autoload/AdminAssets.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="313">
+          <caret line="53" column="43" selection-start-line="53" selection-start-column="43" selection-end-line="53" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/core/files/evaluate.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="572">
+          <caret line="1026" column="18" selection-start-line="1026" selection-start-column="9" selection-end-line="1026" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/plugins/media/cropper.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="35799" selection-start-line="9" selection-start-column="35799" selection-end-line="9" selection-end-column="35799" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/css/core/files/components.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="14455" column="3558" selection-start-line="14455" selection-start-column="3558" selection-end-line="14455" selection-end-column="3558" />
+          <folding>
+            <element signature="e#339566#339819#2" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/models/Midias.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="31" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="31" />
+          <folding>
+            <element signature="e#7#30#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/css/core/core.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="820">
+          <caret line="8357" column="16" selection-start-line="8357" selection-start-column="16" selection-end-line="8357" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/controllers/ServicesController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="279" column="154" selection-start-line="279" selection-start-column="154" selection-end-line="279" selection-end-column="154" />
+          <folding>
+            <element signature="e#7#40#0#PHP" expanded="true" />
+            <element signature="e#3428#3487#0#HTML" expanded="true" />
+            <element signature="e#9817#9876#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/views/_includes/midias.modal.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="596">
+          <caret line="103" column="82" selection-start-line="103" selection-start-column="77" selection-end-line="103" selection-end-column="82" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/admin/assets/js/pages/default.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="647">
+          <caret line="257" column="41" selection-start-line="257" selection-start-column="41" selection-end-line="257" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin.sql">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>

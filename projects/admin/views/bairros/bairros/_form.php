@@ -1,10 +1,7 @@
 <?php
 
 use Winged\Form\Form;
-use Winged\Model\Bairros;
-use Winged\Model\Estados;
-use Winged\Model\Cidades;
-use Winged\Database\DbDict;
+
 use Winged\Http\Session;
 
 $this->html('_includes/navbar');

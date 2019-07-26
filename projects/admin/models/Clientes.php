@@ -1,12 +1,17 @@
 <?php
 
-namespace Winged\Model;
+use Winged\Model\Model;
 
 use Winged\Http\Session;
 use Winged\Date\Date;
 use Winged\Database\DbDict;
 use Winged\Validator\Validator;
 
+/**
+ * Class Clientes
+ *
+ * @package Winged\Model
+ */
 class Clientes extends Model
 {
     public function __construct()
@@ -14,40 +19,67 @@ class Clientes extends Model
         parent::__construct();
         return $this;
     }
+
     /** @var $id_cliente integer */
     public $id_cliente;
+
     /** @var $id_usuario integer */
     public $id_usuario;
+
     /** @var $nome string */
     public $nome;
+
     /** @var $nome_fantasia string */
     public $nome_fantasia;
+
     /** @var $razao_social string */
     public $razao_social;
+
     /** @var $inscricao_estadual string */
     public $inscricao_estadual;
+
     /** @var $email string */
     public $email;
+
     /** @var $cnpj string */
     public $cnpj;
+
     /** @var $cpf string */
     public $cpf;
+
     /** @var $rg string */
     public $rg;
+
     /** @var $data_cadastro string */
     public $data_cadastro;
+
     /** @var $status integer */
     public $status;
+
     /** @var $telefone string */
     public $telefone;
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return "clientes";
     }
+
+    /**
+     * @return string
+     */
     public static function primaryKeyName()
     {
         return "id_cliente";
     }
+
+    /**
+     * @param bool $pk
+     *
+     * @return $this|int|Model
+     */
     public function primaryKey($pk = false)
     {
         if ($pk && (is_int($pk) || intval($pk) != 0)) {
@@ -56,6 +88,10 @@ class Clientes extends Model
         }
         return $this->id_cliente;
     }
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -71,6 +107,10 @@ class Clientes extends Model
             },
         ];
     }
+
+    /**
+     * @return array
+     */
     public function reverseBehaviors()
     {
         return [
@@ -79,6 +119,10 @@ class Clientes extends Model
             },
         ];
     }
+
+    /**
+     * @return array
+     */
     public function labels()
     {
         return [
@@ -94,6 +138,10 @@ class Clientes extends Model
             'telefone' => 'Telefone: ',
         ];
     }
+
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -138,7 +186,7 @@ class Clientes extends Model
                     return $this->cnpj === '' ? (new Validator())->cpf($this->cpf) : true;
                 },
                 'db' => function () {
-                    if($this->cnpj === ''){
+                    if ($this->cnpj === '') {
                         if (Session::get('action') == 'insert') {
                             $model = (new Clientes())
                                 ->select()
@@ -156,7 +204,7 @@ class Clientes extends Model
                         if ($model) {
                             return false;
                         }
-                    }else{
+                    } else {
                         return true;
                     }
                 }
@@ -167,7 +215,7 @@ class Clientes extends Model
                     return $this->cpf === '' ? (new Validator())->cnpj($this->cnpj) : true;
                 },
                 'db' => function () {
-                    if($this->cpf === ''){
+                    if ($this->cpf === '') {
                         if (Session::get('action') == 'insert') {
                             $model = (new Clientes())
                                 ->select()
@@ -185,13 +233,17 @@ class Clientes extends Model
                         if ($model) {
                             return false;
                         }
-                    }else{
+                    } else {
                         return true;
                     }
                 }
             ],
         ];
     }
+
+    /**
+     * @return array
+     */
     public function messages()
     {
         return [

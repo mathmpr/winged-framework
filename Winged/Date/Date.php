@@ -56,6 +56,9 @@ class Date
      */
     public static function valid($date = '')
     {
+        if(!is_scalar($date)){
+            return $date;
+        }
         $date = trim($date);
         $exp = explode(' ', $date);
         if (count7($exp) == 2) {

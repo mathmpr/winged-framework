@@ -4,6 +4,7 @@ namespace Winged\Database\Drivers;
 
 use Winged\Database\CurrentDB;
 use Winged\Database\Database;
+use Winged\Date\Date;
 use Winged\Model\Model;
 
 /**
@@ -630,7 +631,6 @@ abstract class Eloquent
                     throw new \Exception('args when you use ELOQUENT_BETWEEN expected an key with value equals array');
                 } else {
                     if (count7($args[$keys[0]]) != 2) {
-                        pre_clear_buffer_die($args);
                         throw new \Exception('args inside $args expected exactly three parameter, given ' . (is_bool($args[$keys[0]]) ? 'boolean value' : count7($args[$keys[0]])));
                     }
                 }
@@ -1344,6 +1344,7 @@ abstract class Eloquent
                 return false;
             }
         }
+
         switch ($this->builded['command']) {
             case Eloquent::COMMAND_COUNT:
                 if ($this->database->isPdo() && \WingedConfig::$config->db()->USE_PREPARED_STMT === USE_PREPARED_STMT) {
@@ -1402,6 +1403,7 @@ abstract class Eloquent
                     } catch (\Exception $exception) {
                         $reflection = false;
                     }
+
                     foreach ($returnedValue as $result) {
                         if ($reflection) {
                             /**
@@ -1410,9 +1412,17 @@ abstract class Eloquent
                             $model = $reflection->newInstance();
                             foreach ($result as $property => $value) {
                                 if (property_exists($model, $property)) {
-                                    $model->{$property} = $value;
+                                    if(Date::valid($value)){
+                                        $model->{$property} = new Date($value);
+                                    }else{
+                                        $model->{$property} = $value;
+                                    }
                                 } else {
-                                    $model->extras->{$property} = $value;
+                                    if(Date::valid($value)){
+                                        $model->extras->{$property} = new Date($value);
+                                    }else{
+                                        $model->extras->{$property} = $value;
+                                    }
                                 }
                             }
                             $model->_reverse();
@@ -1429,5 +1439,7 @@ abstract class Eloquent
         $this->unbuild();
         return $returnedValue;
     }
+
+
 
 }

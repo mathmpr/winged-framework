@@ -4,7 +4,6 @@ $this->html('_includes/content');
 $this->html('_includes/menu');
 
 use Winged\Form\Form;
-use Winged\Model\Login;
 
 ?>
     <div class="content-wrapper">
@@ -16,12 +15,7 @@ use Winged\Model\Login;
             </div>
             <div class="breadcrumb-line">
                 <ul class="breadcrumb">
-                    <li class="active"><?= $this->page_action_string ?> | <a
-                                href="default/index/?period=<?= get('period') ?>&group=Notícias&by_sub_group=Aberto&&sort_unic=desc">Notícias
-                            mais
-                            vistas</a> | <a
-                                href="default/index/?period=<?= get('period') ?>&group=Página&by_sub_group=Normal&sort_unic=desc">Páginas
-                            mais vistas</a></li>
+                    <li class="active"><?= $this->page_action_string ?></li>
                 </ul>
             </div>
         </div>

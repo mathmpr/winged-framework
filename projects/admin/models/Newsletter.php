@@ -1,11 +1,8 @@
 <?php
 
-namespace Winged\Model;
-
-use Winged\Http\Session;
+use Winged\Model\Model;
 use Winged\Database\DbDict;
 use Winged\Validator\Email\Email;
-use Winged\Validator\Validator;
 
 /**
  * class Newsletter
@@ -93,8 +90,6 @@ class Newsletter extends Model
                 'required' => true,
                 'email' => true,
                 'bounce' => function () {
-                    //$mailgun = new \Mailgun('24c2bc3cf8f31334010eaf804ee30546-b0aac6d0-491086f4', 'pradoit.com.br');
-                    //return $mailgun->validEmail($this->email)['is_valid'];
                     return Email::check($this->email, 'no-reply@gmail.com');
                 },
                 'db' => function () {
@@ -112,6 +107,9 @@ class Newsletter extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function messages()
     {
         return [

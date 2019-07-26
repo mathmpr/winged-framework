@@ -25,7 +25,15 @@ class AbstractEloquent
 
     public function __construct()
     {
-        $this->eloquent = &CurrentDB::$current->queryStringHandler;
+        $reflection = false;
+        try {
+            $reflection = new \ReflectionClass(get_class(CurrentDB::$current->queryStringHandler));
+        } catch (\Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_ERROR);
+        }
+        if ($reflection) {
+            $this->eloquent = $reflection->newInstance();
+        }
         return $this;
     }
 

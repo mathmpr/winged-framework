@@ -4,12 +4,8 @@ $this->html('_includes/content');
 $this->html('_includes/menu');
 
 use Winged\Form\Form;
-use Winged\Database\DbDict;
-use Winged\Model\Produtos;
-use Winged\Model\Estados;
+
 use Winged\Http\Session;
-use Winged\Model\ProdutosSubcategorias;
-use Winged\Model\Login;
 
 ?>
     <div class="content-wrapper">

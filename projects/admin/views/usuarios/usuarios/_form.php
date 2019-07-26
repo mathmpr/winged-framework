@@ -4,14 +4,6 @@ $this->html('_includes/content');
 $this->html('_includes/menu');
 
 use Winged\Form\Form;
-use Winged\Model\Usuarios;
-use Winged\Model\Login;
-use Winged\Database\DbDict;
-use Winged\Model\Menu;
-use Winged\Model\Submenu;
-use Winged\Model\UsuariosPermissoesMenu;
-use Winged\Model\UsuariosPermissoesSubmenu;
-use Winged\Winged;
 
 ?>
     <div class="content-wrapper">

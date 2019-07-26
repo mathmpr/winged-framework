@@ -15,7 +15,7 @@ class AdminAssets
     {
         if ($controller) {
             /*<core css>*/
-            $controller->appendCss("roboto", "https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900", [], true);
+            //$controller->appendCss("roboto", "https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900", [], true);
             $controller->appendCss("bootstrap", Winged::$parent . "assets/css/core/files/bootstrap.css");
             $controller->appendCss("components", Winged::$parent . "assets/css/core/files/components.css");
             $controller->appendCss("colors", Winged::$parent . "assets/css/core/files/colors.css");
@@ -48,7 +48,10 @@ class AdminAssets
             /*<end core js>*/
 
             /*<custom>*/
-            $controller->appendJs("croppic", Winged::$parent . "assets/ext/croppie/jcrop.js");
+            $controller->appendJs("plupload-full", Winged::$parent . "assets/js/plugins/uploaders/plupload/plupload.full.min.js");
+            $controller->appendJs("plupload-queue", Winged::$parent . "assets/js/plugins/uploaders/plupload/plupload.queue.min.js");
+            $controller->appendJs("plupload-lang", Winged::$parent . "assets/js/plugins/uploaders/plupload/i18n/pt_BR.js");
+            $controller->appendJs("cropper", Winged::$parent . "assets/js/plugins/media/cropper.min.js");
             $controller->appendJs("pnotify", Winged::$parent . "assets/js/plugins/notifications/pnotify.min.js");
             $controller->appendJs("mask", Winged::$parent . "assets/js/core/files/mask.js");
             $controller->appendJs("maskmoney", Winged::$parent . "assets/js/core/files/maskmoney.js");
@@ -67,10 +70,13 @@ class AdminAssets
             $controller->appendJs("admin.class", Winged::$parent . "assets/js/core/admin.class.js");
             $controller->appendJs("bootbox", Winged::$parent . "assets/js/plugins/notifications/bootbox.min.js");
             $controller->appendJs("sweet_alert", Winged::$parent . "assets/js/plugins/notifications/sweet_alert.min.js");
+            $controller->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
+            $controller->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
             /*<end custom>*/
 
             /*<core>*/
             $controller->appendJs("core", Winged::$parent . "assets/js/core/core.js");
+            $controller->appendJs("core-default", Winged::$parent . "assets/js/pages/default.js");
             /*<end core>*/
         }
     }

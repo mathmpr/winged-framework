@@ -297,8 +297,23 @@ abstract class Model extends AbstractEloquent
      */
     public function backup($property)
     {
-        if (property_exists($property, $this->backup)) {
+        if (property_exists($this->backup, $property)) {
             return $this->backup->{$property};
+        }
+        return false;
+    }
+
+    /**
+     * get value inside extras if key exists in extras
+     *
+     * @param $property
+     *
+     * @return bool
+     */
+    public function extras($property)
+    {
+        if (property_exists($this->extras, $property)) {
+            return $this->extras->{$property};
         }
         return false;
     }
@@ -477,11 +492,30 @@ abstract class Model extends AbstractEloquent
     {
         $one = $this->findOne($id);
         if ($one) {
-            foreach ($this->tableFields as $key) {
-                $this->{$key} = $one->{$key};
+            $reflection = false;
+            try {
+                $reflection = new \ReflectionClass($this);
+            } catch (\Exception $exception) {
+                trigger_error($exception->getMessage(), E_USER_ERROR);
             }
-            $this->createBackup();
-            return true;
+            if ($reflection) {
+                $props = $reflection->getProperties();
+                foreach ($props as $key => $property) {
+                    $parameter = false;
+                    try {
+                        $parameter = new \ReflectionProperty($this, $property->name);
+                    } catch (\Exception $exception) {
+                        trigger_error($exception->getMessage(), E_USER_ERROR);
+                    }
+                    if ($parameter) {
+                        $parameter->setAccessible(true);
+                        $parameter->setValue($this, $parameter->getValue($one));
+                    }
+                }
+                $this->createBackup();
+                return true;
+            }
+
         }
         return false;
     }
@@ -839,7 +873,6 @@ abstract class Model extends AbstractEloquent
             $this->values($into);
             $success = $this->build()->execute();
         }
-        $this->_reverse();
         return $success;
     }
 
@@ -881,6 +914,9 @@ abstract class Model extends AbstractEloquent
             $push = 'reversedProperties';
             $unPush = 'parsedProperties';
         }
+        if(!is_array($running)){
+            return $this;
+        }
         foreach ($running as $key => $parsedValue) {
             $value_of_property_before_parse = $this->{$key};
             if (!property_exists($this->{$push}, $key) && property_exists(get_class($this), $key)) {
@@ -890,17 +926,29 @@ abstract class Model extends AbstractEloquent
                     if ($this->{$key} !== $value_of_property_before_parse) {
                         $changeInsideCallable = true;
                     }
-                    if (!$changeInsideCallable && ($parsedValue || !is_bool($parsedValue))) {
+                    if (!$changeInsideCallable) {
+                        if ($parsedValue === null) {
+                            continue;
+                        }
                         if ($parsedValue !== $this->{$key}) {
+                            if (is_bool($parsedValue)) {
+                                $parsedValue = intval($parsedValue);
+                            }
                             $this->{$key} = $parsedValue;
                             $this->{$push}->{$key} = $parsedValue;
                             $this->backup->{$key} = $value_of_property_before_parse;
-                            $this->loadedFields[$key] = $key;
+                            if ($type === '_behaviors') {
+                                $this->loadedFields[$key] = $key;
+                            }
                             unset($this->{$unPush}->{$key});
                         }
                     } else {
                         if ($changeInsideCallable) {
+                            $this->{$push}->{$key} = $this->{$key};
                             $this->backup->{$key} = $value_of_property_before_parse;
+                            if ($type === '_behaviors') {
+                                $this->loadedFields[$key] = $key;
+                            }
                         }
                     }
                 } else {

@@ -590,12 +590,14 @@ class MySQL extends Eloquent implements EloquentInterface
                 try {
                     $this->parseTables('into');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
 
                 try {
                     $this->parseFields('values');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
 
@@ -608,6 +610,7 @@ class MySQL extends Eloquent implements EloquentInterface
                     $this->parseTables('delete')
                         ->parseTables('joins');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
 
@@ -615,6 +618,7 @@ class MySQL extends Eloquent implements EloquentInterface
                     $this->parseFields('where')
                         ->parseFields('having');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
 
@@ -630,6 +634,7 @@ class MySQL extends Eloquent implements EloquentInterface
                     $this->parseTables('update')
                         ->parseTables('joins');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
 
@@ -638,6 +643,7 @@ class MySQL extends Eloquent implements EloquentInterface
                         ->parseFields('where')
                         ->parseFields('having');
                 } catch (\Exception $exception) {
+                    trigger_error($exception->getMessage() . '. In file ' . $exception->getFile() . ' at line ' . $exception->getLine(), E_USER_ERROR);
                     return $this;
                 }
 

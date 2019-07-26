@@ -1,14 +1,14 @@
 <?php
 
-namespace Winged\Model;
-
+use Winged\Model\Model;
 use Winged\Formater\Formater;
 use Winged\Validator\Validator;
 use Winged\Utils\RandomName;
-use WingedConfig;
 use Winged\Winged;
-use UploadAbstract;
 
+/**
+ * Class SeoPages
+ */
 class SeoPages extends Model
 {
     public function __construct()
@@ -46,16 +46,27 @@ class SeoPages extends Model
     /** @var $keywords string */
     public $keywords;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return "seo_pages";
     }
 
+    /**
+     * @return string
+     */
     public static function primaryKeyName()
     {
         return "id_seo";
     }
 
+    /**
+     * @param bool $pk
+     *
+     * @return $this|int|Model
+     */
     public function primaryKey($pk = false)
     {
         if ($pk && (is_int($pk) || intval($pk) != 0)) {
@@ -65,11 +76,14 @@ class SeoPages extends Model
         return $this->id_seo;
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
-            'page_title' => function(){
-                if($this->slug == ''){
+            'page_title' => function () {
+                if ($this->slug == '') {
                     $this->slug = $this->page_title;
                 }
             },
@@ -82,35 +96,41 @@ class SeoPages extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function reverseBehaviors()
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             'page_title' => [
                 'required' => true,
-                'length' => function(){
+                'length' => function () {
                     return Validator::lengthSmallerOrEqual($this->page_title, 154);
                 }
             ],
             'description' => [
                 'required' => true,
-                'length' => function(){
+                'length' => function () {
                     return Validator::lengthSmallerOrEqual($this->description, 157);
                 }
             ],
             'fb_title' => [
                 'required' => true,
-                'length' => function(){
+                'length' => function () {
                     return Validator::lengthSmallerOrEqual($this->fb_title, 260);
                 }
             ],
             'fb_description' => [
                 'required' => true,
-                'length' => function(){
+                'length' => function () {
                     return Validator::lengthSmallerOrEqual($this->fb_description, 504);
                 }
             ],
@@ -120,6 +140,9 @@ class SeoPages extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function messages()
     {
         return [
@@ -145,6 +168,9 @@ class SeoPages extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function labels()
     {
         return [
@@ -159,6 +185,11 @@ class SeoPages extends Model
         ];
     }
 
+    /**
+     * @param string $field
+     *
+     * @return bool|string
+     */
     public function getImagem($field = 'fb_image')
     {
         if (property_exists(get_class($this), $field)) {
@@ -175,6 +206,11 @@ class SeoPages extends Model
         return false;
     }
 
+    /**
+     * @param string $field
+     *
+     * @return bool|string
+     */
     public function getImagemPath($field = 'fb_image')
     {
         if (property_exists(get_class($this), $field)) {
@@ -187,16 +223,20 @@ class SeoPages extends Model
         return false;
     }
 
-    public function setNotFoundPage(){
-        $this->id_seo = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->page_title = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->description = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->fb_title = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->fb_description = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->canonical_url = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->fb_image = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->slug = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
-        $this->keywords = 'Config for controller name "'. Winged::$page_surname .'" does not match with an configured page in the DataBase';
+    /**
+     * @return $this
+     */
+    public function setNotFoundPage()
+    {
+        $this->id_seo = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->page_title = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->description = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->fb_title = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->fb_description = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->canonical_url = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->fb_image = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->slug = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
+        $this->keywords = 'Config for controller name "' . Winged::$page_surname . '" does not match with an configured page in the DataBase';
         return $this;
     }
 

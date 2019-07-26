@@ -11,6 +11,7 @@ use Winged\File\File;
 
 /**
  * Class ComponentParser
+ *
  * @package Winged\Component
  */
 class ComponentParser
@@ -50,9 +51,10 @@ class ComponentParser
     public $finalDOM = null;
 
     /**
-     * @param $directory
+     * @param      $directory
      * @param null $class
      * @param null $properties
+     *
      * @return mixed
      */
     public static function getComponent($directory, $class = null, $properties = null)
@@ -180,7 +182,7 @@ class ComponentParser
     }
 
     /**
-     * @param $property
+     * @param      $property
      * @param null $value
      */
     function addProperty($property, $value = null)
@@ -194,8 +196,9 @@ class ComponentParser
     }
 
     /**
-     * @param $html \pQuery|DomNode|IQuery
+     * @param $html    \pQuery
      * @param $options array | callable
+     *
      * @return mixed
      */
     public function addOptions($html, $options)
@@ -262,14 +265,14 @@ class ComponentParser
                         $method = array_shift($keys);
                         if ($method === 0) {
                             if (method_exists($html, $function[$method])) {
-                                $html->query($selector)->{$function[$method]}();
+                                $this->DOM->query($selector)->{$function[$method]}();
                             }
                         } else {
                             if (method_exists($html, $method)) {
-                                $html->query($selector)->{$method}($function[$method]);
+                                $this->DOM->query($selector)->{$method}($function[$method]);
                             }
                         }
-                        $this->addOptions($html->query($selector), $function);
+                        $this->addOptions($this->DOM->query($selector), $function);
                     }
                 }
             }

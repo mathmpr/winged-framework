@@ -4,11 +4,16 @@ namespace Winged\Upload;
 
 use Winged\Formater\Formater;
 
+/**
+ * Class Upload
+ *
+ * @package Winged\Upload
+ */
 class Upload
 {
     private $allow = [
         "img" => [".jpg", ".jpeg", ".png", ".tiff", ".gif"],
-        "doc" => [".docx", ".txt", ".doc", ".pdf"],
+        "doc" => [".docx", ".txt", ".doc", ".pdf", ".csv"],
         "zip" => [".zip", ".rar", ".tar", ".tar.gz"],
         "audio" => [".mp3", ".ogg", ".wav"],
         "video" => [".mp4", ".avi", ".mpeg", ".wmv", "webm", "ogg"],
@@ -108,7 +113,7 @@ class Upload
                                         $ran = rand(1, 1000000);
                                         $name = strtotime(date("Y-m-d H:i:s")) . "rand" . $ran . $mime;
                                     } else if ($this->nametype == "preserve") {
-                                        $name = $input["name"][$input_name][$x];
+                                        $name = Formater::toUrl($input["name"][$input_name][$x], Formater::KEEP_FORMAT) . $mime;
                                     } else {
                                         $name = randid() . $mime;
                                     }
@@ -198,6 +203,9 @@ class Upload
                                     $exp = explode('.', $input["name"][$x]);
                                     $ext = array_pop($exp);
                                     $name = Formater::toUrl(join('.', $exp), Formater::KEEP_FORMAT) . '.' . $ext;
+                                    while (file_exists($this->path . $name)) {
+                                        $name = Formater::toUrl(join('.', $exp), Formater::KEEP_FORMAT) . randid(4) . '.' . $ext;
+                                    }
                                 } else {
                                     $name = randid() . $mime;
                                 }
@@ -235,6 +243,9 @@ class Upload
                             $exp = explode('.', $input["name"]);
                             $ext = array_pop($exp);
                             $name = Formater::toUrl(join('.', $exp), Formater::KEEP_FORMAT) . '.' . $ext;
+                            while (file_exists($this->path . $name)) {
+                                $name = Formater::toUrl(join('.', $exp), Formater::KEEP_FORMAT) . randid(4) . '.' . $ext;
+                            }
                         } else {
                             $name = randid() . $mime;
                         }

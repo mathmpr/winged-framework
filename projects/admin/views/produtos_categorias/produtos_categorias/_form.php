@@ -3,8 +3,6 @@ $this->html('_includes/navbar');
 $this->html('_includes/content');
 $this->html('_includes/menu');
 
-use Winged\Model\Login;
-use Winged\Model\ProdutosCategorias;
 use Winged\Form\Form;
 
 ?>

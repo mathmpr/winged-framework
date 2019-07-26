@@ -1,7 +1,5 @@
 <?php
 
-use Winged\Model\Login;
-
 /**
  * @var $this Controller
  */

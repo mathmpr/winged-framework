@@ -1,7 +1,10 @@
 <?php
 
-namespace Winged\Model;
+use Winged\Model\Model;
 
+/**
+ * Class SeoConfig
+ */
 class SeoConfig extends Model
 {
     public function __construct()
@@ -52,16 +55,27 @@ class SeoConfig extends Model
     /** @var $geo_region integer */
     public $geo_region;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return "seo_config";
     }
 
+    /**
+     * @return string
+     */
     public static function primaryKeyName()
     {
         return "id_seo";
     }
 
+    /**
+     * @param bool $pk
+     *
+     * @return $this|int|Model
+     */
     public function primaryKey($pk = false)
     {
         if ($pk && (is_int($pk) || intval($pk) != 0)) {
@@ -71,6 +85,9 @@ class SeoConfig extends Model
         return $this->id_seo;
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -87,11 +104,17 @@ class SeoConfig extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function reverseBehaviors()
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -134,6 +157,9 @@ class SeoConfig extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function messages()
     {
         return [
@@ -174,6 +200,9 @@ class SeoConfig extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function labels()
     {
         return [

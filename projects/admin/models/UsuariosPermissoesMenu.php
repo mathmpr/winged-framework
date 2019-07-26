@@ -1,6 +1,6 @@
 <?php
             
-namespace Winged\Model;
+use Winged\Model\Model;
 
 /**
  * class UsuariosPermissoesMenu
@@ -18,10 +18,13 @@ class UsuariosPermissoesMenu extends Model
     
     /** @var $id_perm_menu integer */
     public $id_perm_menu;
+
     /** @var $id_menu integer */
     public $id_menu;
+
     /** @var $id_usuario integer */
     public $id_usuario;
+
     
     /**
      * Returns the name of the database table that this model represents

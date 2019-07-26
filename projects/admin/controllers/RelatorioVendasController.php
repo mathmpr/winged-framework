@@ -1,18 +1,10 @@
 <?php
 
 use Winged\Controller\Controller;
-use Winged\Model\Login;
-use Winged\Model\RelatorioVendas;
 use Winged\Winged;
-use Winged\Model\Clientes;
 use Winged\Database\DbDict;
-use Winged\Model\Bairros;
-use Winged\Model\Produtos;
 use Winged\Http\Session;
-use Winged\Model\Pedidos;
 use Winged\Date\Date;
-use Winged\Model\Cidades;
-use Winged\Model\Estados;
 
 class RelatorioVendasController extends Controller
 {
@@ -36,8 +28,6 @@ class RelatorioVendasController extends Controller
     public function actionIndex()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
         $this->appendJs('ralatorio_vendas', Winged::$parent . 'assets/js/pages/ralatorio_vendas.js');
 
         $model = $this->completeModel((new RelatorioVendas()));
@@ -242,8 +232,6 @@ class RelatorioVendasController extends Controller
     public function actionResult()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
         $this->appendJs('pedidos', Winged::$parent . 'assets/js/pages/pedidos.js');
         $this->appendJs('relatorio_vendas', Winged::$parent . 'assets/js/pages/ralatorio_vendas.js');
 

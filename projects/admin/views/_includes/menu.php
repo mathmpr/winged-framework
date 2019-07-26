@@ -1,11 +1,6 @@
 <?php
 
-use Winged\Model\Login;
-use Winged\Model\Menu;
 use Winged\Winged;
-use Winged\Model\UsuariosPermissoesSubmenu;
-use Winged\Database\DbDict;
-use Winged\Model\UsuariosPermissoesMenu;
 
 /**
  * @var $this \Winged\Controller\Controller

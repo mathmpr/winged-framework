@@ -4,9 +4,10 @@ use Winged\Controller\Controller;
 use Winged\Http\Session;
 use Winged\Winged;
 use Winged\Http\Cookie;
-use Winged\Model\Login;
-use Winged\Model\Bairros;
 
+/**
+ * Class BairrosController
+ */
 class BairrosController extends Controller
 {
     public function __construct()

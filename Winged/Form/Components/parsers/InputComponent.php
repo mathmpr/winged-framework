@@ -48,8 +48,8 @@ class InputComponent extends ComponentParser
             }
         }
 
-        $this->addOptions($this->DOM->query('input'), $inputOptions);
-        $this->addOptions($this->DOM->query('html *')[0], $elementOptions);
+        $this->addOptions($this->DOM->query('input'), $inputOptions, $this->DOM);
+        $this->addOptions($this->DOM->query('html *')[0], $elementOptions, $this->DOM);
     }
 
     public function reset()

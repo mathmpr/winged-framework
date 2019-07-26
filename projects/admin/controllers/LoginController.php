@@ -2,9 +2,7 @@
 
 use Winged\Controller\Controller;
 
-use Winged\Model\Login;
 use Winged\Winged;
-use Winged\Model\Usuarios;
 use Winged\Database\DbDict;
 
 class LoginController extends Controller
@@ -23,9 +21,9 @@ class LoginController extends Controller
     {
         parent::__construct();
         /**
-         * @var $seo \Winged\Model\SeoConfig;
+         * @var $seo SeoConfig;
          */
-        $seo = (new \Winged\Model\SeoConfig())->findOne(1);
+        $seo = (new SeoConfig())->findOne(1);
         $exp = explode(' ', $seo->site_name);
         $name = '';
         $x = 0;

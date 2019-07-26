@@ -1,11 +1,14 @@
 <?php
 
-namespace Winged\Model;
-
 use Winged\Validator\Validator;
 use Winged\Date\Date;
 
-class RelatorioVendas extends Produtos
+/**
+ * Class RelatorioVendas
+ *
+ * @package Winged\Model
+ */
+class RelatorioVendas extends \Produtos
 {
 
     /**
@@ -38,12 +41,18 @@ class RelatorioVendas extends Produtos
      */
     public $status;
 
+    /**
+     * RelatorioVendas constructor.
+     */
     public function __construct()
     {
         setlocale(LC_ALL, "pt_BR", "pt_BR.iso-8859-1", "pt_BR.utf-8", "portuguese");
         parent::__construct();
     }
 
+    /**
+     * @return array
+     */
     public function labels()
     {
         return [
@@ -56,6 +65,9 @@ class RelatorioVendas extends Produtos
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -68,11 +80,17 @@ class RelatorioVendas extends Produtos
         ];
     }
 
+    /**
+     * @return array
+     */
     public function reverseBehaviors()
     {
-
+        return [];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -107,6 +125,9 @@ class RelatorioVendas extends Produtos
         ];
     }
 
+    /**
+     * @return array
+     */
     public function messages()
     {
         return [

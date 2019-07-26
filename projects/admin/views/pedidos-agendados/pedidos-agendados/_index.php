@@ -3,8 +3,6 @@ $this->html('_includes/navbar');
 $this->html('_includes/content');
 $this->html('_includes/menu');
 
-use Winged\Database\DbDict;
-use Winged\Model\Pedidos;
 use Winged\Formater\Formater;
 use Winged\Date\Date;
 

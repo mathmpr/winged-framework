@@ -3,10 +3,8 @@ $this->html('_includes/navbar');
 $this->html('_includes/content');
 $this->html('_includes/menu');
 
-use Winged\Database\DbDict;
+
 use Winged\Form\Form;
-use Winged\Model\Cidades;
-use Winged\Model\Estados;
 
 ?>
     <div class="content-wrapper">

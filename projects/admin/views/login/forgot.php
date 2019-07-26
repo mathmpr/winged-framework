@@ -1,7 +1,6 @@
 <?php
 
 use Winged\Form\Form;
-use Winged\Model\Login;
 
 $login = (new Login());
 $form = new Form($login);

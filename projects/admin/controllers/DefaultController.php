@@ -1,11 +1,12 @@
 <?php
 
 use Winged\Controller\Controller;
-use Winged\Model\Login;
 use Winged\Http\Session;
-use Winged\Model\SeoConfig;
 use Winged\Winged;
 
+/**
+ * Class DefaultController
+ */
 class DefaultController extends Controller
 {
     public function __construct()
@@ -13,8 +14,8 @@ class DefaultController extends Controller
         !Login::permission() ? $this->redirectTo() : null;
         parent::__construct();
         $this->dynamic('active_page_group', 'default');
-        $this->dynamic('page_name', 'SEO Config e Métricas');
-        $this->dynamic('page_action_string', 'Google Analytics');
+        $this->dynamic('page_name', 'SEO Config');
+        $this->dynamic('page_action_string', 'SEO Config');
     }
 
     public function actionIndex()

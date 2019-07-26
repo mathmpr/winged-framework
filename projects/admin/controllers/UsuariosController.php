@@ -2,12 +2,8 @@
 
 use Winged\Controller\Controller;
 use Winged\Winged;
-use Winged\Model\Login;
-use Winged\Model\Usuarios;
 use Winged\Http\Session;
 use Winged\Http\Cookie;
-use Winged\Model\UsuariosPermissoesMenu;
-use Winged\Model\UsuariosPermissoesSubmenu;
 use Winged\Database\DbDict;
 
 class UsuariosController extends Controller

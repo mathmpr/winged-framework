@@ -4,9 +4,6 @@ $this->html('_includes/content');
 $this->html('_includes/menu');
 
 use Winged\Form\Form;
-use Winged\Model\Model;
-use Winged\Model\Produtos;
-use Winged\Database\DbDict;
 use Winged\Formater\Formater;
 use Winged\Date\Date;
 

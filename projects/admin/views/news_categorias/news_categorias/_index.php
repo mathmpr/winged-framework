@@ -2,6 +2,13 @@
 $this->html('_includes/navbar');
 $this->html('_includes/content');
 $this->html('_includes/menu');
+
+/**
+ * @var $success bool
+ * @var $models  null | NewsCategorias[]
+ * @var $links   string
+ */
+
 ?>
     <div class="content-wrapper">
         <div class="page-header page-header-default">
@@ -17,10 +24,8 @@ $this->html('_includes/menu');
             </div>
         </div>
         <div class="content">
-
             <?php
-
-            if($success){
+            if ($success) {
                 ?>
                 <div style="margin-top: 10px" class="col-lg-12">
                     <div class="panel panel-success">
@@ -39,7 +44,6 @@ $this->html('_includes/menu');
                 </div>
                 <?php
             }
-
             if (!$models) {
                 ?>
                 <div class="col-lg-12">
@@ -55,10 +59,12 @@ $this->html('_includes/menu');
                                 </small>
                             </h6>
                             <div class="lt-buttons">
-                                <a class="lt-button btn bg-teal-400" onclick="redirectTo('<?= Admin::buildUrlNoPage($this->insert) ?>', '<?= Admin::buildGetUrl() ?>')">
+                                <a class="lt-button btn bg-teal-400"
+                                   onclick="redirectTo('<?= Admin::buildUrlNoPage($this->insert) ?>', '<?= Admin::buildGetUrl() ?>')">
                                     <span>Adicionar  <i class="icon-plus-circle2"></i></span>
                                 </a>
-                                <a class="lt-button btn bg-primary-400" onclick="redirectTo('<?= Admin::buildGetUrl() ?>', '<?= Admin::buildGetUrl() ?>')">
+                                <a class="lt-button btn bg-primary-400"
+                                   onclick="redirectTo('<?= Admin::buildGetUrl() ?>', '<?= Admin::buildGetUrl() ?>')">
                                     <span>Atualizar  <i class="icon-reset"></i></span>
                                 </a>
                             </div>
@@ -79,7 +85,8 @@ $this->html('_includes/menu');
                                                placeholder="digite sua busca..."></label>
                                 </div>
                                 <div class="dt-buttons">
-                                    <a class="dt-button btn bg-teal-400" onclick="redirectTo('<?= Admin::buildUrlNoPage($this->insert) ?>', '<?= Admin::buildGetUrl() ?>')">
+                                    <a class="dt-button btn bg-teal-400"
+                                       onclick="redirectTo('<?= Admin::buildUrlNoPage($this->insert) ?>', '<?= Admin::buildGetUrl() ?>')">
                                         <span>Adicionar  <i class=" icon-plus-circle2"></i></span>
                                     </a>
                                 </div>
@@ -88,19 +95,19 @@ $this->html('_includes/menu');
                                         <span>Mostrar:</span>
                                         <select name="limit" class="select2-hidden-accessible">
                                             <option
-                                                value="10" <?= (get('limit') == 10) ? 'selected="selected"' : ''; ?>>
+                                                    value="10" <?= (get('limit') == 10) ? 'selected="selected"' : ''; ?>>
                                                 10
                                             </option>
                                             <option
-                                                value="25" <?= (get('limit') == 25) ? 'selected="selected"' : ''; ?>>
+                                                    value="25" <?= (get('limit') == 25) ? 'selected="selected"' : ''; ?>>
                                                 25
                                             </option>
                                             <option
-                                                value="50" <?= (get('limit') == 50) ? 'selected="selected"' : ''; ?>>
+                                                    value="50" <?= (get('limit') == 50) ? 'selected="selected"' : ''; ?>>
                                                 50
                                             </option>
                                             <option
-                                                value="100" <?= (get('limit') == 100) ? 'selected="selected"' : ''; ?>>
+                                                    value="100" <?= (get('limit') == 100) ? 'selected="selected"' : ''; ?>>
                                                 100
                                             </option>
                                         </select>
@@ -125,23 +132,19 @@ $this->html('_includes/menu');
                                 </thead>
                                 <tbody>
                                 <?php
-                                /**
-                                 * @var $models array | NewsCategorias[]
-                                 * @var $model NewsCategorias
-                                 */
                                 foreach ($models as $model) {
                                     ?>
                                     <tr role="row" class="even">
                                         <td><?= $model->categoria ?></td>
-                                        <td><?= $model->slug ?></td>
+                                        <td><?= Slugs::getSlug($model->primaryKey(), NewsCategorias::tableName())->slug ?></td>
                                         <td>
                                             <input type="hidden" name="indice" value="1">
                                             <div class="btn-group">
                                                 <button
-                                                    onclick="redirectTo('<?= Admin::buildPageNameUrl() ?>update/<?= $model->primaryKey() ?>', '<?= Admin::buildGetUrl() ?>')"
-                                                    class="btn bg-orange-400"
-                                                    data-popup="tooltip" data-placement="left" title=""
-                                                    data-original-title="Editar">
+                                                        onclick="redirectTo('<?= Admin::buildPageNameUrl() ?>update/<?= $model->primaryKey() ?>', '<?= Admin::buildGetUrl() ?>')"
+                                                        class="btn bg-orange-400"
+                                                        data-popup="tooltip" data-placement="left" title=""
+                                                        data-original-title="Editar">
                                                     <i class="icon-pencil"></i>
                                                 </button>
                                             </div>

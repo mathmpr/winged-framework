@@ -1,13 +1,8 @@
 <?php
 
 use Winged\Controller\Controller;
-use Winged\Model\Login;
 use Winged\Winged;
-use Winged\Model\Pedidos;
 use Winged\Database\DbDict;
-use Winged\Model\Usuarios;
-use Winged\Model\Clientes;
-use Winged\Model\Produtos;
 use Winged\Date\Date;
 use Winged\Http\Cookie;
 use Winged\Formater\Formater;
@@ -657,8 +652,6 @@ class PedidosController extends Controller
     public function actionPage()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
         $this->appendJs('pedidos', Winged::$parent . 'assets/js/pages/pedidos.js');
         $this->setNicknamesToUri(['page']);
         $limit = get('limit') ? get('limit') : 10;

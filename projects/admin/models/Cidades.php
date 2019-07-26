@@ -1,7 +1,12 @@
 <?php
 
-namespace Winged\Model;
+use Winged\Model\Model;
 
+/**
+ * Class Cidades
+ *
+ * @package Winged\Model
+ */
 class Cidades extends Model
 {
     public function __construct()
@@ -9,41 +14,65 @@ class Cidades extends Model
         parent::__construct();
         return $this;
     }
+
     /** @var $id_cidade integer */
     public $id_cidade;
+
     /** @var $id_estado integer */
     public $id_estado;
+
     /** @var $cidade string */
     public $cidade;
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return "cidades";
     }
-    
+
+    /**
+     * @return string
+     */
     public static function primaryKeyName()
     {
         return "id_cidade";
     }
-    
+
+    /**
+     * @param bool $pk
+     *
+     * @return $this|int|Model
+     */
     public function primaryKey($pk = false)
     {
-        if($pk && (is_int($pk) || intval($pk) != 0)){
+        if ($pk && (is_int($pk) || intval($pk) != 0)) {
             $this->id_cidade = $pk;
             return $this;
         }
         return $this->id_cidade;
     }
-    
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [];
     }
-    
+
+    /**
+     * @return array
+     */
     public function reverseBehaviors()
     {
         return [];
     }
-    
+
+    /**
+     * @return array
+     */
     public function labels()
     {
         return [
@@ -51,6 +80,10 @@ class Cidades extends Model
             'id_estado' => 'Estado em que está localizada: ',
         ];
     }
+
+    /**
+     * @return array
+     */
     public function messages()
     {
         return [
@@ -62,7 +95,10 @@ class Cidades extends Model
             ],
         ];
     }
-    
+
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [

@@ -1,9 +1,11 @@
 <?php
 
-namespace Winged\Model;
-
+use Winged\Model\Model;
 use Winged\Date\Date;
 
+/**
+ * Class TempCart
+ */
 class TempCart extends Model
 {
     public function __construct()
@@ -42,16 +44,27 @@ class TempCart extends Model
     /** @var $innf string */
     public $innf;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return "temp_cart";
     }
 
+    /**
+     * @return string
+     */
     public static function primaryKeyName()
     {
         return "id_carrinho";
     }
 
+    /**
+     * @param bool $pk
+     *
+     * @return $this|int|Model
+     */
     public function primaryKey($pk = false)
     {
         if ($pk && (is_int($pk) || intval($pk) != 0)) {
@@ -61,11 +74,17 @@ class TempCart extends Model
         return $this->id_carrinho;
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     public function reverseBehaviors()
     {
         return [
@@ -77,21 +96,27 @@ class TempCart extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function labels()
     {
-        return [
-        ];
+        return [];
     }
 
+    /**
+     * @return array
+     */
     public function messages()
     {
-        return [
-        ];
+        return [];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
-        return [
-        ];
+        return [];
     }
 }

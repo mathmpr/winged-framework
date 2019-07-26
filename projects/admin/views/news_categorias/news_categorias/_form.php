@@ -4,8 +4,6 @@ $this->html('_includes/content');
 $this->html('_includes/menu');
 
 use Winged\Form\Form;
-use Winged\Model\NewsCategorias;
-use Winged\Model\Login;
 
 ?>
     <div class="content-wrapper">

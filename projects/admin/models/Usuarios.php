@@ -1,12 +1,14 @@
 <?php
 
-namespace Winged\Model;
-
+use Winged\Model\Model;
 use Winged\Http\Session;
 use Winged\Date\Date;
 use Winged\Database\DbDict;
 use Winged\Validator\Validator;
 
+/**
+ * Class Usuarios
+ */
 class Usuarios extends Model
 {
     public function __construct()
@@ -54,16 +56,27 @@ class Usuarios extends Model
     /** @var $change_pass_please string */
     public $change_pass_please;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return "usuarios";
     }
 
+    /**
+     * @return string
+     */
     public static function primaryKeyName()
     {
         return "id_usuario";
     }
 
+    /**
+     * @param bool $pk
+     *
+     * @return $this|int|Model
+     */
     public function primaryKey($pk = false)
     {
         if ($pk && (is_int($pk) || intval($pk) != 0)) {
@@ -73,6 +86,9 @@ class Usuarios extends Model
         return $this->id_usuario;
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -124,6 +140,9 @@ class Usuarios extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function reverseBehaviors()
     {
         return [
@@ -133,6 +152,9 @@ class Usuarios extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -194,7 +216,7 @@ class Usuarios extends Model
                 'length' => [
                     function ($senha, $length) {
                         if (Session::get('action') == 'insert' || strlen($this->senha) > 0 || strlen($this->repeat) > 0) {
-                            return (new Validator())->lengthLargerOrEqual($this->getOldValue('senha'), $length);
+                            return Validator::lengthLargerOrEqual($this->backup('senha'), $length);
                         } else {
                             $this->unload('senha');
                             $this->unload('repaet');
@@ -209,6 +231,9 @@ class Usuarios extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function messages()
     {
         return [
@@ -228,6 +253,9 @@ class Usuarios extends Model
         ];
     }
 
+    /**
+     * @return array
+     */
     public function labels()
     {
         return [

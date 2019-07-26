@@ -2,8 +2,6 @@
 
 use Winged\Controller\Controller;
 use Winged\Winged;
-use Winged\Model\Login;
-use Winged\Model\Estados;
 use Winged\Http\Session;
 use Winged\Http\Cookie;
 

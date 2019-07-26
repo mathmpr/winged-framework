@@ -4,41 +4,76 @@ namespace Winged\Utils;
 
 use Winged\Formater\Formater;
 
+/**
+ * Class Chord
+ *
+ * @package Winged\Utils
+ */
 class Chord implements \ArrayAccess, \Iterator
 {
     private $chord = '';
     private $key = 0;
 
+    /**
+     * adds pointer by one
+     */
     public function next()
     {
         $this->key++;
     }
 
+    /**
+     * reduce pointer by one
+     */
     public function prev()
     {
         $this->key--;
     }
 
+    /**
+     * return current char in current location of pointer
+     *
+     * @return mixed
+     */
     public function current()
     {
         return $this->chord[$this->key];
     }
 
+    /**
+     * check if pos in chord is a valid position
+     *
+     * @return bool
+     */
     public function valid()
     {
         return isset($this->chord[$this->key]);
     }
 
+    /**
+     * return current pointer count
+     *
+     * @return int|mixed
+     */
     public function key()
     {
         return $this->key;
     }
 
+    /**
+     * put pointer chord to pos zero
+     */
     public function rewind()
     {
         $this->key = 0;
     }
 
+    /**
+     * set new pos in chord string
+     *
+     * @param mixed $offset
+     * @param mixed $value
+     */
     public function offsetSet($offset, $value)
     {
         if ($this->offsetExists($offset)) {
@@ -53,6 +88,11 @@ class Chord implements \ArrayAccess, \Iterator
         }
     }
 
+    /**
+     * unset an pos in chord string
+     *
+     * @param mixed $offset
+     */
     public function offsetUnset($offset)
     {
         if ($this->offsetExists($offset)) {
@@ -67,6 +107,13 @@ class Chord implements \ArrayAccess, \Iterator
         }
     }
 
+    /**
+     * if pos exists in chord string, get char
+     *
+     * @param mixed $offset
+     *
+     * @return bool|mixed
+     */
     public function offsetGet($offset)
     {
         if ($this->offsetExists($offset)) {
@@ -75,27 +122,53 @@ class Chord implements \ArrayAccess, \Iterator
         return false;
     }
 
+    /**
+     * check if pos exists in chord string
+     *
+     * @param mixed $offset
+     *
+     * @return bool
+     */
     public function offsetExists($offset)
     {
         return isset($this->chord[$offset]);
     }
 
+    /**
+     * when use echo or other printable method, __toString is activated and return chord object as string
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->chord;
     }
 
+    /**
+     * statci call for get new chord
+     *
+     * @param string $string
+     *
+     * @return Chord
+     */
     public static function factory($string = '')
     {
         return new Chord($string);
     }
 
+    /**
+     * Chord constructor.
+     *
+     * @param string $string
+     */
     public function __construct($string = '')
     {
         return $this->set($string);
     }
 
     /**
+     * set string into chord object
+     *
      * @param string $string
      * @return $this
      */
@@ -112,6 +185,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return chord as string
+     *
      * @return string
      */
     public function get()
@@ -120,6 +195,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return length of shord
+     *
      * @return int
      */
     public function length()
@@ -128,6 +205,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * check if chord ends with $string
+     *
      * @param string $string
      * @return bool
      */
@@ -141,6 +220,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * check if chord starts with $string
+     *
      * @param string $string
      * @return bool
      */
@@ -151,6 +232,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * replace end of chord if search $string ok, with replace
+     *
      * @param string $string
      * @param string $replace
      * @return string
@@ -165,6 +248,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * replace end of chord if search $string ok, with replace
+     *
      * @param string $string
      * @param string $replace
      * @return string
@@ -179,6 +264,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * right trim chord
+     *
      * @return $this
      */
     public function rtrim()
@@ -188,6 +275,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * left trim chord
+     *
      * @return $this
      */
     public function ltrim()
@@ -197,6 +286,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * trim chord
+     *
      * @return $this
      */
     public function trim()
@@ -206,6 +297,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return joined vector into new Chord
+     *
      * @param string $glue
      * @param array|Vector $vector
      * @return $this
@@ -221,6 +314,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return joined vector into new Chord
+     *
      * @param string $glue
      * @param array $vector
      * @return Chord
@@ -231,6 +326,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * explode chord and retorn new Vector object
+     *
      * @param $delimiter
      * @param $limit
      * @return Vector
@@ -244,6 +341,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return splited chord
+     *
      * @param int $length
      * @return array[]|false|string[]
      */
@@ -253,6 +352,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * chunk chord
+     *
      * @param int $length
      * @param string $end
      * @return string
@@ -269,6 +370,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * replace search with replace in chord object
+     *
      * @param string|array $search
      * @param string|array $replace
      */
@@ -278,6 +381,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return count of chars in string
+     *
      * @return Vector
      */
     public function countChars()
@@ -286,6 +391,8 @@ class Chord implements \ArrayAccess, \Iterator
     }
 
     /**
+     * return count of words in string
+     *
      * @return Vector
      * @throws \ReflectionException
      */
@@ -296,6 +403,11 @@ class Chord implements \ArrayAccess, \Iterator
         })->countValues();
     }
 
+    /**
+     * return count of new lines in string
+     *
+     * @return int
+     */
     public function countNewLines()
     {
         $copy = DeepClone::factory($this)->copy();
@@ -303,21 +415,53 @@ class Chord implements \ArrayAccess, \Iterator
         return substr_count($copy->chord, "\n");
     }
 
+    /**
+     * search first occurence in string after offset in insensitive case
+     *
+     * @param string $search
+     * @param int    $offset
+     *
+     * @return bool
+     */
     public function insensitiveExists($search = '', $offset = 0)
     {
         return is_int(stripos($this->chord, $search, $offset));
     }
 
+    /**
+     * search first occurence in string after offset in sensitive case
+     *
+     * @param string $search
+     * @param int    $offset
+     *
+     * @return bool
+     */
     public function sensitiveExists($search = '', $offset = 0)
     {
         return is_int(strpos($this->chord, $search, $offset));
     }
 
+    /**
+     * search first occurence in string after offset in insensitive case
+     *
+     * @param string $search
+     * @param int    $offset
+     *
+     * @return int
+     */
     public function insensitiveSearch($search = '', $offset = 0)
     {
         return stripos($this->chord, $search, $offset);
     }
 
+    /**
+     * search first occurence in string after offset in sensitive case
+     *
+     * @param string $search
+     * @param int    $offset
+     *
+     * @return bool|int
+     */
     public function sensitiveSearch($search = '', $offset = 0)
     {
         return strpos($this->chord, $search, $offset);

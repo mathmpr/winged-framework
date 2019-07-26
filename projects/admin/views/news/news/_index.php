@@ -3,9 +3,6 @@ $this->html('_includes/navbar');
 $this->html('_includes/content');
 $this->html('_includes/menu');
 
-use Winged\Model\NewsCategorias;
-use Winged\Database\DbDict;
-
 ?>
     <div class="content-wrapper">
         <div class="page-header page-header-default">
@@ -95,19 +92,19 @@ use Winged\Database\DbDict;
                                         <span>Mostrar:</span>
                                         <select name="limit" class="select2-hidden-accessible">
                                             <option
-                                                value="10" <?= (get('limit') == 10) ? 'selected="selected"' : ''; ?>>
+                                                    value="10" <?= (get('limit') == 10) ? 'selected="selected"' : ''; ?>>
                                                 10
                                             </option>
                                             <option
-                                                value="25" <?= (get('limit') == 25) ? 'selected="selected"' : ''; ?>>
+                                                    value="25" <?= (get('limit') == 25) ? 'selected="selected"' : ''; ?>>
                                                 25
                                             </option>
                                             <option
-                                                value="50" <?= (get('limit') == 50) ? 'selected="selected"' : ''; ?>>
+                                                    value="50" <?= (get('limit') == 50) ? 'selected="selected"' : ''; ?>>
                                                 50
                                             </option>
                                             <option
-                                                value="100" <?= (get('limit') == 100) ? 'selected="selected"' : ''; ?>>
+                                                    value="100" <?= (get('limit') == 100) ? 'selected="selected"' : ''; ?>>
                                                 100
                                             </option>
                                         </select>
@@ -155,20 +152,19 @@ use Winged\Database\DbDict;
                                 <?php
                                 /**
                                  * @var $models array | \Winged\Model\News[]
-                                 * @var $model \Winged\Model\News
+                                 * @var $model  \Winged\Model\News
                                  */
                                 foreach ($models as $model) {
-                                    $model->categorias = implode(', ', array2htmlselect((new NewsCategorias())->select(['C.*'])
-                                        ->from(['C' => NewsCategorias::tableName()])
-                                        ->orderBy(ELOQUENT_ASC, 'C.categoria')
-                                        ->where(ELOQUENT_IN, ['C.id_categoria' => $model->categorias])
-                                        ->execute(true), 'categoria', 'id_categoria'))
+                                    //$model->categorias = implode(', ', array2htmlselect((new NewsCategorias())->select(['C.*'])
+                                    //    ->from(['C' => NewsCategorias::tableName()])
+                                    //    ->orderBy(ELOQUENT_ASC, 'C.categoria')
+                                    //    ->where(ELOQUENT_IN, ['C.id_categoria' => $model->categorias])
+                                    //    ->execute(true), 'categoria', 'id_categoria'));
                                     ?>
-                                    <tr data-id="<?= $model->primaryKey() ?>" data-ordem="<?= $model->ordem ?>" role="row" class="even">
+                                    <tr data-id="<?= $model->primaryKey() ?>" data-ordem="<?= $model->ordem ?>"
+                                        role="row" class="even">
                                         <td><?= $model->titulo ?></td>
-                                        <td><?= $model->og_title ?></td>
-                                        <td><?= $model->categorias ?></td>
-                                        <td><?= knowledge_substr_if_need($model->previa, 0, 50, '...') ?></td>
+                                        <td><?= (new \Winged\Utils\Chord($model->previa))->substrIfNeed(0, 50, true, '...')->get() ?></td>
                                         <td><?= $model->data_cadastro->dmy() ?></td>
                                         <td><?= $model->data_alteracao->dmy() ?></td>
                                         <td>
@@ -176,16 +172,16 @@ use Winged\Database\DbDict;
                                                 <?= $model->status == 0 ? 'Indisponível' : 'Disponível' ?>
                                             </span>
                                         </td>
-                                        <td><?= $model->getImagem() ? '<img style="width: 100px; display: block; margin: auto;" src="' . $model->getImagem() . '"/>' : 'Não há imagem' ?></td>
-                                        <td><?= $model->getImagem('og_imagem') ? '<img style="width: 100px; display: block; margin: auto;" src="' . $model->getImagem('og_imagem') . '"/>' : 'Não há imagem' ?></td>
+
+
                                         <td>
                                             <input type="hidden" name="indice" value="1">
                                             <div class="btn-group">
                                                 <button
-                                                    onclick="redirectTo('<?= Admin::buildPageNameUrl() ?>update/<?= $model->primaryKey() ?>', '<?= Admin::buildGetUrl() ?>')"
-                                                    class="btn bg-orange-400"
-                                                    data-popup="tooltip" data-placement="left" title=""
-                                                    data-original-title="Editar">
+                                                        onclick="redirectTo('<?= Admin::buildPageNameUrl() ?>update/<?= $model->primaryKey() ?>', '<?= Admin::buildGetUrl() ?>')"
+                                                        class="btn bg-orange-400"
+                                                        data-popup="tooltip" data-placement="left" title=""
+                                                        data-original-title="Editar">
                                                     <i class="icon-pencil"></i>
                                                 </button>
                                             </div>

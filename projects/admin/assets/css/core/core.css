@@ -8209,3 +8209,151 @@ input:disabled {
 #userPerms .checkbox > div:not(:first-child) {
     margin-top: 0 !important;
 }
+
+.no-display {
+    display: none;
+}
+
+#midia-modal .loads ul {
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+#midia-modal .loads ul li {
+    display: inline-block;
+    width: 30%;
+    text-align: center;
+}
+
+#midia-modal .loads ul li a.delete {
+    color: #DC3545;
+}
+
+#midia-modal .loads ul li a.update {
+    color: #007BFF;
+}
+
+#midia-modal .loads ul li a.update-image {
+    color: #c203ff;
+}
+
+#midia-modal .loads .type {
+    height: 150px;
+    line-height: 150px;
+    background: #f0f0f0;
+    margin-bottom: 20px;
+    position: relative;
+    text-align: center;
+}
+
+#midia-modal .loads .col-lg-3 {
+    margin-bottom: 20px;
+}
+
+#midia-modal .loads .type.image {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+#midia-modal .loads .type.image.no-cover {
+    background-size: auto;
+}
+
+#midia-modal .loads .type.icon:before, #midia-modal .loads .type.image:after {
+    font-family: icomoon;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    min-width: 1em;
+    display: inline-block;
+    text-align: center;
+    font-size: 16px;
+    vertical-align: middle;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+}
+
+#midia-modal .loads .type.icon:before {
+    display: inline;
+    font-size: 50px;
+}
+
+#midia-modal .loads .type.icon.pdf:before {
+    content: "\ef36";
+    color: #f00100;
+}
+
+#midia-modal .loads .type.icon.doc:before, #midia-modal .loads .type.icon.docx:before {
+    content: "\ef38";
+    color: #1f2690;
+}
+
+#midia-modal .loads .type.icon.xls:before, #midia-modal .loads .type.icon.xlsx:before, #midia-modal .loads .type.icon.csv:before {
+    content: "\ef39";
+    color: #4c904c;
+}
+
+#midia-modal .loads .type.icon.zip:before, #midia-modal .loads .type.icon.rar:before {
+    content: "\ea26";
+    color: #8f3090;
+}
+
+#midia-modal .loads .type.icon.sound:before{
+    content: "\ea1e";
+    color: #dec653;
+    top: -20px;
+}
+
+#renew-plupload {
+    top: -2px;
+    z-index: 100;
+    position: relative;
+}
+
+#midia-modal .loads .type .overlay-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    left: 0;
+    top: 0;
+    background: transparent;
+}
+
+#midia-modal .loads .type.video .overlay-content{
+    background: #000;
+}
+
+#midia-modal .loads .type .overlay-content video {
+    position: absolute;
+    display: block;
+    margin: auto;
+    width: 101%;
+    top: 0;
+    left: -0.5%;
+    right: 0;
+    bottom: 0;
+}
+
+#midia-modal .loads .type .overlay-content audio{
+    position: absolute;
+    display: block;
+    margin: auto;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    outline: none;
+}
+
+#midia-modal .loads .type .overlay-content audio:checked, #midia-modal .loads .type .overlay-content audio:active{
+    outline: none;
+}
+
+#the-cropper img{
+    width: 100%;
+}

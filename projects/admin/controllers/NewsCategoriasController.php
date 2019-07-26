@@ -2,11 +2,12 @@
 
 use Winged\Controller\Controller;
 use Winged\Winged;
-use Winged\Model\NewsCategorias;
 use Winged\Http\Session;
 use Winged\Http\Cookie;
-use Winged\Model\Login;
 
+/**
+ * Class NewsCategoriasController
+ */
 class NewsCategoriasController extends Controller
 {
     public function __construct()
@@ -39,13 +40,9 @@ class NewsCategoriasController extends Controller
         $page = uri('page') ? uri('page') : 1;
 
         $model = new NewsCategorias();
-        $success = null;
-        if (!in_array(Session::get('action'), ['insert', 'update']) && Session::get('action') !== false) {
-            $success = $model->findOne(Session::get('action'));
-        }
 
         $success = false;
-        if(intval(Session::get('action')) > 0){
+        if (intval(Session::get('action')) > 0) {
             $success = true;
         }
 
@@ -54,7 +51,6 @@ class NewsCategoriasController extends Controller
         $links = 3;
 
         $model->select()->from(['CATEGORIAS' => 'news_categorias']);
-
 
         Admin::buildSearchModel($model, [
             'CATEGORIAS.categoria',
@@ -68,7 +64,7 @@ class NewsCategoriasController extends Controller
 
         $paginate = new Paginate($model->count(), $model);
         $data = $paginate->getData($limit, $page);
-        $links = $paginate->createLinks($links, Winged::$page_surname);
+        $links = $paginate->createLinks($links);
 
         $this->html(Winged::$page_surname . '/' . Winged::$page_surname . '/_index', [
             'success' => $success,
@@ -144,12 +140,16 @@ class NewsCategoriasController extends Controller
         }
     }
 
+    /**
+     * @return array
+     */
     public function save()
     {
         $model = (new NewsCategorias())->load($_POST);
-        if ($model->validate() && ($id = $model->save())) {
+        if ($model->validate() && ($model->save())) {
+            Slugs::pushSlug($model->categoria, $model->primaryKey(), NewsCategorias::tableName());
             $action = Session::get('action');
-            Session::always('action', $id);
+            Session::always('action', $model->primaryKey());
             if (($to = Cookie::get('from_url')) && $action == 'update') {
                 Cookie::remove('from_url');
                 $this->redirectOnly($to);
@@ -159,5 +159,26 @@ class NewsCategoriasController extends Controller
         } else {
             return ['status' => false, 'model' => $model];
         }
+    }
+
+    /**
+     * get news_categorias as array
+     *
+     * @return array|bool
+     */
+    public function actionCategorias()
+    {
+        if (is_post()) {
+            $get = (new NewsCategorias())
+                ->select(['NC.id_categoria', 'NC.categoria'])
+                ->from(['NC' => NewsCategorias::tableName()])
+                ->where(ELOQUENT_LIKE, ['LCASE(NC.categoria)' => '%' . mb_strtolower(post('query'), 'UTF-8') . '%'])
+                ->execute(true);
+
+            if ($get) {
+                return $get;
+            }
+        }
+        return [];
     }
 }

@@ -99,7 +99,7 @@ class ShutdownCallback
     public static function parseTrace($error)
     {
         $message = explode("\n", $error['message']);
-        if(strlen($error['message']) >= 1024){
+        if (strlen($error['message']) >= 1024) {
             array_pop($message);
             $message[] = '#90 [error have more than 1024 chars](n\a): [error have more than 1024 chars]->[error have more than 1024 chars]()';
         }
@@ -109,6 +109,12 @@ class ShutdownCallback
         unset($message[10]);
         unset($message[11]);
         $message = array_values($message);
+        foreach ($message as $key => $m) {
+            $message[$key] = trim($m);
+            if (!is_int(stripos($message[$key], '#'))) {
+                $message[$key] = '#' . rand(1, 99) . ' ' . $message[$key];
+            }
+        }
         array_walk($message, function ($value, $key) use (&$message) {
             $message[$key] = substr($value, 3, strlen($value) - 1);
         });
@@ -127,8 +133,11 @@ class ShutdownCallback
                     $line = 'internal';
                 }
             }
-
-            $exp = explode('->', $mExp[1]);
+            if (count($mExp) >= 2) {
+                $exp = explode('->', $mExp[1]);
+            } else {
+                $exp = explode('->', $mExp[0]);
+            }
             if (count($exp) >= 2) {
                 $type = '->';
                 $class = $exp[0];
@@ -151,7 +160,11 @@ class ShutdownCallback
                     $function = str_replace('()', '', $exp[1]);
                 }
             } else {
-                $exp = explode('::', $mExp[1]);
+                if (count($mExp) >= 2) {
+                    $exp = explode('::', $mExp[1]);
+                } else {
+                    $exp = explode('::', $mExp[0]);
+                }
                 if (count($exp) >= 2) {
                     $type = '::';
                     $class = $exp[0];
@@ -186,7 +199,11 @@ class ShutdownCallback
                         $file = $mExp[0];
                         $line = 'internal';
                     }
-                    $function = $exp[1];
+                    if (count($exp) >= 2) {
+                        $function = $exp[1];
+                    } else {
+                        $function = $exp[0];
+                    }
                 }
             }
             $message[$key] = [

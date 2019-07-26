@@ -3,8 +3,6 @@
 use Winged\Controller\Controller;
 
 use Winged\Winged;
-use Winged\Model\Login;
-use Winged\Model\Pedidos;
 use Winged\Http\Cookie;
 use Winged\Http\Session;
 use Winged\Database\DbDict;
@@ -52,8 +50,6 @@ class PedidosAgendadosController extends Controller
     public function actionPage()
     {
         AdminAssets::init($this);
-        $this->appendJs('tokenstags', Winged::$parent . 'assets/js/pages/tokenstags.js');
-        $this->appendJs('numeric', Winged::$parent . 'assets/js/pages/numeric.js');
         $this->appendJs('pedidos', Winged::$parent . 'assets/js/pages/pedidos.js');
         $this->setNicknamesToUri(['page']);
         $limit = get('limit') ? get('limit') : 10000;
