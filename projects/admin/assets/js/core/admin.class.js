@@ -28,7 +28,7 @@ function confirmDelete(to, register, _this) {
     if (to && register) {
         Cookies.set('from_url', register, {expires: 1});
         $('#comfirm-delete').trigger('click');
-        $('#render-delete').attr('onclick', 'window.location="' + to + '"');
+        $('#render-delete').attr('onclick', 'window.location="' + window.protocol + to + '"');
     }
     return _this;
 }

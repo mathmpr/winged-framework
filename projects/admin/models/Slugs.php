@@ -9,7 +9,7 @@ use Winged\Formater\Formater;
 class Slugs extends Model
 {
 
-    public $id = 0;
+    public $id;
 
     public $slug = 'n-a';
 
@@ -194,5 +194,17 @@ class Slugs extends Model
             return $one;
         }
         return $slug;
+    }
+
+    public static function getSlugByString($slug = ''){
+        $_slug = new Slugs();
+        $one = $_slug->select()
+            ->from(['S' => Slugs::tableName()])
+            ->where(ELOQUENT_EQUAL, ['S.slug' => $slug])
+            ->one();
+        if ($one) {
+            return $one;
+        }
+        return $_slug;
     }
 }

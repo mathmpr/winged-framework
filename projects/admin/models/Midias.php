@@ -47,11 +47,22 @@ class Midias extends Model
     public $style_attr;
 
     /**
+     * @param $file bool | string
+     *
      * Slugs constructor.
      */
-    public function __construct()
+    public function __construct($file = false)
     {
         parent::__construct();
+        if ($file) {
+            $this->fileObject = new File($file, false);
+            if ($this->fileObject->exists()) {
+                if (is_int(stripos($this->fileObject->getMimeType(), 'image'))) {
+                    $this->fileObject = new Image($this->fileObject->file_path, false);
+                }
+            }
+            $this->extension = $this->fileObject->getExtension();
+        }
     }
 
     /**
@@ -92,6 +103,11 @@ class Midias extends Model
         return [
             'file_name' => function () {
                 $this->getFile();
+            },
+            'centralizar_legenda' => function () {
+                if (!$this->loaded('centralizar_legenda')) {
+                    $this->centralizar_legenda = 0;
+                }
             }
         ];
     }
@@ -147,6 +163,155 @@ class Midias extends Model
     }
 
     /**
+     * @param $alt   string
+     * @param $width int | bool
+     *
+     * @return false|string
+     */
+    public function getAsHtmlAdmin($alt = '', $width = false)
+    {
+        if (!$alt) {
+            $alt = '';
+        }
+        if ($this->isVideo()) {
+            ob_start();
+            ?>
+            <div data-midia-id="<?= $this->primaryKey() ?>" style="width: <?= !$width ? 150 : $width ?>px;"
+                 class="father-video-element">
+                <div class="video-container-element">
+                    <video muted controls>
+                        <source src="<?= $this->getFileUrl() ?>" type="<?= $this->getFile()->getMimeType() ?>">
+                    </video>
+                </div>
+            </div>
+            <?php
+            $content = ob_get_clean();
+            AdminAssets::compactHtml($content);
+            return $content;
+        } else if ($this->isSound()) {
+            ob_start();
+            ?>
+            <div data-midia-id="<?= $this->primaryKey() ?>" style="width: <?= !$width ? 150 : $width ?>px;"
+                 class="father-audio-element">
+                <div class="audio-container-element">
+                    <audio muted controls>
+                        <source src="<?= $this->getFileUrl() ?>" type="<?= $this->getFile()->getMimeType() ?>">
+                    </audio>
+                </div>
+            </div>
+            <?php
+            $content = ob_get_clean();
+            AdminAssets::compactHtml($content);
+            return $content;
+        } else if ($this->isImage()) {
+            ob_start();
+            ?>
+            <div data-midia-id="<?= $this->primaryKey() ?>" style="width: <?= !$width ? 150 : $width ?>px;"
+                 class="father-image-element">
+                <div class="image-container-element">
+                    <img alt="<?= $this->alt_attr == '' ? $alt : $this->alt_attr ?>"
+                         src="<?= $this->getFileUrl() ?>"
+                         type="<?= $this->getFile()->getMimeType() ?>">
+                </div>
+            </div>
+            <?php
+            $content = ob_get_clean();
+            AdminAssets::compactHtml($content);
+            return $content;
+        } else {
+            return $this->getFileUrl();
+        }
+    }
+
+    /**
+     * @param $alt   string
+     *
+     * @return false|string
+     */
+    public function getAsHtml($alt = '')
+    {
+        if (!$alt) {
+            $alt = '';
+        }
+        if ($this->isVideo()) {
+            ob_start();
+            ?>
+            <div data-midia-id="<?= $this->primaryKey() ?>" style="<?= $this->style_attr ?>"
+                 class="father-video-element <?= $this->father_classes ?>"
+                 id="<?= $this->father_id ?>">
+                <div class="video-container-element">
+                    <video id="<?= $this->element_id ?>" class="<?= $this->element_classes ?>" muted controls>
+                        <source src="<?= $this->getFileUrl() ?>" type="<?= $this->getFile()->getMimeType() ?>">
+                    </video>
+                </div>
+                <div class="video-legend-element <?= $this->centralizar_legenda == '1' ? 'centralized' : '' ?>">
+                    <p><?= $this->legenda ?></p>
+                </div>
+            </div>
+            <?php
+            $content = ob_get_clean();
+            AdminAssets::compactHtml($content);
+            return $content;
+        } else if ($this->isSound()) {
+            ob_start();
+            ?>
+            <div data-midia-id="<?= $this->primaryKey() ?>" style="<?= $this->style_attr ?>"
+                 class="father-audio-element <?= $this->father_classes ?>"
+                 id="<?= $this->father_id ?>">
+                <div class="audio-container-element">
+                    <audio id="<?= $this->element_id ?>" class="<?= $this->element_classes ?>" muted controls>
+                        <source src="<?= $this->getFileUrl() ?>" type="<?= $this->getFile()->getMimeType() ?>">
+                    </audio>
+                </div>
+                <div class="audio-legend-element <?= $this->centralizar_legenda == '1' ? 'centralized' : '' ?>">
+                    <p><?= $this->legenda ?></p>
+                </div>
+            </div>
+            <?php
+            $content = ob_get_clean();
+            AdminAssets::compactHtml($content);
+            return $content;
+        } else if ($this->isImage()) {
+            ob_start();
+            ?>
+            <div data-midia-id="<?= $this->primaryKey() ?>" style="<?= $this->style_attr ?>"
+                 class="father-image-element <?= $this->getFile()->width() > $this->getFile()->height() ? 'height-auto' : 'width-auto' ?> <?= $this->father_classes ?>"
+                 id="<?= $this->father_id ?>">
+                <div class="image-container-element">
+                    <?php
+                    if ($this->href_attr != '') {
+                        ?>
+                        <a href="<?= $this->href_attr ?>" target="_blank">
+                            <img id="<?= $this->element_id ?>" class="<?= $this->element_classes ?>"
+                                 alt="<?= $this->alt_attr == '' ? $alt : $this->alt_attr ?>"
+                                 src="<?= $this->getFileUrl() ?>"
+                                 type="<?= $this->getFile()->getMimeType() ?>">
+                        </a>
+                        <?php
+                    } else {
+                        ?>
+                        <img id="<?= $this->element_id ?>" class="<?= $this->element_classes ?>"
+                             alt="<?= $this->alt_attr == '' ? $alt : $this->alt_attr ?>"
+                             src="<?= $this->getFileUrl() ?>"
+                             type="<?= $this->getFile()->getMimeType() ?>">
+                        <?php
+                    }
+                    ?>
+                </div>
+                <div class="image-legend-element <?= $this->centralizar_legenda == '1' ? 'centralized' : '' ?>">
+                    <p><?= $this->legenda ?></p>
+                </div>
+            </div>
+            <?php
+            $content = ob_get_clean();
+            AdminAssets::compactHtml($content);
+            return $content;
+        } else {
+            return $this->getFileUrl();
+        }
+    }
+
+    /**
      * @return Image | File | null
      */
     public function getFile()
@@ -158,7 +323,9 @@ class Midias extends Model
                 $this->fileObject = new File(Midias::DEFAULT_FOLDER . $this->file_name, false);
             }
         } else {
-            $this->fileObject = new File('', false);
+            if (!$this->fileObject) {
+                $this->fileObject = new File('', false);
+            }
         }
         return $this->fileObject;
     }
@@ -169,7 +336,7 @@ class Midias extends Model
     public function getFilePath()
     {
         if ($this->fileExists()) {
-            return Midias::DEFAULT_FOLDER . $this->fileObject->file;
+            return $this->fileObject->file_path;
         }
         return false;
     }
@@ -180,7 +347,7 @@ class Midias extends Model
     public function getFileUrl()
     {
         if ($this->fileExists()) {
-            return Winged::$protocol . Midias::DEFAULT_FOLDER . $this->fileObject->file;
+            return Winged::$protocol . $this->fileObject->file_path;
         }
         return false;
     }
@@ -254,7 +421,8 @@ class Midias extends Model
     /**
      * @return $string
      */
-    public function getMidiaAsHtml(){
+    public function getMidiaAsHtml()
+    {
         return '';
     }
 
@@ -286,6 +454,29 @@ class Midias extends Model
         if (in_array($extension, ['mp3'])) return 'sound';
         if (in_array($extension, ['zip', 'rar'])) return 'zip';
         return 'other';
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return bool|Midias
+     */
+    public static function getMidiaById($id = 0)
+    {
+        if (is_scalar($id)) {
+            $id = intval($id);
+            if (is_int($id) && $id > 0) {
+                $midia = new Midias();
+                $midia->autoLoadDb($id);
+                return $midia;
+            }
+        }
+        return false;
+    }
+
+    public static function gemDefault()
+    {
+
     }
 
 }

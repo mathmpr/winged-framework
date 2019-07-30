@@ -914,7 +914,7 @@ abstract class Model extends AbstractEloquent
             $push = 'reversedProperties';
             $unPush = 'parsedProperties';
         }
-        if(!is_array($running)){
+        if (!is_array($running)) {
             return $this;
         }
         foreach ($running as $key => $parsedValue) {
@@ -1157,7 +1157,23 @@ abstract class Model extends AbstractEloquent
         $enter = $this->postKey($name) ? $this->postKey($name) : $this->getKey($name);
         if (!$enter) {
             if (property_exists($this, $name)) {
+                if (is_object($this->{$name})) {
+                    if(get_class($enter) === 'Winged\Date\Date'){
+                        return $this->{$name}->dmy();
+                    }
+                    if (is_subclass_of($this->{$name}, 'Winged\Model\Model')) {
+                        return $this->{$name}->primaryKey();
+                    }
+                }
                 return $this->{$name};
+            }
+        }
+        if (is_object($enter)) {
+            if(get_class($enter) === 'Winged\Date\Date'){
+                return $enter->dmy();
+            }
+            if (is_subclass_of($enter, 'Winged\Model\Model')) {
+                return $enter->primaryKey();
             }
         }
         return $enter;

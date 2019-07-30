@@ -35,7 +35,7 @@
                     <i class="icon-cross2"></i>
                     Apenas sair
                 </button>
-                <button class="btn btn-primary"><i class="icon-checkmark3"></i> Adicionar objecto(s) selecionado(s)
+                <button id="add-selected" class="btn btn-primary"><i class="icon-checkmark3"></i> Adicionar objecto(s) selecionado(s)
                 </button>
             </div>
         </div>
@@ -52,68 +52,85 @@
 
             <div class="modal-body">
                 <div class="mt-30 row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                        <div id="the-cropper">
+                            <div class="jcrop-result"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                         <div class="configs">
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="form-group">
-                                        <div class="btn-group btn-group-justified demo-cropper-ratio" data-toggle="buttons">
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only aspect" name="aspect" value="1.7777777777777777">
-                                                16:9
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only aspect" name="aspect" value="1.3333333333333333">
-                                                4:3
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only aspect" name="aspect" value="1">
-                                                1:1
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only aspect" name="aspect" value="0.6666666666666666">
-                                                2:3
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="btn-group btn-group-justified demo-cropper-ratio" data-toggle="buttons">
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only sizes" name="aspect" value="1200x628">
-                                                1200 x 628
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only sizes" name="aspect" value="500x500">
-                                                500 x 500
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only sizes" name="aspect" value="800x600">
-                                                800x600
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="radio" class="sr-only sizes" name="aspect" value="1000x400">
-                                                1000x400
-                                            </label>
+                                        <div class="btn-group btn-group-justified demo-cropper-ratio"
+                                             data-toggle="buttons">
+                                            <div class="row">
+                                                <div class="col-lg-12 btn-group-justified">
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only aspect" name="aspect"
+                                                               value="1.7777777777777777">
+                                                        16:9
+                                                    </label>
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only aspect" name="aspect"
+                                                               value="1.3333333333333333">
+                                                        4:3
+                                                    </label>
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only aspect" name="aspect"
+                                                               value="1">
+                                                        1:1
+                                                    </label>
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only aspect" name="aspect"
+                                                               value="0.6666666666666666">
+                                                        2:3
+                                                    </label>
+                                                </div>
+                                                <div class="col-lg-12 mt-20 btn-group-justified">
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only sizes" name="aspect"
+                                                               value="1200x628">
+                                                        1200 x 628
+                                                    </label>
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only sizes" name="aspect"
+                                                               value="500x500">
+                                                        500 x 500
+                                                    </label>
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only sizes" name="aspect"
+                                                               value="800x600">
+                                                        800x600
+                                                    </label>
+                                                    <label class="btn btn-light">
+                                                        <input type="radio" class="sr-only sizes" name="aspect"
+                                                               value="1000x400">
+                                                        1000x400
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-6">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="form-group">
                                         <div class="row">
-                                            <div class="col-lg-3">
-                                                <button type="button" class="minus btn btn-primary mr-10">-</button>
-                                            </div>
-                                            <div class="col-lg-3">
-                                                <button type="button"  class="btn btn-primary">+</button>
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                <button data-zoom="1" type="button" class="minus btn btn-primary mr-10">
+                                                    <i class="icon-minus2"></i>
+                                                    zoom
+                                                </button>
+                                                <button data-zoom="1" type="button" class="add btn btn-primary">
+                                                    <i class="icon-plus2"></i>
+                                                    zoom
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div id="the-cropper"></div>
                     </div>
                 </div>
 

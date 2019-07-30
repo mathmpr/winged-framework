@@ -1,5 +1,6 @@
 <?php
 
+use Winged\Utils\RandomName;
 use Winged\Winged;
 
 /**
@@ -41,6 +42,7 @@ class AdminAssets
 
             /*<core js>*/
             $controller->appendJs("jquery", Winged::$parent . "assets/js/core/files/libraries/jquery.min.js");
+            $controller->appendJs("jquery-ui", Winged::$parent . "assets/js/core/files/libraries/jquery_ui/full.min.js");
             $controller->appendJs("pace", Winged::$parent . "assets/js/plugins/loaders/pace.min.js");
             $controller->appendJs("bootstrap", Winged::$parent . "assets/js/core/files/libraries/bootstrap.min.js");
             $controller->appendJs("blockui", Winged::$parent . "assets/js/plugins/loaders/blockui.min.js");
@@ -48,10 +50,19 @@ class AdminAssets
             /*<end core js>*/
 
             /*<custom>*/
+            $controller->appendJs("moment", Winged::$parent . "assets/js/plugins/ui/moment/moment.min.js");
+            $controller->appendJs("daterangepicker", Winged::$parent . "assets/js/plugins/pickers/daterangepicker.js");
+            $controller->appendJs("anytime", Winged::$parent . "assets/js/plugins/pickers/anytime.min.js");
+            $controller->appendJs("picker", Winged::$parent . "assets/js/plugins/pickers/pickadate/picker.js");
+            $controller->appendJs("picker-date", Winged::$parent . "assets/js/plugins/pickers/pickadate/picker.date.js");
+            $controller->appendJs("picker-time", Winged::$parent . "assets/js/plugins/pickers/pickadate/picker.time.js");
+            $controller->appendJs("leagcy", Winged::$parent . "assets/js/plugins/pickers/pickadate/legacy.js");
+
             $controller->appendJs("plupload-full", Winged::$parent . "assets/js/plugins/uploaders/plupload/plupload.full.min.js");
             $controller->appendJs("plupload-queue", Winged::$parent . "assets/js/plugins/uploaders/plupload/plupload.queue.min.js");
             $controller->appendJs("plupload-lang", Winged::$parent . "assets/js/plugins/uploaders/plupload/i18n/pt_BR.js");
-            $controller->appendJs("cropper", Winged::$parent . "assets/js/plugins/media/cropper.min.js");
+            $controller->appendJs("jquery-colors", Winged::$parent . "assets/js/plugins/media/jquery.color.js");
+            $controller->appendJs("jcrop", Winged::$parent . "assets/js/plugins/media/jquery.Jcrop.min.js");
             $controller->appendJs("pnotify", Winged::$parent . "assets/js/plugins/notifications/pnotify.min.js");
             $controller->appendJs("mask", Winged::$parent . "assets/js/core/files/mask.js");
             $controller->appendJs("maskmoney", Winged::$parent . "assets/js/core/files/maskmoney.js");
@@ -78,6 +89,42 @@ class AdminAssets
             $controller->appendJs("core", Winged::$parent . "assets/js/core/core.js");
             $controller->appendJs("core-default", Winged::$parent . "assets/js/pages/default.js");
             /*<end core>*/
+        }
+    }
+
+    /**
+     * @param $content
+     */
+    public static function compactHtml(&$content){
+        $rep = [];
+        $match = false;
+        $matchs = null;
+        if (is_int(stripos($content, '<textarea'))) {
+            $match = preg_match_all('#<textarea(.*?)>(.*?)</textarea>#is', $content, $matchs);
+            if ($match) {
+                foreach ($matchs[0] as $match) {
+                    $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                }
+                $content = str_replace($matchs[0], $rep, $content);
+            }
+        }
+        $match_code = false;
+        $matchs_code = null;
+        if (is_int(stripos($content, '<code'))) {
+            $match_code = preg_match_all('#<code(.*?)>(.*?)</code>#is', $content, $matchs_code);
+            if ($match_code) {
+                foreach ($matchs_code[0] as $match_code) {
+                    $rep[] = '#___' . RandomName::generate('sisisisi') . '___#';
+                }
+                $content = str_replace($matchs_code[0], $rep, $content);
+            }
+        }
+        $content = preg_replace('#> <#', '><', preg_replace('# {2,}#', ' ', preg_replace('/[\n\r]|/', '', $content)));
+        if ($match) {
+            $content = str_replace($rep, $matchs[0], $content);
+        }
+        if ($match_code) {
+            $content = str_replace($rep, $matchs_code[0], $content);
         }
     }
 

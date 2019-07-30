@@ -64,7 +64,7 @@ class ComponentParser
             $parser = new Directory($directory->folder . 'parsers/', false);
             $templates = new Directory($directory->folder . 'templates/', false);
             if (!$parser->exists() || !$templates->exists()) {
-                Error::_die('Parser directory not exists or Template directory not exists', 'null', __FILE__, __LINE__);
+                trigger_error('Parser directory not exists or Template directory not exists', E_USER_ERROR);
             }
 
             if ($class && is_string($class)) {
@@ -111,7 +111,7 @@ class ComponentParser
                 }
             }
         } else {
-            Error::_die('Component directory not exists.', 'null', __FILE__, __LINE__);
+            trigger_error('Component directory not exists.', E_USER_ERROR);
         }
         return false;
     }

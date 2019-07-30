@@ -9,4 +9,10 @@ include_once \Winged\Winged::$parent . 'classes/Paginate.php';
 \WingedConfig::$config->db()->DBNAME = 'admin';
 \WingedConfig::$config->DEFAULT_URI = 'login';
 \WingedConfig::$config->INCLUDES = './projects/';
-\WingedConfig::$config->HEAD_CONTENT_PATH = './projects/admin/head.content.php';
+\WingedConfig::$config->USE_WINGED_FILE_HANDLER = false;
+\WingedConfig::$config->AUTO_MINIFY = false;
+\WingedConfig::$config->HEAD_CONTENT_PATH = './admin/head.content.php';
+\WingedConfig::$config->INCLUDES = [
+    './models/',
+    './autoload/',
+];

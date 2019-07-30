@@ -45,7 +45,7 @@ class LoginController extends Controller
         }
         AdminAssets::init($this);
         $this->appendBodyClass('login-container');
-        $this->appendJs("login", "./projects/admin/assets/js/pages/login.js");
+        $this->appendJs("login", Winged::$parent . "assets/js/pages/login.js");
         $this->html(Winged::$page_surname . '/' . Winged::$page_surname, [
             'message' => getset('email') ? '<br><p>Sua senha foi alterada com sucesso. Agora você pode fazer login normalmente usando o e-mail <b>' . get('email') . '.</b></p>' : ''
         ]);

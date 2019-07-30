@@ -80,6 +80,10 @@ class DeepClone
                                         if (is_callable($get) && get_class($get) === 'Closure') {
                                             $property->setValue($target, $get->bindTo($target));
                                         } else {
+                                            if ($property->isPrivate() || $property->isProtected()) {
+                                                $property->setAccessible(true);
+                                                $private = true;
+                                            }
                                             $property->setValue($target, $get);
                                         }
                                     }

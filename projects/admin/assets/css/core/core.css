@@ -8245,6 +8245,7 @@ input:disabled {
     margin-bottom: 20px;
     position: relative;
     text-align: center;
+    cursor: pointer;
 }
 
 #midia-modal .loads .col-lg-3 {
@@ -8261,7 +8262,7 @@ input:disabled {
     background-size: auto;
 }
 
-#midia-modal .loads .type.icon:before, #midia-modal .loads .type.image:after {
+#midia-modal .loads .type.icon:before, #midia-modal .loads .type.icon:after {
     font-family: icomoon;
     speak: none;
     font-style: normal;
@@ -8276,6 +8277,19 @@ input:disabled {
     vertical-align: middle;
     position: relative;
     -webkit-font-smoothing: antialiased;
+}
+
+#midia-modal .loads .type.selected:after {
+    content: "\ed6e";
+    font-size: 20px;
+    position: absolute;
+    line-height: 40px;
+    width: 40px;
+    text-align: center;
+    right: 0;
+    top: 0;
+    color: #41ffa2;
+    background: rgba(0, 0, 0, 0.6);
 }
 
 #midia-modal .loads .type.icon:before {
@@ -8303,7 +8317,7 @@ input:disabled {
     color: #8f3090;
 }
 
-#midia-modal .loads .type.icon.sound:before{
+#midia-modal .loads .type.icon.sound:before {
     content: "\ea1e";
     color: #dec653;
     top: -20px;
@@ -8325,7 +8339,7 @@ input:disabled {
     background: transparent;
 }
 
-#midia-modal .loads .type.video .overlay-content{
+#midia-modal .loads .type.video .overlay-content {
     background: #000;
 }
 
@@ -8340,7 +8354,7 @@ input:disabled {
     bottom: 0;
 }
 
-#midia-modal .loads .type .overlay-content audio{
+#midia-modal .loads .type .overlay-content audio {
     position: absolute;
     display: block;
     margin: auto;
@@ -8350,10 +8364,95 @@ input:disabled {
     outline: none;
 }
 
-#midia-modal .loads .type .overlay-content audio:checked, #midia-modal .loads .type .overlay-content audio:active{
+#midia-modal .loads .type .overlay-content audio:checked, #midia-modal .loads .type .overlay-content audio:active {
     outline: none;
 }
 
-#the-cropper img{
+#the-cropper img {
     width: 100%;
+}
+
+#the-cropper > div {
+    width: 100% !important;
+}
+
+#the-cropper .jcrop-holder {
+    background: transparent !important;
+}
+
+#the-cropper .jcrop-result {
+    background-size: cover;
+    background-position: center;
+}
+
+#midia-modal .file-name {
+    overflow: hidden;
+    min-height: 20px;
+    max-height: 22px;
+    text-align: center;
+    margin-bottom: 15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.image-container-element img {
+    width: 100%;
+}
+
+.video-container-element video {
+    width: 100%;
+}
+
+fieldset.scheduler-border {
+    border: 1px solid #ddd !important;
+    padding: 0 1.4em 1.4em 1.4em !important;
+    margin: 0 0 1.5em 0 !important;
+    -webkit-box-shadow: 0px 0px 0px 0px #000;
+    box-shadow: 0px 0px 0px 0px #000;
+    border-radius: 3px;
+}
+
+legend.scheduler-border {
+    font-size: 11px !important;
+    font-weight: bold !important;
+    text-align: left !important;
+    width: inherit; /* Or auto */
+    padding: 0 10px; /* To give a bit of padding on the left and right */
+    border-bottom: none;
+    color: #c7c7c7;
+}
+
+.min-height-news {
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+}
+
+.min-height-news div {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.min-height-news div video {
+    height: 100%;
+    position: absolute;
+}
+
+.min-height-news span {
+    position: absolute;
+    display: block;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    color: #de3620;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    cursor: pointer;
 }

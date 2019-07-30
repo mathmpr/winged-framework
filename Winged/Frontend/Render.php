@@ -190,7 +190,11 @@ class Render extends Assets
             is_int(stripos($only_match, 'http://www')) ||
             is_int(stripos($only_match, 'https://www')) ||
             filter_var($only_match, FILTER_VALIDATE_URL)) {
-            return $full_string;
+            if (!is_int(stripos($only_match, Winged::$protocol)) &&
+                !is_int(stripos($only_match, Winged::$http)) &&
+                !is_int(stripos($only_match, Winged::$https))) {
+                return $full_string;
+            }
         }
 
         if (is_string($this->baseUrl)) {
@@ -284,8 +288,10 @@ class Render extends Assets
         <html <?= $this->htmlId() ? 'id="' . $this->htmlId() . '"' : '' ?>
                 lang="<?= WingedConfig::$config->HTML_LANG ?>"
                 class="<?php
+                $f = '';
                 foreach ($this->htmlTagClasses as $class) {
-                    echo $class;
+                    echo $f . $class;
+                    $f = ' ';
                 }
                 ?>">
         <head>
@@ -324,8 +330,10 @@ class Render extends Assets
         </head>
         <body <?= $this->bodyId() ? 'id="' . $this->bodyId() . '"' : '' ?>
                 class="<?php
+                $f = '';
                 foreach ($this->bodyTagClasses as $class) {
-                    echo $class;
+                    echo $f . $class;
+                    $f = ' ';
                 }
                 ?>">
         <?php

@@ -122,14 +122,14 @@ $this->html('_includes/menu');
                                     </th>
                                     <th class="sorting"
                                         onclick="window.open('<?= Admin::buildGetUrlSorting('sort_og_title') ?>', '_self');"
-                                        rowspan="1" colspan="1">Og:Title Facebook
-                                    </th>
-                                    <th>
-                                        Categorias
+                                        rowspan="1" colspan="1">URL amigável
                                     </th>
                                     <th class="sorting"
                                         onclick="window.open('<?= Admin::buildGetUrlSorting('sort_previa') ?>', '_self');"
                                         rowspan="1" colspan="1">Previa
+                                    </th>
+                                    <th>
+                                        Categorias
                                     </th>
                                     <th class="sorting"
                                         onclick="window.open('<?= Admin::buildGetUrlSorting('sort_data_cadastro') ?>', '_self');"
@@ -144,27 +144,30 @@ $this->html('_includes/menu');
                                         rowspan="1" colspan="1">Status
                                     </th>
                                     <th rowspan="1" colspan="1">Imagem principal</th>
-                                    <th rowspan="1" colspan="1">Imagem Facebook</th>
-                                    <th rowspan="1" colspan="1" style="width:130px">Editar</th>
+                                    <th rowspan="1" colspan="1" style="width:175px">Editar</th>
                                 </tr>
                                 </thead>
                                 <tbody class="sortable_tr">
                                 <?php
                                 /**
-                                 * @var $models array | \Winged\Model\News[]
-                                 * @var $model  \Winged\Model\News
+                                 * @var $models array | News[]
+                                 * @var $model  News
                                  */
                                 foreach ($models as $model) {
-                                    //$model->categorias = implode(', ', array2htmlselect((new NewsCategorias())->select(['C.*'])
-                                    //    ->from(['C' => NewsCategorias::tableName()])
-                                    //    ->orderBy(ELOQUENT_ASC, 'C.categoria')
-                                    //    ->where(ELOQUENT_IN, ['C.id_categoria' => $model->categorias])
-                                    //    ->execute(true), 'categoria', 'id_categoria'));
+                                    $categorias = '';
+                                    foreach ($model->categorias as $categoria) {
+                                        $categorias .= $categoria->extras('categoria') . ', ';
+                                    }
+                                    $categorias = new \Winged\Utils\Chord($categorias);
+                                    $categorias = $categorias->endReplace(', ');
+
                                     ?>
                                     <tr data-id="<?= $model->primaryKey() ?>" data-ordem="<?= $model->ordem ?>"
                                         role="row" class="even">
-                                        <td><?= $model->titulo ?></td>
-                                        <td><?= (new \Winged\Utils\Chord($model->previa))->substrIfNeed(0, 50, true, '...')->get() ?></td>
+                                        <td><?= (new \Winged\Utils\Chord($model->titulo))->substrIfNeed(0, 20, true, '...')->get() ?></td>
+                                        <td><?= $model->slug->slug == 'n-a' ? 'N/A' : (new \Winged\Utils\Chord($model->slug->slug))->substrIfNeed(0, 20, true, '...')->get() ?></td>
+                                        <td><?= (new \Winged\Utils\Chord($model->previa))->substrIfNeed(0, 20, true, '...')->get() ?></td>
+                                        <td><?= $categorias == '' ? 'N/A' : $categorias ?></td>
                                         <td><?= $model->data_cadastro->dmy() ?></td>
                                         <td><?= $model->data_alteracao->dmy() ?></td>
                                         <td>
@@ -172,8 +175,7 @@ $this->html('_includes/menu');
                                                 <?= $model->status == 0 ? 'Indisponível' : 'Disponível' ?>
                                             </span>
                                         </td>
-
-
+                                        <td><?= is_object($model->image) ? $model->image->getAsHtmlAdmin(false, 150) : 'N/A' ?></td>
                                         <td>
                                             <input type="hidden" name="indice" value="1">
                                             <div class="btn-group">
@@ -190,6 +192,12 @@ $this->html('_includes/menu');
                                                class="btn bg-danger" data-placement="top" data-popup="tooltip"
                                                title="" data-original-title="Deletar">
                                                 <i class="icon-trash"></i>
+                                            </a>
+                                            <a href="<?= \Winged\Winged::$protocol . ($model->slug->slug == 'n-a' ? $model->primaryKey() : $model->slug->slug) . '/?disabled' ?>"
+                                               target="_blank"
+                                               class="btn bg-success" data-placement="top" data-popup="tooltip"
+                                               title="" data-original-title="Visualizar">
+                                                <i class="icon-eye"></i>
                                             </a>
                                         </td>
                                     </tr>

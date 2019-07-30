@@ -16,7 +16,7 @@ class WingedConfig extends WingedConfigDefaults
     public static $config = null;
     public $DEFAULT_URI = "home";
     public $TIMEZONE = "America/Sao_Paulo";
-    public $AUTO_MINIFY = 1;
+    public $AUTO_MINIFY = 10;
     public $HTML_LANG = 'pt-BR';
     public $INCLUDES = [
     ];

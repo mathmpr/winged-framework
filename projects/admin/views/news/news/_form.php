@@ -159,6 +159,138 @@ $editSlug = Formater::toUrl($model->title_tag) === $newsSlug;
                                                     </div>
                                                 </div>
 
+                                                <fieldset id="cursosEventos" class="scheduler-border no-display">
+                                                    <legend class="scheduler-border">Local e hora do evento / curso
+                                                    </legend>
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <?php
+
+                                                            echo $form->addInput('hora_inicio', 'Input', [
+                                                                'attrs' => [
+                                                                    'class' => 'datepicker form-control'
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => [
+                                                                        'col-md-6',
+                                                                    ]
+                                                                ]
+                                                            );
+
+                                                            echo $form->addInput('hora_fim', 'Input', [
+                                                                'attrs' => [
+                                                                    'class' => 'datepicker form-control'
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => [
+                                                                        'col-md-6',
+                                                                    ]
+                                                                ]
+                                                            );
+
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <?php
+
+                                                            echo $form->addInput('cep', 'Input', [
+                                                                'attrs' => [
+                                                                    'class' => Admin::isInsert() ? 'form-control fetch-all' : 'form-control fetch-null'
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => [
+                                                                        'col-md-3',
+                                                                    ]
+                                                                ]
+                                                            );
+                                                            echo $form->addInput('estado', 'Input', [
+                                                                'attrs' => [
+                                                                    'readonly' => Admin::isInsert() || $model->estado == '' ? true : false
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => ['col-md-3']
+                                                                ]
+                                                            );
+
+                                                            echo $form->addInput('cidade', 'Input', [
+                                                                'attrs' => [
+                                                                    'readonly' => Admin::isInsert() || $model->cidade == '' ? true : false
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => ['col-md-3']
+                                                                ]
+                                                            );
+
+                                                            echo $form->addInput('bairro', 'Input', [
+                                                                'attrs' => [
+                                                                    'readonly' => Admin::isInsert() || $model->bairro == '' ? true : false
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => ['col-md-3']
+                                                                ]
+                                                            );
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="row">
+
+                                                            <?php
+
+                                                            echo $form->addInput('uf', 'Input', [
+                                                                'attrs' => [
+                                                                    'readonly' => Admin::isInsert() || $model->uf == '' ? true : false
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => ['col-md-2']
+                                                                ]
+                                                            );
+
+                                                            echo $form->addInput('rua', 'Input', [
+                                                                'attrs' => [
+                                                                    'readonly' => Admin::isInsert() || $model->rua == '' ? true : false
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => ['col-md-4']
+                                                                ]
+                                                            );
+
+                                                            echo $form->addInput('complemento', 'Input', [
+                                                                'attrs' => [
+                                                                    'readonly' => Admin::isInsert() || $model->complemento == '' ? true : false
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => ['col-md-4']
+                                                                ]
+                                                            );
+
+                                                            echo $form->addInput('numero', 'Input', [
+                                                                'attrs' => [
+                                                                    'readonly' => Admin::isInsert() || $model->numero == '' ? true : false
+                                                                ]
+                                                            ],
+                                                                [
+                                                                    'class' => ['col-md-2']
+                                                                ]
+                                                            );
+
+
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <div class="col-lg-12">
@@ -203,7 +335,7 @@ $editSlug = Formater::toUrl($model->title_tag) === $newsSlug;
                                                         <?=
                                                         $form->addInput('post', 'Textarea',
                                                             [
-                                                                'class' => ['summernote']
+                                                                'class' => ['summernote', 'perm-midias']
                                                             ],
                                                             [
                                                                 'class' => ['col-md-12']
@@ -213,19 +345,70 @@ $editSlug = Formater::toUrl($model->title_tag) === $newsSlug;
                                                     </div>
                                                 </div>
 
+                                                <fieldset class="scheduler-border">
+                                                    <legend class="scheduler-border">Galeria de fotos e vídeos
+                                                    </legend>
+                                                    <div class="form-group">
+                                                        <button class="galeria-news btn bg-primary-400 mb-20">Adicionar
+                                                            mídias na galeria
+                                                        </button>
+                                                        <div id="newsGaleria" class="row">
+                                                            <?php
+                                                            if (!empty($model->galeria)) {
+                                                                foreach ($model->galeria as $midia) {
+                                                                    if(is_object($midia)){
+                                                                        if ($midia->isImage()) {
+                                                                            ?>
+                                                                            <div class="mt-20 col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                                                                                <div class="min-height-news"><span
+                                                                                            class="icon-cross2"></span><input
+                                                                                            type="hidden"
+                                                                                            name="News[galeria][]"
+                                                                                            value="<?= $midia->primaryKey() ?>">
+                                                                                    <div style="background-image: url(<?= $midia->getFileUrl() ?>)"></div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <?php
+                                                                        } else {
+                                                                            ?>
+                                                                            <div class="mt-20 col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                                                                                <div class="min-height-news"><span
+                                                                                            class="icon-cross2"></span><input
+                                                                                            type="hidden"
+                                                                                            name="News[galeria][]"
+                                                                                            value="<?= $midia->primaryKey() ?>">
+                                                                                    <div>
+                                                                                        <video muted loop autoplay>
+                                                                                            <source src="<?= $midia->getFileUrl() ?>"
+                                                                                                    type="<?= $midia->getFile()->getMimeType() ?>">
+                                                                                        </video>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <?php
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <?=
                                                         $form->addInput('image', 'Input',
                                                             [
                                                                 'type' => 'hidden',
+                                                                'class' => ['midia-info'],
                                                                 'value' => is_object($model->image) ? $model->image->id : $model->image
                                                             ],
                                                             [
                                                                 'class' => ['col-md-4'],
                                                                 'selectors' => [
                                                                     'label:first-child' => [
-                                                                        'after' => '<button class="open-midia-modal btn bg-primary-400 mb-20">Imagem principal para o post</button>',
+                                                                        'after' => '<button class="is-midia open-midia-image-one btn bg-primary-400 mb-20">Imagem principal para o post</button>',
                                                                         'class' => ['no-display'],
                                                                     ],
                                                                 ]
@@ -252,7 +435,7 @@ $editSlug = Formater::toUrl($model->title_tag) === $newsSlug;
                                                     </div>
                                                 </div>
 
-                                                <div class="form-group">
+                                                <div class="form-group is-video no-display">
                                                     <div class="row">
                                                         <?=
                                                         $form->addInput('from_youtube', 'Boolui',
@@ -266,6 +449,29 @@ $editSlug = Formater::toUrl($model->title_tag) === $newsSlug;
                                                                 'class' => ['col-md-12']
                                                             ]
                                                         ); ?>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group is-video no-display">
+                                                    <div class="row">
+                                                        <?=
+                                                        $form->addInput('video_source', 'Input',
+                                                            [
+                                                                'type' => 'hidden',
+                                                                'class' => ['midia-info'],
+                                                                'value' => is_object($model->video_source) ? $model->video_source->id : $model->video_source
+                                                            ],
+                                                            [
+                                                                'class' => ['col-md-4'],
+                                                                'selectors' => [
+                                                                    'label:first-child' => [
+                                                                        'after' => '<button class="is-midia open-midia-video-one btn bg-primary-400 mb-20">Vídeo para a capa do post</button>',
+                                                                        'class' => ['no-display'],
+                                                                    ],
+                                                                ]
+                                                            ]
+                                                        );
+                                                        ?>
                                                     </div>
                                                 </div>
 

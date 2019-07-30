@@ -95,16 +95,52 @@ class ServicesController extends Controller
     /**
      * @return array
      */
+    public function actionGetMidiaInformation()
+    {
+        $midias = (new Midias())
+            ->select()
+            ->from(['M' => Midias::tableName()])
+            ->where(ELOQUENT_IN, ['M.' . Midias::primaryKeyName() => post('in')])
+            ->execute();
+        $response = [];
+        if ($midias) {
+            /**
+             * @var $midias Midias[]
+             */
+            foreach ($midias as $midia) {
+                $current = [
+                    'id' => $midia->primaryKey(),
+                    'html' => $midia->getAsHtml(),
+                    'pure_url' => $midia->getFileUrl(),
+                    'mime_type' => $midia->getFile()->getMimeType(),
+                ];
+                if ($midia->isImage()) {
+                    $current['width'] = $midia->getFile()->width();
+                    $current['height'] = $midia->getFile()->height();
+                    $current['proportion'] = $midia->getFile()->width() . ' x ' . $midia->getFile()->height();
+                }
+                $current['type'] = $midia->getType();
+                $current['size'] = number_format(floatval($midia->getFile()->filesize() / 1024 / 1024), 3, '.', '') . ' MB';
+                $response[] = $current;
+            }
+            return ['status' => true, 'data' => $response];
+        }
+        return ['status' => false];
+    }
+
+    /**
+     * @return array
+     */
     public function actionGetEditFormMidia()
     {
         if (Login::permission() || Login::permissionAdm()) {
             $midia = new Midias();
             $midia->autoLoadDb(post('id'));
             if ($midia->primaryKey()) {
-                if($midia->isImage()){
+                if ($midia->isImage()) {
                     return ['status' => true, 'html' => $this->partial('_includes/midia.edit.form.image', ['midia' => $midia], true)];
                 }
-                if($midia->isSound() || $midia->isVideo()){
+                if ($midia->isSound() || $midia->isVideo()) {
                     return ['status' => true, 'html' => $this->partial('_includes/midia.edit.form.video', ['midia' => $midia], true)];
                 }
                 return ['status' => true, 'html' => $this->partial('_includes/midia.edit.form.default', ['midia' => $midia], true)];
@@ -169,10 +205,13 @@ class ServicesController extends Controller
                         <div data-id="<?= $midia->primaryKey() ?>"
                              class="type icon image"
                              style="background-image: url(<?= $midia->getFileUrl() ?>);"></div>
+                        <div class="file-name"><?= $midia->getFile()->getName() ?></div>
                         <div class="controls">
                             <ul>
                                 <li><a data-id="<?= $midia->primaryKey() ?>" class="delete icon-trash"></a></li>
-                                <li><a data-width="<?= $midia->getFile()->width() ?>" data-height="<?= $midia->getFile()->height() ?>" data-pure-url="<?= $midia->getFileUrl() ?>" data-id="<?= $midia->primaryKey() ?>"
+                                <li><a data-width="<?= $midia->getFile()->width() ?>"
+                                       data-height="<?= $midia->getFile()->height() ?>"
+                                       data-pure-url="<?= $midia->getFileUrl() ?>" data-id="<?= $midia->primaryKey() ?>"
                                        class="update-image icon-file-picture2"></a></li>
                                 <li><a data-id="<?= $midia->primaryKey() ?>" class="update icon-quill4"></a></li>
                             </ul>
@@ -209,6 +248,7 @@ class ServicesController extends Controller
                             }
                             ?>
                         </div>
+                        <div class="file-name"><?= $midia->getFile()->getName() ?></div>
                         <div class="controls">
                             <ul>
                                 <li><a data-id="<?= $midia->primaryKey() ?>" class="delete icon-trash"></a></li>
@@ -255,7 +295,7 @@ class ServicesController extends Controller
                                     ]
                                 ]);
 
-                                if(post('id')){
+                                if (post('id')) {
                                     $midia->load([
                                         Midias::tableName() => [
                                             Midias::primaryKeyName() => post('id')
@@ -273,11 +313,15 @@ class ServicesController extends Controller
                                             <div data-id="<?= $midia->primaryKey() ?>"
                                                  class="type icon image"
                                                  style="background-image: url(<?= $midia->getFileUrl() ?>);"></div>
+                                            <div class="file-name"><?= $midia->getFile()->getName() ?></div>
                                             <div class="controls">
                                                 <ul>
                                                     <li><a data-id="<?= $midia->primaryKey() ?>"
                                                            class="delete icon-trash"></a></li>
-                                                    <li><a data-width="<?= $midia->getFile()->width() ?>" data-height="<?= $midia->getFile()->height() ?>" data-pure-url="<?= $midia->getFileUrl() ?>" data-id="<?= $midia->primaryKey() ?>"
+                                                    <li><a data-width="<?= $midia->getFile()->width() ?>"
+                                                           data-height="<?= $midia->getFile()->height() ?>"
+                                                           data-pure-url="<?= $midia->getFileUrl() ?>"
+                                                           data-id="<?= $midia->primaryKey() ?>"
                                                            class="update-image icon-file-picture2"></a></li>
                                                     <li><a data-id="<?= $midia->primaryKey() ?>"
                                                            class="update icon-quill4"></a></li>
@@ -315,6 +359,7 @@ class ServicesController extends Controller
                                                 }
                                                 ?>
                                             </div>
+                                            <div class="file-name"><?= $midia->getFile()->getName() ?></div>
                                             <div class="controls">
                                                 <ul>
                                                     <li><a data-id="<?= $midia->primaryKey() ?>"

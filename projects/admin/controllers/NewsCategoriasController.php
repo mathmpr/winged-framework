@@ -99,6 +99,7 @@ class NewsCategoriasController extends Controller
         $this->setNicknamesToUri(['id']);
         if (uri('id') !== false && is_get()) {
             $model->autoLoadDb(uri('id'));
+            Slugs::getSlug($model->primaryKey(), NewsCategorias::tableName())->remove();
             $model->remove();
         }
         if (($to = Cookie::get('from_url'))) {

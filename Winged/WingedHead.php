@@ -187,13 +187,13 @@ class WingedHead
                 if (!is_null(WingedConfig::$config->INCLUDES)) {
                     if (gettype(WingedConfig::$config->INCLUDES) == "array") {
                         for ($x = 0; $x < count7(WingedConfig::$config->INCLUDES); $x++) {
-                            if (file_exists(WingedConfig::$config->INCLUDES[$x] . "models/" . $className . ".php")) {
-                                include_once WingedConfig::$config->INCLUDES[$x] . "models/" . $className . ".php";
+                            if (file_exists(WingedConfig::$config->INCLUDES[$x] . $className . ".php")) {
+                                include_once WingedConfig::$config->INCLUDES[$x] . $className . ".php";
                             }
                         }
                     } else {
-                        if (file_exists(WingedConfig::$config->INCLUDES . "models/" . $className . ".php")) {
-                            include_once WingedConfig::$config->INCLUDES . "models/" . $className . ".php";
+                        if (file_exists(WingedConfig::$config->INCLUDES . $className . ".php")) {
+                            include_once WingedConfig::$config->INCLUDES . $className . ".php";
                         }
                     }
                 }
